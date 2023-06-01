@@ -1,0 +1,9 @@
+@host=https://localhost:7188/api
+
+POST {{host}}/brands
+Content-Type: application/json
+
+{
+    "name": "Samsung",
+    "description": "Brand No 2"
+}

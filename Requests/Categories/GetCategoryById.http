@@ -1,0 +1,7 @@
+@host=https://localhost:7188/api
+
+GET {{host}}/categories/90F36BB8-6BBC-47A2-B24D-7A77A889A49F
+Content-Type: application/json
+
+{
+}
