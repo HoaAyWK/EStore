@@ -1,4 +1,5 @@
 using EStore.Application.Brands.Commands.CreateBrand;
+using EStore.Application.Brands.Commands.UpdateBrand;
 using EStore.Contracts.Brands;
 using EStore.Domain.Catalog.BrandAggregate;
 using Mapster;
@@ -10,6 +11,8 @@ public class BrandMappingConfig : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<CreateBrandRequest, CreateBrandCommand>();
+
+        config.NewConfig<UpdateBrandRequest, UpdateBrandCommand>();
         
         config.NewConfig<Brand, BrandResponse>()
             .Map(

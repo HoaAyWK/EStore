@@ -6,7 +6,7 @@ public class AddProductImageCommandValidator : AbstractValidator<AddProductImage
 {
     public AddProductImageCommandValidator()
     {
-        RuleFor(x => x.ProductId).NotNull();
+        RuleFor(x => x.ProductId).NotEmpty();
 
         RuleFor(x => x.ImageUrl).NotEmpty();
 

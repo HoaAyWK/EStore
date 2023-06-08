@@ -34,4 +34,9 @@ public sealed class Brand : AggregateRoot<BrandId>
             DateTime.UtcNow,
             DateTime.UtcNow);
     }
+
+    public void UpdateName(string name)
+    {
+        Name = name;
+    }
 }

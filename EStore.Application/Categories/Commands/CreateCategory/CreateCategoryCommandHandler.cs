@@ -3,6 +3,7 @@ using EStore.Application.Common.Interfaces.Persistence;
 using MediatR;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Catalog.CategoryAggregate;
+using EStore.Domain.Catalog.CategoryAggregate.Repositories;
 
 namespace EStore.Application.Categories.Commands.CreateCategory;
 
@@ -23,17 +24,20 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
         CreateCategoryCommand request,
         CancellationToken cancellationToken)
     {
+        var category = Category.Create(request.Name, request.ParentId);
+
         if (request.ParentId is not null)
         {
             var parentCategory = await _categoryRepository.GetByIdAsync(request.ParentId);
 
             if (parentCategory is null)
             {
-                return Errors.Category.NotFound;
+                return Errors.Category.ParentCategoryNotFound;
             }
-        }
 
-        var category = Category.Create(request.Name, request.ParentId);
+            parentCategory.AddChildCategory(category);
+        }
+        
         await _categoryRepository.AddAsync(category);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

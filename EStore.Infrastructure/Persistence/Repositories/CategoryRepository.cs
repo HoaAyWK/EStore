@@ -1,4 +1,5 @@
 using EStore.Domain.Catalog.CategoryAggregate;
+using EStore.Domain.Catalog.CategoryAggregate.Repositories;
 using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
 
 namespace EStore.Infrastructure.Persistence.Repositories;
@@ -20,5 +21,10 @@ internal sealed class CategoryRepository : ICategoryRepository
     public async Task<Category?> GetByIdAsync(CategoryId id)
     {
         return await _dbContext.Categories.FindAsync(id);
+    }
+
+    public void Delete(Category category)
+    {
+        _dbContext.Categories.Remove(category);
     }
 }

@@ -1,4 +1,5 @@
 using EStore.Domain.Catalog.BrandAggregate;
+using EStore.Domain.Catalog.BrandAggregate.Repositories;
 using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
 
 namespace EStore.Infrastructure.Persistence.Repositories;
@@ -20,5 +21,10 @@ internal class BrandRepository :  IBrandRepository
     public async Task<Brand?> GetByIdAsync(BrandId id)
     {
         return await _dbContext.Brands.FindAsync(id);
+    }
+
+    public void Delete(Brand brand)
+    {
+        _dbContext.Remove(brand);
     }
 }

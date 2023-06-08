@@ -4,14 +4,8 @@ POST {{host}}/products
 Content-Type: application/json
 
 {
-    "name": "Testing 2",
-    "description": "demo",
-    "brandId": "FFE97F58-9DE5-4D89-A873-E9F71443FB59",
-    "categoryId": "a9103709-d7ef-4d76-9af8-1904e2d33882",
-    "images": [
-        {
-            "imageUrl": "test",
-            "displayOrder": "1"
-        }
-    ]
+    "name": "Samsung Galaxy Fold 4",
+    "description": "A Samsung's smartphone",
+    "brandId": "64040072-B9E7-495A-938B-7ED60BB3D378",
+    "categoryId": "09523ab4-d845-4f36-823e-51edf6911f53"
 }

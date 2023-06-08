@@ -1,10 +1,13 @@
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Catalog.BrandAggregate;
+using EStore.Domain.Catalog.BrandAggregate.Repositories;
 using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
 using EStore.Domain.Catalog.CategoryAggregate;
+using EStore.Domain.Catalog.CategoryAggregate.Repositories;
 using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
 using EStore.Domain.Catalog.ProductAggregate;
+using EStore.Domain.Catalog.ProductAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
 
@@ -14,20 +17,20 @@ public class CreateProductCommandHandler
     : IRequestHandler<CreateProductCommand, ErrorOr<Product>>
 {
     private readonly IProductRepository _productRepository;
-    private readonly IBrandRepository _brandRepository;
-    private readonly ICategoryRepository _categoryRepository;
+    private readonly IBrandReadRepository _brandReadRepository;
+    private readonly ICategoryReadRepository _categoryReadRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateProductCommandHandler(
         IProductRepository productRepository,
-        IUnitOfWork unitOfWork,
-        IBrandRepository brandRepository,
-        ICategoryRepository categoryRepository)
+        IBrandReadRepository brandReadRepository,
+        ICategoryReadRepository categoryReadRepository,
+        IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
+        _brandReadRepository = brandReadRepository;
+        _categoryReadRepository = categoryReadRepository;
         _unitOfWork = unitOfWork;
-        _brandRepository = brandRepository;
-        _categoryRepository = categoryRepository;
     }
 
     public async Task<ErrorOr<Product>> Handle(
@@ -35,7 +38,7 @@ public class CreateProductCommandHandler
         CancellationToken cancellationToken)
     {
         BrandId brandId = BrandId.Create(new Guid(request.BrandId));
-        var brand = await _brandRepository.GetByIdAsync(brandId);
+        var brand = await _brandReadRepository.GetByIdAsync(brandId);
 
         if (brand is null)
         {
@@ -43,7 +46,7 @@ public class CreateProductCommandHandler
         }
 
         CategoryId categoryId = CategoryId.Create(new Guid(request.CategoryId));
-        var category = await _categoryRepository.GetByIdAsync(categoryId);
+        var category = await _categoryReadRepository.GetByIdAsync(categoryId);
 
         if (category is null)
         {

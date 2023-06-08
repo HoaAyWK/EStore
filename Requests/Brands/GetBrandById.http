@@ -1,0 +1,4 @@
+@host=https://localhost:7188/api
+
+GET {{host}}/brands
+Content-Type: application/json

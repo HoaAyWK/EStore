@@ -4,6 +4,5 @@ POST {{host}}/brands
 Content-Type: application/json
 
 {
-    "name": "Samsung",
-    "description": "Brand No 2"
+    "name": "Samsung"
 }

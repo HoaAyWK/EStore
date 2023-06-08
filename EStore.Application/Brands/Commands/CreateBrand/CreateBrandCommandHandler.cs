@@ -1,6 +1,7 @@
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Catalog.BrandAggregate;
+using EStore.Domain.Catalog.BrandAggregate.Repositories;
 using MediatR;
 
 namespace EStore.Application.Brands.Commands.CreateBrand;

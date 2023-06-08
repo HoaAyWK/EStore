@@ -1,10 +1,9 @@
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.ProductAggregate;
-using EStore.Domain.Catalog.ProductAttributeAggregate;
+using EStore.Domain.Catalog.BrandAggregate.Repositories;
+using EStore.Domain.Catalog.CategoryAggregate.Repositories;
+using EStore.Domain.Catalog.ProductAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Persistence;
 using EStore.Infrastructure.Persistence.Repositories;
@@ -30,9 +29,9 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<IProductAttributeRepository, ProductAttributeRepository>();
         services.AddScoped<IProductReadRepository, ProductReadRepository>();
-        services.AddScoped<IProductAttributeReadRepository, ProductAttributeReadRepository>();
+        services.AddScoped<IBrandReadRepository, BrandReadRepository>();
+        services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
 
         services.AddDbContext<EStoreDbContext>(options =>
             options.UseSqlServer(

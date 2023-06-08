@@ -1,11 +1,12 @@
 using ErrorOr;
 using EStore.Domain.Catalog.ProductAggregate;
+using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Products.Commands.UpdateProduct;
 
 public record UpdateProductCommand(
-    string ProductId,
+    ProductId Id,
     string Name,
     string Description,
     decimal Price,

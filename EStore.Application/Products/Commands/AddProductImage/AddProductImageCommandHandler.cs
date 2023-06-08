@@ -3,30 +3,32 @@ using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Catalog.ProductAggregate;
 using MediatR;
 using EStore.Domain.Common.Errors;
-using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
+using EStore.Domain.Catalog.ProductAggregate.Repositories;
 
 namespace EStore.Application.Products.Commands.AddProductImage;
 
 public class AddProductImageCommandHandler
-    : IRequestHandler<AddProductImageCommand, ErrorOr<Product>>
+    : IRequestHandler<AddProductImageCommand, ErrorOr<Updated>>
 {
+    private readonly IProductReadRepository _productReadRepository;
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public AddProductImageCommandHandler(
+        IProductReadRepository productReadRepository,
         IProductRepository productRepository,
         IUnitOfWork unitOfWork)
     {
+        _productReadRepository = productReadRepository;
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ErrorOr<Product>> Handle(
+    public async Task<ErrorOr<Updated>> Handle(
         AddProductImageCommand request,
         CancellationToken cancellationToken)
     {
-        ProductId productId = ProductId.Create(new Guid(request.ProductId));
-        var product = await _productRepository.GetByIdAsync(productId);
+        var product = await _productRepository.GetByIdAsync(request.ProductId);
 
         if (product is null)
         {
@@ -52,10 +54,13 @@ public class AddProductImageCommandHandler
         }
 
         product.AddProductImage(
-            ProductImage.Create(request.ImageUrl, isMainImage, request.DisplayOrder));
+            ProductImage.Create(
+                request.ImageUrl,
+                isMainImage,
+                request.DisplayOrder));
         
         await _unitOfWork.SaveChangesAsync();
 
-        return product;
+        return Result.Updated;
     }
 }

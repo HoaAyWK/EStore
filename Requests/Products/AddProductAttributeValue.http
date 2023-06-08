@@ -1,0 +1,11 @@
+@host=https://localhost:7188/api
+
+PUT {{host}}/products/attribute-values
+Content-Type: application/json
+
+{
+    "name": "16GB",
+    "priceAdjustment": 240,
+    "productId": "2880fcdb-f940-4d71-b711-a0bdf97f11d1",
+    "productVariantAttributeId": "f41f063f-12fb-49cc-825e-becdb1a92f4b"
+}

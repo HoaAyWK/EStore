@@ -1,7 +1,6 @@
 namespace EStore.Contracts.Products;
 
 public record UpdateProductRequest(
-    string ProductId,
     string Name,
     string Description,
     decimal Price,

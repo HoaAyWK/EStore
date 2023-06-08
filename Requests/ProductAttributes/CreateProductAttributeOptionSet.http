@@ -1,0 +1,9 @@
+@host=https://localhost:7188/api
+
+POST {{host}}/product-attributes/option-sets
+Content-Type: application/json
+
+{
+    "productAttributeId": "",
+    "name": "Color set 1"
+}

@@ -27,6 +27,7 @@ public abstract class ValueObject : IEquatable<ValueObject>
         return !Equals(left, right);
     }
 
+
     public override int GetHashCode()
     {
         return GetEqualityComponents()

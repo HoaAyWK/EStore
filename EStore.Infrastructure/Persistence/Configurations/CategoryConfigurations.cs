@@ -21,8 +21,17 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
             .HasForeignKey(c => c.ParentId)
             .OnDelete(DeleteBehavior.NoAction);
         
+        CategoryId? defaultCategoryId = null;
+
+        builder.Property(c => c.ParentId)
+            .HasColumnName("ParentCategoryId")
+            .ValueGeneratedNever()
+            .HasConversion(
+                parentId => parentId != defaultCategoryId ? parentId!.Value : Guid.Empty,
+                value =>  value != Guid.Empty ? CategoryId.Create(value) : null);
+
         builder.Property(c => c.Name)
-            .HasMaxLength(200);
+            .HasMaxLength(100);
 
         builder.Property(c => c.Id)
             .HasColumnName("CategoryId")

@@ -1,13 +1,14 @@
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Catalog.ProductAggregate;
-using MediatR;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
 using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.CategoryAggregate;
 using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
+using EStore.Domain.Catalog.ProductAggregate.Repositories;
+using EStore.Domain.Catalog.BrandAggregate.Repositories;
+using EStore.Domain.Catalog.CategoryAggregate.Repositories;
+using MediatR;
 
 namespace EStore.Application.Products.Commands.UpdateProduct;
 
@@ -15,28 +16,27 @@ public class UpdateProductCommandHandler
     : IRequestHandler<UpdateProductCommand, ErrorOr<Product>>
 {
     private readonly IProductRepository _productRepository;
-    private readonly IBrandRepository _brandRepository;
-    private readonly ICategoryRepository _categoryRepository;
+    private readonly IBrandReadRepository _brandReadRepository;
+    private readonly ICategoryReadRepository _categoryReadRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateProductCommandHandler(
         IProductRepository productRepository,
-        IUnitOfWork unitOfWork,
-        IBrandRepository brandRepository,
-        ICategoryRepository categoryRepository)
+        IBrandReadRepository brandReadRepository,
+        ICategoryReadRepository categoryReadRepository,
+        IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
+        _brandReadRepository = brandReadRepository;
+        _categoryReadRepository = categoryReadRepository;
         _unitOfWork = unitOfWork;
-        _brandRepository = brandRepository;
-        _categoryRepository = categoryRepository;
     }
 
     public async Task<ErrorOr<Product>> Handle(
         UpdateProductCommand request,
         CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(
-            ProductId.Create(new Guid(request.ProductId)));
+        var product = await _productRepository.GetByIdAsync(request.Id);
 
         if (product is null)
         {
@@ -47,7 +47,7 @@ public class UpdateProductCommandHandler
 
         if (product.BrandId != brandId)
         {
-            var brand = _brandRepository.GetByIdAsync(brandId);
+            var brand = _brandReadRepository.GetByIdAsync(brandId);
 
             if (brand is null)
             {
@@ -61,7 +61,7 @@ public class UpdateProductCommandHandler
 
         if (product.CategoryId != categoryId)
         {
-            var category = _categoryRepository.GetByIdAsync(categoryId);
+            var category = _categoryReadRepository.GetByIdAsync(categoryId);
 
             if (category is null)
             {

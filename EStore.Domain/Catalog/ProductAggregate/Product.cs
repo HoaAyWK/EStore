@@ -10,8 +10,8 @@ namespace EStore.Domain.Catalog.ProductAggregate;
 public sealed class Product : AggregateRoot<ProductId>
 {
     private readonly List<ProductImage> _images = new();
-    private readonly List<ProductVariantAttribute> _productVariantAttributes = new();
-    private readonly List<ProductVariantAttributeCombination> _productVariantAttributeCombinations = new();
+    private readonly List<ProductAttribute> _productAttributes = new();
+    private readonly List<ProductVariant> _productVariants = new();
 
     public string Name { get; private set; } = null!;
 
@@ -43,11 +43,11 @@ public sealed class Product : AggregateRoot<ProductId>
 
     public IReadOnlyList<ProductImage> Images => _images.AsReadOnly();
 
-    public IReadOnlyList<ProductVariantAttribute> ProductVariantAttributes
-        => _productVariantAttributes.AsReadOnly();
+    public IReadOnlyList<ProductAttribute> ProductAttributes
+        => _productAttributes.AsReadOnly();
 
-    public IReadOnlyList<ProductVariantAttributeCombination> ProductVariantAttributeCombinations
-        => _productVariantAttributeCombinations.AsReadOnly();
+    public IReadOnlyList<ProductVariant> ProductVariants
+        => _productVariants.AsReadOnly();
 
     private Product()
     {
@@ -132,5 +132,15 @@ public sealed class Product : AggregateRoot<ProductId>
         SpecialPrice = specialPrice;
         SpecialPriceStartDateTime = startDate;
         SpecialPriceEndDateTime = endDate;
+    }
+
+    public void AddProductAttribute(ProductAttribute productAttribute)
+    {
+        _productAttributes.Add(productAttribute);
+    }
+
+    public void AddProductVariant(ProductVariant productVrProductVariant)
+    {
+        _productVariants.Add(productVrProductVariant);
     }
 }

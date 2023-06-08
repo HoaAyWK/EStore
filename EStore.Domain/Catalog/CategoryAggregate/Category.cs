@@ -45,4 +45,20 @@ public sealed class Category : AggregateRoot<CategoryId>
             DateTime.UtcNow,
             DateTime.UtcNow);
     }
+
+    public void UpdateName(string name)
+    {
+        Name = name;
+    }
+
+    public void UpdateParentCategory(CategoryId parentId)
+    {
+        ParentId = parentId;
+    }
+
+    public void AddChildCategory(Category category)
+    {
+        _children.Add(category);
+    }
+
 }

@@ -8,6 +8,7 @@ public record CreateProductCommand(
     string Name,
     string Description,
     bool Published,
+    decimal Price,
     string BrandId,
     string CategoryId)
     : IRequest<ErrorOr<Product>>;

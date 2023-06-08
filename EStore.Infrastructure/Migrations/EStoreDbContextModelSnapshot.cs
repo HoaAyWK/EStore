@@ -55,11 +55,12 @@ namespace EStore.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid?>("ParentId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ParentCategoryId");
 
                     b.Property<DateTime>("UpdatedDateTime")
                         .HasColumnType("datetime2");
@@ -122,29 +123,6 @@ namespace EStore.Infrastructure.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("EStore.Domain.Catalog.ProductAttributeAggregate.ProductAttribute", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("ProductAttributeId");
-
-                    b.Property<string>("Alias")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductAttributes", (string)null);
-                });
-
             modelBuilder.Entity("EStore.Domain.Catalog.CategoryAggregate.Category", b =>
                 {
                     b.HasOne("EStore.Domain.Catalog.CategoryAggregate.Category", "Parent")
@@ -168,6 +146,76 @@ namespace EStore.Infrastructure.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsMany("EStore.Domain.Catalog.ProductAggregate.ProductAttribute", "ProductAttributes", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("ProductAttributeId");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Alias")
+                                .HasMaxLength(30)
+                                .HasColumnType("nvarchar(30)");
+
+                            b1.Property<bool>("CanCombine")
+                                .HasColumnType("bit");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+
+                            b1.HasKey("Id", "ProductId");
+
+                            b1.HasIndex("ProductId");
+
+                            b1.ToTable("ProductAttributes", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+
+                            b1.OwnsMany("EStore.Domain.Catalog.ProductAggregate.ProductAttributeValue", "ProductAttributeValues", b2 =>
+                                {
+                                    b2.Property<Guid>("Id")
+                                        .HasColumnType("uniqueidentifier")
+                                        .HasColumnName("ProductAttributeValueId");
+
+                                    b2.Property<Guid>("ProductAttributeId")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<Guid>("ProductId")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<string>("Alias")
+                                        .HasMaxLength(30)
+                                        .HasColumnType("nvarchar(30)");
+
+                                    b2.Property<string>("Name")
+                                        .IsRequired()
+                                        .HasMaxLength(100)
+                                        .HasColumnType("nvarchar(100)");
+
+                                    b2.Property<decimal>("PriceAdjustment")
+                                        .HasColumnType("decimal(18,2)");
+
+                                    b2.Property<string>("RawCombinedAttributes")
+                                        .HasColumnType("nvarchar(max)");
+
+                                    b2.HasKey("Id", "ProductAttributeId", "ProductId");
+
+                                    b2.HasIndex("ProductAttributeId", "ProductId");
+
+                                    b2.ToTable("ProductAttributeValues", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ProductAttributeId", "ProductId");
+                                });
+
+                            b1.Navigation("ProductAttributeValues");
+                        });
 
                     b.OwnsMany("EStore.Domain.Catalog.ProductAggregate.ProductImage", "Images", b1 =>
                         {
@@ -198,69 +246,11 @@ namespace EStore.Infrastructure.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
-                    b.OwnsMany("EStore.Domain.Catalog.ProductAggregate.ProductVariantAttribute", "ProductVariantAttributes", b1 =>
+                    b.OwnsMany("EStore.Domain.Catalog.ProductAggregate.ProductVariant", "ProductVariants", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
-                                .HasColumnName("ProductVariantAttributeId");
-
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<Guid>("ProductAttributeId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.HasKey("Id", "ProductId");
-
-                            b1.HasIndex("ProductId");
-
-                            b1.ToTable("ProductVariantAttributes", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId");
-
-                            b1.OwnsMany("EStore.Domain.Catalog.ProductAggregate.ProductVariantAttributeValue", "ProductVariantAttributeValues", b2 =>
-                                {
-                                    b2.Property<Guid>("Id")
-                                        .HasColumnType("uniqueidentifier")
-                                        .HasColumnName("ProductVariantAttributeValueId");
-
-                                    b2.Property<Guid>("ProductVariantAttributeId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<Guid>("ProductId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<string>("Alias")
-                                        .HasMaxLength(30)
-                                        .HasColumnType("nvarchar(30)");
-
-                                    b2.Property<string>("Name")
-                                        .IsRequired()
-                                        .HasMaxLength(100)
-                                        .HasColumnType("nvarchar(100)");
-
-                                    b2.Property<decimal>("PriceAdjustment")
-                                        .HasColumnType("decimal(18,2)");
-
-                                    b2.HasKey("Id", "ProductVariantAttributeId", "ProductId");
-
-                                    b2.HasIndex("ProductVariantAttributeId", "ProductId");
-
-                                    b2.ToTable("ProductVariantAttributeValues", (string)null);
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("ProductVariantAttributeId", "ProductId");
-                                });
-
-                            b1.Navigation("ProductVariantAttributeValues");
-                        });
-
-                    b.OwnsMany("EStore.Domain.Catalog.ProductAggregate.ProductVariantAttributeCombination", "ProductVariantAttributeCombinations", b1 =>
-                        {
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
-                                .HasColumnName("ProductVariantAttributeCombinationId");
+                                .HasColumnName("ProductVariantId");
 
                             b1.Property<Guid>("ProductId")
                                 .HasColumnType("uniqueidentifier");
@@ -275,6 +265,9 @@ namespace EStore.Infrastructure.Migrations
                             b1.Property<decimal?>("Price")
                                 .HasColumnType("decimal(18,2)");
 
+                            b1.Property<string>("RawAttributes")
+                                .HasColumnType("nvarchar(max)");
+
                             b1.Property<int>("StockQuantity")
                                 .HasColumnType("int");
 
@@ -282,40 +275,10 @@ namespace EStore.Infrastructure.Migrations
 
                             b1.HasIndex("ProductId");
 
-                            b1.ToTable("ProductVariantAttributeCombinations", (string)null);
+                            b1.ToTable("ProductVariants", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");
-
-                            b1.OwnsMany("EStore.Domain.Catalog.ProductAggregate.ProductVariantAttributeSelection", "ProductVariantAttributeSelections", b2 =>
-                                {
-                                    b2.Property<Guid>("Id")
-                                        .HasColumnType("uniqueidentifier")
-                                        .HasColumnName("ProductVariantAttributeSelectionId");
-
-                                    b2.Property<Guid>("ProductVariantAttributeCombinationId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<Guid>("ProductId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<Guid>("ProductVariantAttributeId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<Guid>("ProductVariantAttributeValueId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.HasKey("Id", "ProductVariantAttributeCombinationId", "ProductId");
-
-                                    b2.HasIndex("ProductVariantAttributeCombinationId", "ProductId");
-
-                                    b2.ToTable("ProductVariantAttributeSelections", (string)null);
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("ProductVariantAttributeCombinationId", "ProductId");
-                                });
-
-                            b1.Navigation("ProductVariantAttributeSelections");
                         });
 
                     b.OwnsOne("EStore.Domain.Catalog.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b1 =>
@@ -346,74 +309,9 @@ namespace EStore.Infrastructure.Migrations
 
                     b.Navigation("Images");
 
-                    b.Navigation("ProductVariantAttributeCombinations");
+                    b.Navigation("ProductAttributes");
 
-                    b.Navigation("ProductVariantAttributes");
-                });
-
-            modelBuilder.Entity("EStore.Domain.Catalog.ProductAttributeAggregate.ProductAttribute", b =>
-                {
-                    b.OwnsMany("EStore.Domain.Catalog.ProductAttributeAggregate.ProductAttributeOptionSet", "ProductAttributeOptionSets", b1 =>
-                        {
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
-                                .HasColumnName("ProductAttributeOptionSetId");
-
-                            b1.Property<Guid>("ProductAttributeId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("Name")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)");
-
-                            b1.HasKey("Id", "ProductAttributeId");
-
-                            b1.HasIndex("ProductAttributeId");
-
-                            b1.ToTable("ProductAttributeOptionSets", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductAttributeId");
-
-                            b1.OwnsMany("EStore.Domain.Catalog.ProductAttributeAggregate.ProductAttributeOption", "ProductAttributeOptions", b2 =>
-                                {
-                                    b2.Property<Guid>("Id")
-                                        .HasColumnType("uniqueidentifier")
-                                        .HasColumnName("ProductAttributeOptionId");
-
-                                    b2.Property<Guid>("ProductAttributeOptionSetId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<Guid>("ProductAttributeId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<string>("Alias")
-                                        .HasMaxLength(30)
-                                        .HasColumnType("nvarchar(30)");
-
-                                    b2.Property<string>("Name")
-                                        .IsRequired()
-                                        .HasMaxLength(100)
-                                        .HasColumnType("nvarchar(100)");
-
-                                    b2.Property<decimal>("PriceAdjustment")
-                                        .HasColumnType("decimal(18,2)");
-
-                                    b2.HasKey("Id", "ProductAttributeOptionSetId", "ProductAttributeId");
-
-                                    b2.HasIndex("ProductAttributeOptionSetId", "ProductAttributeId");
-
-                                    b2.ToTable("ProductAttributeOptions", (string)null);
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("ProductAttributeOptionSetId", "ProductAttributeId");
-                                });
-
-                            b1.Navigation("ProductAttributeOptions");
-                        });
-
-                    b.Navigation("ProductAttributeOptionSets");
+                    b.Navigation("ProductVariants");
                 });
 
             modelBuilder.Entity("EStore.Domain.Catalog.CategoryAggregate.Category", b =>

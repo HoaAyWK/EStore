@@ -1,7 +1,6 @@
 using EStore.Domain.Catalog.BrandAggregate;
 using EStore.Domain.Catalog.CategoryAggregate;
 using EStore.Domain.Catalog.ProductAggregate;
-using EStore.Domain.Catalog.ProductAttributeAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace EStore.Infrastructure.Persistence;
@@ -18,6 +17,10 @@ public class EStoreDbContext : DbContext
         
         modelBuilder
             .ApplyConfigurationsFromAssembly(typeof(EStoreDbContext).Assembly);
+
+        modelBuilder.Entity<Product>()
+            .Ignore("ProductVariantAttributeCombinations.AttributeSelection")
+            .Ignore("ProductAttributes.ProductAttributeValues.ConnectedAttributes");
     }
 
     public DbSet<Category> Categories { get; set; } = null!;    
@@ -25,7 +28,5 @@ public class EStoreDbContext : DbContext
     public DbSet<Brand> Brands { get; set; } = null!;
 
     public DbSet<Product> Products { get; set; } = null!;
-
-    public DbSet<ProductAttribute> ProductAttributes { get; set; } = null!;
 
 }

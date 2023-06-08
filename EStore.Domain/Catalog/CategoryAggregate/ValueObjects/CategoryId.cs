@@ -25,4 +25,41 @@ public sealed class CategoryId : ValueObject
     {
         return new(value);
     }
+
+    public static CategoryId? Create(Guid? value)
+    {
+        return value.HasValue ? new(value.Value) : null;
+    }
+
+
+    public static bool operator==(CategoryId? a, CategoryId? b)
+    {
+        if (a is null && b is null)
+        {
+            return true;
+        }
+
+        if (a is null || b is null)
+        {
+            return false;
+        }
+
+        return a.Equals(b);
+    }
+
+    public static bool operator!=(CategoryId? a, CategoryId? b)
+    {
+        
+        return !(a == b);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
 }

@@ -1,6 +1,5 @@
 using EStore.Domain.Catalog.ProductAggregate;
 using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
-using EStore.Domain.Catalog.ProductAttributeAggregate.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,8 +11,8 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
     {
         ConfigureProductTable(builder);
         ConfigureProductImageTable(builder);
-        ConfigureProductVariantAttributeIdsTable(builder);
-        ConfigureProductVariantAttributeCombinationTable(builder);
+        ConfigureProductAttributeTable(builder);
+        ConfigureProductVariantTable(builder);
     }
 
     private void ConfigureProductTable(EntityTypeBuilder<Product> builder)
@@ -54,7 +53,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             ib.ToTable("ProductImages");
 
             ib.WithOwner().HasForeignKey("ProductId");
-            
+
             ib.HasKey("Id", "ProductId");
 
             ib.Property(i => i.Id)
@@ -70,119 +69,88 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
     }
 
 
-    private void ConfigureProductVariantAttributeIdsTable(EntityTypeBuilder<Product> builder)
+    private void ConfigureProductAttributeTable(EntityTypeBuilder<Product> builder)
     {
-        builder.OwnsMany(p => p.ProductVariantAttributes, pvab =>
+        builder.OwnsMany(p => p.ProductAttributes, pab =>
         {
-            pvab.ToTable("ProductVariantAttributes");
+            pab.ToTable("ProductAttributes");
 
-            pvab.WithOwner().HasForeignKey("ProductId");
+            pab.WithOwner().HasForeignKey("ProductId");
 
-            pvab.HasKey(nameof(ProductVariantAttribute.Id), "ProductId");
+            pab.HasKey(nameof(ProductAttribute.Id), "ProductId");
 
-            pvab.Property(pva => pva.Id)
-                .HasColumnName("ProductVariantAttributeId")
-                .ValueGeneratedNever()
-                .HasConversion(
-                    id => id.Value,
-                    value => ProductVariantAttributeId.Create(value));
-            
-            pvab.Property(pva => pva.ProductAttributeId)
+            pab.Property(pva => pva.Id)
+                .HasColumnName("ProductAttributeId")
                 .ValueGeneratedNever()
                 .HasConversion(
                     id => id.Value,
                     value => ProductAttributeId.Create(value));
 
-            pvab.OwnsMany(pva => pva.ProductVariantAttributeValues, pvavb =>
+            pab.Property(pa => pa.Name)
+                .HasMaxLength(100);
+
+            pab.Property(pa => pa.Alias)
+                .HasMaxLength(30);
+
+            pab.OwnsMany(pva => pva.ProductAttributeValues, pavb =>
             {
-                pvavb.ToTable("ProductVariantAttributeValues");
+                pavb.ToTable("ProductAttributeValues");
 
-                pvavb.WithOwner().HasForeignKey("ProductVariantAttributeId", "ProductId");
+                pavb.WithOwner().HasForeignKey("ProductAttributeId", "ProductId");
 
-                pvavb.HasKey(nameof(ProductVariantAttributeValue.Id), "ProductVariantAttributeId", "ProductId");
+                pavb.HasKey(nameof(ProductAttributeValue.Id), "ProductAttributeId", "ProductId");
 
-                pvavb.Property(pvav => pvav.Id)
-                    .HasColumnName("ProductVariantAttributeValueId")
+                pavb.Property(av => av.Id)
+                    .HasColumnName("ProductAttributeValueId")
                     .ValueGeneratedNever()
                     .HasConversion(
                         id => id.Value,
-                        value => ProductVariantAttributeValueId.Create(value));
+                        value => ProductAttributeValueId.Create(value));
 
-                pvavb.Property(pvav => pvav.Name)
+                pavb.Property(av => av.Name)
                     .HasMaxLength(100);
 
-                pvavb.Property(pvav => pvav.Alias)
+                pavb.Property(av => av.Alias)
                     .HasMaxLength(30);
 
-                pvavb.Property(pvav => pvav.PriceAdjustment)
+                pavb.Property(av => av.PriceAdjustment)
                     .HasColumnType("decimal(18, 2)");
             });
 
-            pvab.Navigation(pva => pva.ProductVariantAttributeValues)
-                .Metadata.SetField("_productVariantAttributeValues");
+            pab.Navigation(pva => pva.ProductAttributeValues)
+                .Metadata.SetField("_productAttributeValues");
 
-            pvab.Navigation(pva => pva.ProductVariantAttributeValues)
+            pab.Navigation(pva => pva.ProductAttributeValues)
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
-        builder.Metadata.FindNavigation(nameof(Product.ProductVariantAttributes))!
+        builder.Metadata.FindNavigation(nameof(Product.ProductAttributes))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 
-    private void ConfigureProductVariantAttributeCombinationTable(EntityTypeBuilder<Product> builder)
+    private void ConfigureProductVariantTable(EntityTypeBuilder<Product> builder)
     {
-        builder.OwnsMany(p => p.ProductVariantAttributeCombinations, pvacb =>
+        builder.OwnsMany(p => p.ProductVariants, pvb =>
         {
-            pvacb.ToTable("ProductVariantAttributeCombinations");
+            pvb.ToTable("ProductVariants");
 
-            pvacb.WithOwner().HasForeignKey("ProductId");
+            pvb.WithOwner().HasForeignKey("ProductId");
 
-            pvacb.HasKey(nameof(ProductVariantAttributeCombination.Id), "ProductId");
+            pvb.HasKey(nameof(ProductVariant.Id), "ProductId");
 
-            pvacb.Property(pvac => pvac.Id)
-                .HasColumnName("ProductVariantAttributeCombinationId")
+            pvb.Property(v => v.Id)
+                .HasColumnName("ProductVariantId")
                 .ValueGeneratedNever()
                 .HasConversion(
                     id => id.Value,
-                    value => ProductVariantAttributeCombinationId.Create(value));
-            
-            pvacb.Property(pvac => pvac.Price)
+                    value => ProductVariantId.Create(value));
+
+            pvb.Property(v => v.Price)
                 .HasColumnType("decimal(18, 2)");
 
-            pvacb.OwnsMany(pvac => pvac.ProductVariantAttributeSelections, pvasb =>
-            {
-                pvasb.ToTable("ProductVariantAttributeSelections");
-
-                pvasb.WithOwner().HasForeignKey("ProductVariantAttributeCombinationId", "ProductId");
-
-                pvasb.HasKey(nameof(ProductVariantAttributeSelection.Id), "ProductVariantAttributeCombinationId", "ProductId");
-
-                pvasb.Property(pvas => pvas.Id)
-                    .HasColumnName("ProductVariantAttributeSelectionId")
-                    .ValueGeneratedNever()
-                    .HasConversion(
-                        id => id.Value,
-                        value => ProductVariantAttributeSelectionId.Create(value));
-
-                pvasb.Property(pvas => pvas.ProductVariantAttributeId)
-                    .ValueGeneratedNever()
-                    .HasConversion(
-                        id => id.Value,
-                        value => ProductVariantAttributeId.Create(value));
-
-                pvasb.Property(pvas => pvas.ProductVariantAttributeValueId)
-                    .ValueGeneratedNever()
-                    .HasConversion(
-                        id => id.Value,
-                        value => ProductVariantAttributeValueId.Create(value));
-            });
-
-
-            pvacb.Navigation(pvac => pvac.ProductVariantAttributeSelections)
-                .Metadata.SetField("_productVariantAttributeSelections");
-
-            pvacb.Navigation(pvac => pvac.ProductVariantAttributeSelections)
-                .UsePropertyAccessMode(PropertyAccessMode.Field);
         });
+
+        builder.Metadata.FindNavigation(nameof(Product.ProductVariants))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }

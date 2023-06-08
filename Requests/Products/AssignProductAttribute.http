@@ -1,0 +1,9 @@
+@host=https://localhost:7188/api
+
+PUT {{host}}/products/attributes
+Content-Type: application/json
+
+{
+    "productId": "2880fcdb-f940-4d71-b711-a0bdf97f11d1",
+    "productAttributeId": "c1fbb7fd-c102-4245-be34-d39df0e47561"
+}

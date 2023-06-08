@@ -1,0 +1,8 @@
+@host=https://localhost:7188/api
+
+POST {{host}}/product-attributes
+Content-Type: application/json
+
+{
+    "name": "RAM"
+}
