@@ -2,8 +2,8 @@ using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
 using MediatR;
 using EStore.Domain.Common.Errors;
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.CategoryAggregate.Repositories;
+using EStore.Domain.CategoryAggregate;
+using EStore.Domain.CategoryAggregate.Repositories;
 
 namespace EStore.Application.Categories.Commands.CreateCategory;
 

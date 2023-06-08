@@ -1,5 +1,5 @@
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.CategoryAggregate.Repositories;
+using EStore.Domain.CategoryAggregate;
+using EStore.Domain.CategoryAggregate.Repositories;
 using MediatR;
 
 namespace EStore.Application.Categories.Queries.GetCategoryListPaged;

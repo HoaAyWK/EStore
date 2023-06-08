@@ -1,4 +1,4 @@
-using EStore.Domain.Catalog.BrandAggregate;
+using EStore.Domain.BrandAggregate;
 using MediatR;
 
 namespace EStore.Application.Brands.Queries.GetBrandListPaged;

@@ -1,9 +1,9 @@
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
-using EStore.Domain.Catalog.ProductAggregate;
+using EStore.Domain.ProductAggregate;
 using MediatR;
 using EStore.Domain.Common.Errors;
-using EStore.Domain.Catalog.ProductAggregate.Repositories;
+using EStore.Domain.ProductAggregate.Repositories;
 
 namespace EStore.Application.Products.Commands.AddProductImage;
 

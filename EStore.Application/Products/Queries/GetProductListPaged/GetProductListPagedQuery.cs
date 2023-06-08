@@ -1,5 +1,5 @@
 using ErrorOr;
-using EStore.Domain.Catalog.ProductAggregate;
+using EStore.Domain.ProductAggregate;
 using MediatR;
 
 namespace EStore.Application.Products.Queries.GetProductListPaged;

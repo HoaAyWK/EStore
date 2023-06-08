@@ -5,12 +5,11 @@ using EStore.Application.Products.Commands.AddVariant;
 using EStore.Application.Products.Commands.CreateProduct;
 using EStore.Application.Products.Commands.DeleteAttributeValue;
 using EStore.Application.Products.Commands.UpdateProduct;
-using EStore.Application.Products.Commands.UpdateProductAttribute;
 using EStore.Contracts.Products;
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.ProductAggregate;
-using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
+using EStore.Domain.BrandAggregate;
+using EStore.Domain.CategoryAggregate;
+using EStore.Domain.ProductAggregate;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using Mapster;
 
 namespace EStore.Api.Common.Mapping;

@@ -1,8 +1,8 @@
-using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
-using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
-using EStore.Domain.Catalog.ProductAggregate;
-using EStore.Domain.Catalog.ProductAggregate.Repositories;
-using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
+using EStore.Domain.BrandAggregate.ValueObjects;
+using EStore.Domain.CategoryAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate;
+using EStore.Domain.ProductAggregate.Repositories;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace EStore.Infrastructure.Persistence.Repositories;

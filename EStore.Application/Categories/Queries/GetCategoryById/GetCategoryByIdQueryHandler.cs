@@ -1,7 +1,7 @@
 using ErrorOr;
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.CategoryAggregate.Repositories;
-using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
+using EStore.Domain.CategoryAggregate;
+using EStore.Domain.CategoryAggregate.Repositories;
+using EStore.Domain.CategoryAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Categories.Queries.GetCategoryById;

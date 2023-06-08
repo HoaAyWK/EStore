@@ -1,9 +1,9 @@
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
-using EStore.Domain.Catalog.BrandAggregate.Repositories;
-using EStore.Domain.Catalog.CategoryAggregate.Repositories;
-using EStore.Domain.Catalog.ProductAggregate.Repositories;
+using EStore.Domain.BrandAggregate.Repositories;
+using EStore.Domain.CategoryAggregate.Repositories;
+using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Persistence;
 using EStore.Infrastructure.Persistence.Repositories;

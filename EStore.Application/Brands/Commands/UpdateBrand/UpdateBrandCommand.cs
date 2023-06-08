@@ -1,5 +1,5 @@
 using ErrorOr;
-using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
+using EStore.Domain.BrandAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Brands.Commands.UpdateBrand;

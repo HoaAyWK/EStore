@@ -1,9 +1,9 @@
 using System.Text;
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
-using EStore.Domain.Catalog.ProductAggregate;
-using EStore.Domain.Catalog.ProductAggregate.Repositories;
-using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate;
+using EStore.Domain.ProductAggregate.Repositories;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Domain.Common.Errors;
 using MediatR;
 

@@ -1,7 +1,7 @@
 using EStore.Application.Brands.Commands.CreateBrand;
 using EStore.Application.Brands.Commands.UpdateBrand;
 using EStore.Contracts.Brands;
-using EStore.Domain.Catalog.BrandAggregate;
+using EStore.Domain.BrandAggregate;
 using Mapster;
 
 namespace EStore.Api.Common.Mapping;

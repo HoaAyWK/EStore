@@ -4,7 +4,7 @@ using EStore.Application.Brands.Commands.UpdateBrand;
 using EStore.Application.Brands.Queries.GetBrandById;
 using EStore.Application.Brands.Queries.GetBrandListPaged;
 using EStore.Contracts.Brands;
-using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
+using EStore.Domain.BrandAggregate.ValueObjects;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

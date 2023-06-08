@@ -1,7 +1,7 @@
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
-using EStore.Domain.Catalog.BrandAggregate.Repositories;
-using EStore.Domain.Catalog.ProductAggregate.Repositories;
+using EStore.Domain.BrandAggregate.Repositories;
+using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
 

@@ -1,5 +1,5 @@
 using ErrorOr;
-using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Products.Commands.UpdateProductAttributeValue;

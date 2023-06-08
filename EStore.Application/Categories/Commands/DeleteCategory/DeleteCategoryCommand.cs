@@ -1,5 +1,5 @@
 using ErrorOr;
-using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
+using EStore.Domain.CategoryAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Categories.Commands.DeleteCategory;

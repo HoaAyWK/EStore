@@ -1,5 +1,5 @@
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
+using EStore.Domain.CategoryAggregate;
+using EStore.Domain.CategoryAggregate.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

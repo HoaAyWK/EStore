@@ -1,6 +1,6 @@
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.BrandAggregate.Repositories;
-using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
+using EStore.Domain.BrandAggregate;
+using EStore.Domain.BrandAggregate.Repositories;
+using EStore.Domain.BrandAggregate.ValueObjects;
 
 namespace EStore.Infrastructure.Persistence.Repositories;
 

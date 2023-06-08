@@ -1,6 +1,6 @@
 using ErrorOr;
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
+using EStore.Domain.BrandAggregate;
+using EStore.Domain.BrandAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Brands.Queries.GetBrandById;

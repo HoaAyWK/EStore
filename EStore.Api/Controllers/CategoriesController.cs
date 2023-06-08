@@ -6,7 +6,7 @@ using EStore.Application.Categories.Queries.GetCategoryById;
 using EStore.Application.Categories.Queries.GetCategoryListPaged;
 using EStore.Application.Categories.Queries.GetParentCategoryWithChildren;
 using EStore.Contracts.Categories;
-using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
+using EStore.Domain.CategoryAggregate.ValueObjects;
 using EStore.Domain.Common.Errors;
 using MapsterMapper;
 using MediatR;

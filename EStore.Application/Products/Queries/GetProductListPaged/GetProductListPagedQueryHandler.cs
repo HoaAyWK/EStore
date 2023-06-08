@@ -1,6 +1,6 @@
 using ErrorOr;
-using EStore.Domain.Catalog.ProductAggregate;
-using EStore.Domain.Catalog.ProductAggregate.Repositories;
+using EStore.Domain.ProductAggregate;
+using EStore.Domain.ProductAggregate.Repositories;
 using MediatR;
 
 namespace EStore.Application.Products.Queries.GetProductListPaged;

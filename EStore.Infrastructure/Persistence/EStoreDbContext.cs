@@ -1,6 +1,6 @@
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.ProductAggregate;
+using EStore.Domain.BrandAggregate;
+using EStore.Domain.CategoryAggregate;
+using EStore.Domain.ProductAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace EStore.Infrastructure.Persistence;

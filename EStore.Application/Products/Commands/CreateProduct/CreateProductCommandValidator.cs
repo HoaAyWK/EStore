@@ -1,9 +1,8 @@
-using EStore.Domain.Catalog.ProductAggregate;
 using FluentValidation;
 
 namespace EStore.Application.Products.Commands.CreateProduct;
 
-public class CreateProductCommandValidator : AbstractValidator<Product>
+public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
 {
     public CreateProductCommandValidator()
     {

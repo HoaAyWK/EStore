@@ -1,7 +1,7 @@
 using EStore.Application.Categories.Commands.CreateCategory;
 using EStore.Application.Categories.Commands.UpdateCategory;
 using EStore.Contracts.Categories;
-using EStore.Domain.Catalog.CategoryAggregate;
+using EStore.Domain.CategoryAggregate;
 using Mapster;
 
 namespace EStore.Api.Common.Mapping;

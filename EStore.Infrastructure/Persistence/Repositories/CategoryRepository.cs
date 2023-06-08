@@ -1,6 +1,6 @@
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.CategoryAggregate.Repositories;
-using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
+using EStore.Domain.CategoryAggregate;
+using EStore.Domain.CategoryAggregate.Repositories;
+using EStore.Domain.CategoryAggregate.ValueObjects;
 
 namespace EStore.Infrastructure.Persistence.Repositories;
 

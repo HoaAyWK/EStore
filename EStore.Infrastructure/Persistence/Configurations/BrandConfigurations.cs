@@ -1,5 +1,5 @@
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
+using EStore.Domain.BrandAggregate;
+using EStore.Domain.BrandAggregate.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

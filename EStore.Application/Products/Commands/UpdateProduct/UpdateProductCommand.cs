@@ -1,6 +1,6 @@
 using ErrorOr;
-using EStore.Domain.Catalog.ProductAggregate;
-using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Products.Commands.UpdateProduct;

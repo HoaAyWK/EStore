@@ -1,13 +1,13 @@
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.BrandAggregate.Repositories;
-using EStore.Domain.Catalog.BrandAggregate.ValueObjects;
-using EStore.Domain.Catalog.CategoryAggregate;
-using EStore.Domain.Catalog.CategoryAggregate.Repositories;
-using EStore.Domain.Catalog.CategoryAggregate.ValueObjects;
-using EStore.Domain.Catalog.ProductAggregate;
-using EStore.Domain.Catalog.ProductAggregate.Repositories;
+using EStore.Domain.BrandAggregate;
+using EStore.Domain.BrandAggregate.Repositories;
+using EStore.Domain.BrandAggregate.ValueObjects;
+using EStore.Domain.CategoryAggregate;
+using EStore.Domain.CategoryAggregate.Repositories;
+using EStore.Domain.CategoryAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate;
+using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
 

@@ -1,6 +1,6 @@
 using ErrorOr;
-using EStore.Domain.Catalog.BrandAggregate;
-using EStore.Domain.Catalog.BrandAggregate.Repositories;
+using EStore.Domain.BrandAggregate;
+using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
 

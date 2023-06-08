@@ -1,6 +1,6 @@
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
-using EStore.Domain.Catalog.CategoryAggregate.Repositories;
+using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
 

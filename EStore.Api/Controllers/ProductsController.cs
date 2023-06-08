@@ -4,17 +4,17 @@ using EStore.Application.Products.Commands.AddProductImage;
 using EStore.Application.Products.Commands.CreateProduct;
 using EStore.Application.Products.Commands.DeleteAttributeValue;
 using EStore.Application.Products.Commands.UpdateProduct;
-using EStore.Application.Products.Queries.GetProductById;
-using EStore.Application.Products.Queries.GetProductListPaged;
-using EStore.Contracts.Products;
-using EStore.Domain.Catalog.ProductAggregate.ValueObjects;
-using MapsterMapper;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using EStore.Application.Products.Commands.AddProductAttribute;
 using EStore.Application.Products.Commands.UpdateProductAttribute;
 using EStore.Application.Products.Commands.UpdateProductAttributeValue;
 using EStore.Application.Products.Commands.UpdateVariant;
+using EStore.Application.Products.Queries.GetProductById;
+using EStore.Application.Products.Queries.GetProductListPaged;
+using EStore.Contracts.Products;
+using EStore.Domain.ProductAggregate.ValueObjects;
+using MapsterMapper;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EStore.Api.Controllers;
 
