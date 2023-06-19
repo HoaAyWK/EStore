@@ -1,12 +1,17 @@
+using ErrorOr;
 using EStore.Domain.BrandAggregate.ValueObjects;
 using EStore.Domain.Common.Abstractions;
+using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Models;
-using EStore.Domain.ProductAggregate.ValueObjects;
 
 namespace EStore.Domain.BrandAggregate;
 
 public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity
 {
+    public const int MinNameLength = 2;
+
+    public const int MaxNameLength = 100;
+
     public string Name { get; private set; } = null!;
 
     public DateTime CreatedDateTime { get; private set; }
@@ -25,15 +30,44 @@ public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity
         Name = name;
     }
 
-    public static Brand Create(string name)
+    public static ErrorOr<Brand> Create(string name)
     {
-        return new(
+        var errors = ValidateName(name);
+
+        if (errors.Count > 0)
+        {
+            return errors;
+        }
+
+        return new Brand(
             BrandId.CreateUnique(),
             name);
     }
 
-    public void UpdateName(string name)
+    public ErrorOr<Updated> UpdateName(string name)
     {
+        var errors = ValidateName(name);
+
+        if (errors.Count > 0)
+        {
+            return errors;
+        }
+
         Name = name;
+
+        return Result.Updated;
+    }
+
+
+    private static List<Error> ValidateName(string name)
+    {
+        List<Error> errors = new();
+
+        if (name.Length is < MinNameLength or > MaxNameLength)
+        {
+            errors.Add(Errors.Brand.InvalidNameLength);
+        }
+
+        return errors;
     }
 }

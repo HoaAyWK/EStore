@@ -95,10 +95,7 @@ public class CategoriesController : ApiController
             return Problem(new List<Error>{ Errors.Category.ParentCategoryNotFound });
         }
 
-        var command = new CreateCategoryCommand(
-            request.Name,
-            request.ParentId != null ? CategoryId.Create(new Guid(request.ParentId)) : null);
-
+        var command = _mapper.Map<CreateCategoryCommand>(request);
         var createCategoryResult = await _mediator.Send(command);
 
         return createCategoryResult.Match(
@@ -114,10 +111,7 @@ public class CategoriesController : ApiController
             return Problem(new List<Error>{ Errors.Category.ParentCategoryNotFound });
         }
 
-        var command = new UpdateCategoryCommand(
-            CategoryId.Create(id),
-            request.Name,
-            request.ParentId != null ? CategoryId.Create(new Guid(request.ParentId)) : null);
+        var command = _mapper.Map<UpdateCategoryCommand>((id, request));
         
         var updateCategoryResult = await _mediator.Send(command);
 
@@ -129,7 +123,7 @@ public class CategoriesController : ApiController
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteCategory(Guid id)
     {
-        var command = new DeleteCategoryCommand(CategoryId.Create(id));
+        var command = _mapper.Map<DeleteCategoryCommand>(id);
         var deleteCategoryResult = await _mediator.Send(command);
 
         return deleteCategoryResult.Match(

@@ -1,4 +1,6 @@
 using ErrorOr;
+using EStore.Domain.BrandAggregate.ValueObjects;
+using EStore.Domain.CategoryAggregate.ValueObjects;
 
 namespace EStore.Domain.Common.Errors;
 
@@ -9,6 +11,16 @@ public static partial class Errors
         public static Error NotFound = Error.NotFound(
             code: "Product.NotFound",
             description: "The product with specified identifier was not found.");
+
+        public static Error BrandNotFound(BrandId brandId) =>
+            Error.Validation(
+                code: "Product.BrandNotFound",
+                description: $"The brand with id = {brandId.Value} was not found.");
+
+        public static Error CategoryNotFound(CategoryId categoryId) =>
+            Error.Validation(
+                code: "Product.CategoryNotFound",
+                description: $"The category with id = {categoryId.Value} was not found.");
 
         public static Error UnprovidedSpecialPriceStartDate = Error.Validation(
             code: "Product.UnprovidedSpecialPriceStartDate",

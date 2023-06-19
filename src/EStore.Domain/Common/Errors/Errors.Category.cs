@@ -29,5 +29,11 @@ public static partial class Errors
         public static Error AlreadyContainedProducts = Error.Validation(
             code: "Category.AlreadyContainedProducts",
             description: "The category with specified identifier already contained products.");
+
+        public static Error InvalidNameLength = Error.Validation(
+            code: "Category.InvalidNameLength",
+            description: "Category name must be between " +
+                $"{Domain.CategoryAggregate.Category.MinNameLength} and " +
+                $"{Domain.CategoryAggregate.Category.MaxNameLength} characters.");
     }
 }

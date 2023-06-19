@@ -24,7 +24,15 @@ public class CreateBrandCommandHandler
         CreateBrandCommand request,
         CancellationToken cancellationToken)
     {
-        var brand = Brand.Create(request.Name);
+        var createBrandResult = Brand.Create(request.Name);
+
+        if (createBrandResult.IsError)
+        {
+            return createBrandResult.Errors;
+        }
+
+        var brand = createBrandResult.Value;
+
         await _brandRepository.AddAsync(brand);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -25,13 +25,20 @@ public class UpdateBrandCommandHandler
         CancellationToken cancellationToken)
     {
         var brand = await _brandRepository.GetByIdAsync(request.Id);
-
+    
         if (brand is null)
         {
             return Errors.Brand.NotFound;
         }
 
-        brand.UpdateName(request.Name);
+        var updateBrandResult = brand.UpdateName(request.Name);
+
+
+        if (updateBrandResult.IsError)
+        {
+            return updateBrandResult.Errors;
+        }
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Updated;

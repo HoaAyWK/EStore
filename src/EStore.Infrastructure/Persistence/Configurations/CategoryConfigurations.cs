@@ -31,7 +31,7 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
                 value =>  CategoryId.Create(value));
 
         builder.Property(c => c.Name)
-            .HasMaxLength(100);
+            .HasMaxLength(Category.MaxNameLength);
 
         builder.Property(c => c.Id)
             .HasColumnName("CategoryId")

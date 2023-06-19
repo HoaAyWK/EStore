@@ -1,3 +1,3 @@
 namespace EStore.Contracts.Categories;
 
-public record UpdateCategoryRequest(Guid Id, string Name, string? ParentId);
+public record UpdateCategoryRequest(string Name, string? ParentId);

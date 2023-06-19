@@ -24,7 +24,14 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
         CreateCategoryCommand request,
         CancellationToken cancellationToken)
     {
-        var category = Category.Create(request.Name, request.ParentId);
+        var createCategoryResult = Category.Create(request.Name, request.ParentId);
+
+        if (createCategoryResult.IsError)
+        {
+            return createCategoryResult.Errors;
+        }
+
+        var category = createCategoryResult.Value;
 
         if (request.ParentId is not null)
         {
@@ -34,8 +41,6 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
             {
                 return Errors.Category.ParentCategoryNotFound;
             }
-
-            // parentCategory.AddChildCategory(category);
         }
         
         await _categoryRepository.AddAsync(category);

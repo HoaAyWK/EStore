@@ -31,7 +31,12 @@ public class UpdateCategoryCommandHandler
             return Errors.Category.NotFound;
         }
 
-        category.UpdateName(request.Name);
+        var updateCategoryNameResult = category.UpdateName(request.Name);
+
+        if (updateCategoryNameResult.IsError)
+        {
+            return updateCategoryNameResult.Errors;
+        }
 
         if (request.ParentId is not null)
         {
@@ -43,7 +48,6 @@ public class UpdateCategoryCommandHandler
             }
 
             category.UpdateParentCategory(request.ParentId);
-            // parent.AddChildCategory(category);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

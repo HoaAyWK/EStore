@@ -62,7 +62,7 @@ public class BrandsController : ApiController
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateBrand(Guid id, [FromBody] UpdateBrandRequest request)
     {
-        var command = new UpdateBrandCommand(BrandId.Create(id), request.Name);
+        var command = _mapper.Map<UpdateBrandCommand>((id, request));
         var updateBrandResult = await _mediator.Send(command);
 
         return updateBrandResult.Match(
@@ -74,7 +74,7 @@ public class BrandsController : ApiController
 
     public async Task<IActionResult> DeleteBrand(Guid id)
     {
-        var command = new DeleteBrandCommand(BrandId.Create(id));
+        var command = _mapper.Map<DeleteBrandCommand>(id);
         var deleteBrandResult = await _mediator.Send(command);
 
         return deleteBrandResult.Match(

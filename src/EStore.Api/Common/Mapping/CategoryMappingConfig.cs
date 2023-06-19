@@ -1,7 +1,9 @@
+using EStore.Application.Categories.Commands.CreateCategory;
 using EStore.Application.Categories.Commands.UpdateCategory;
 using EStore.Application.Common.Dtos;
 using EStore.Contracts.Categories;
 using EStore.Domain.CategoryAggregate;
+using EStore.Domain.CategoryAggregate.ValueObjects;
 using EStore.Domain.Common.Collections;
 using Mapster;
 
@@ -11,7 +13,24 @@ public class CategoryMappingConfig : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<UpdateCategoryRequest, UpdateCategoryCommand>();
+        config.NewConfig<(Guid, UpdateCategoryRequest), UpdateCategoryCommand>()
+            .Map(dest => dest.Id, src => CategoryId.Create(src.Item1))
+            .Map(
+                dest => dest.ParentId,
+                src => src.Item2.ParentId != null
+                    ? CategoryId.Create(new Guid(src.Item2.ParentId))
+                    : null)
+            .Map(dest => dest.Name, src => src.Item2.Name);
+
+        config.NewConfig<Guid, CategoryId>()
+            .Map(dest => dest, src => CategoryId.Create(src));
+
+        config.NewConfig<CreateCategoryRequest, CreateCategoryCommand>()
+            .Map(
+                dest => dest.ParentId,
+                src => src.ParentId != null
+                    ? CategoryId.Create(new Guid(src.ParentId))
+                    : null);
 
         config.NewConfig<Category, CategoryResponse>()
             .Map(dest => dest.Id, src => src.Id.Value)

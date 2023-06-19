@@ -21,5 +21,11 @@ public static partial class Errors
                 code: "Brand.NotFound",
                 description: $"The brand with id = {id.Value} was not found.");
         }
+
+        public static Error InvalidNameLength = Error.Validation(
+            code: "Brand.InvalidNameLength",
+            description: "Brand name must be between " +
+                $"{Domain.BrandAggregate.Brand.MinNameLength} and " +
+                $"{Domain.BrandAggregate.Brand.MaxNameLength} characters.");
     }
 }

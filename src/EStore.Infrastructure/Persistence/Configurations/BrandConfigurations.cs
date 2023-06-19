@@ -19,7 +19,7 @@ public class BrandConfigurations : IEntityTypeConfiguration<Brand>
         builder.HasKey(b => b.Id);
         
         builder.Property(b => b.Name)
-            .HasMaxLength(100);
+            .HasMaxLength(Brand.MaxNameLength);
 
         builder.Property(b => b.Id)
             .HasColumnName("BrandId")

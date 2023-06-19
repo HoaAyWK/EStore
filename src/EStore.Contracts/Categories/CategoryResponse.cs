@@ -3,6 +3,6 @@ namespace EStore.Contracts.Categories;
 public record CategoryResponse(
     Guid Id,
     string Name,
-    string? ParentId,
+    Guid? ParentId,
     DateTime CreatedDateTime,
     DateTime UpdatedDateTime);
