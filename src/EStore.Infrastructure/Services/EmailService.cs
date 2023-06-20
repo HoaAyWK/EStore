@@ -21,7 +21,7 @@ internal sealed class EmailService : IEmailService
     {
         var email = new MimeMessage
         {
-            From = { new MailboxAddress(_mailSettings.SenderDisplayName, _mailSettings.SenderEmail ) },
+            From = { new MailboxAddress(name: _mailSettings.SenderDisplayName, address: _mailSettings.SenderEmail ) },
             To = { MailboxAddress.Parse(mailTo) },
             Subject = subject,
             Body = new TextPart(TextFormat.Text) { Text = body }

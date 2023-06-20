@@ -1,28 +1,28 @@
 using EStore.Domain.Common.Models;
 
-namespace EStore.Domain.UserAggregate.ValueObjects;
+namespace EStore.Domain.CustomerAggregate.ValueObjects;
 
-public sealed class UserId : ValueObject
+public sealed class CustomerId : ValueObject
 {
     public Guid Value { get; }
 
-    private UserId(Guid value)
+    private CustomerId(Guid value)
     {
         Value = value;
     }
 
-    public static UserId Create(Guid value)
+    public static CustomerId Create(Guid value)
     {
         return new(value);
     }
 
-    public static UserId CreateUnique()
+    public static CustomerId CreateUnique()
     {
         return new(Guid.NewGuid());
     }
 
     public override IEnumerable<object> GetEqualityComponents()
     {
-        yield return Value;
+        throw new NotImplementedException();
     }
 }

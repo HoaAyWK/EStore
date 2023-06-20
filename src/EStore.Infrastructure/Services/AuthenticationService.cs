@@ -1,13 +1,15 @@
+using System.Text;
 using ErrorOr;
 using EStore.Application.Common.Dtos;
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Domain.Common.Errors;
-using EStore.Domain.UserAggregate;
-using EStore.Domain.UserAggregate.Repositories;
+using EStore.Domain.CustomerAggregate;
+using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace EStore.Infrastructure.Services;
 
@@ -16,25 +18,28 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
-    private readonly IUserRepository _userRepository;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly IEmailService _emailService;
 
     public AuthenticationService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IJwtTokenGenerator jwtTokenGenerator,
-        IUserRepository userRepository)
+        ICustomerRepository customerRepository,
+        IEmailService emailService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _jwtTokenGenerator = jwtTokenGenerator;
-        _userRepository = userRepository;
+        _customerRepository = customerRepository;
+        _emailService = emailService;
     }
 
     public async Task<ErrorOr<AuthenticationResult>> LoginAsync(string email, string password)
     {
-        var user = await _userRepository.GetByEmailAsync(email);
+        var customer = await _customerRepository.GetByEmailAsync(email);
 
-        if (user is null)
+        if (customer is null)
         {
             return Errors.Authentication.InvalidCredentials;
         }
@@ -50,7 +55,7 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         if (validPassword)
         {
-            var generateTokenResult = await _jwtTokenGenerator.GenerateTokenAsync(user.Id.Value.ToString());
+            var generateTokenResult = await _jwtTokenGenerator.GenerateTokenAsync(customer.Id.Value.ToString());
 
             if (generateTokenResult.IsError)
             {
@@ -59,7 +64,7 @@ internal sealed class AuthenticationService : IAuthenticationService
 
             return new AuthenticationResult()
             {
-                User = user,
+                Customer = customer,
                 Token = generateTokenResult.Value
             };
         }
@@ -67,15 +72,15 @@ internal sealed class AuthenticationService : IAuthenticationService
         return Errors.Authentication.InvalidCredentials;
     }
 
-    public async Task<ErrorOr<AuthenticationResult>> RegisterAsync(User user, string password)
+    public async Task<ErrorOr<AuthenticationResult>> RegisterAsync(Customer customer, string password)
     {
-        var userId = user.Id.Value.ToString();
+        var customerId = customer.Id.Value.ToString();
 
         var appUser = new ApplicationUser
         {
-            Id = userId,
-            Email = user.Email,
-            UserName = user.Email,
+            Id = customerId,
+            Email = customer.Email,
+            UserName = customer.Email,
             EmailConfirmed = true
         };
 
@@ -84,7 +89,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         if (createAppUserResult.Succeeded)
         {
             await _userManager.AddToRoleAsync(appUser, Roles.Customer);
-            var generateTokenResult = await _jwtTokenGenerator.GenerateTokenAsync(userId);
+            var generateTokenResult = await _jwtTokenGenerator.GenerateTokenAsync(customerId);
 
             if (generateTokenResult.IsError)
             {
@@ -93,7 +98,7 @@ internal sealed class AuthenticationService : IAuthenticationService
 
             return new AuthenticationResult()
             {
-                User = user,
+                Customer = customer,
                 Token = generateTokenResult.Value
             };
         }
@@ -108,5 +113,25 @@ internal sealed class AuthenticationService : IAuthenticationService
         }
 
         return errors;
+    }
+
+    public async Task<ErrorOr<Success>> SendConfirmationEmailAddressEmailAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+        {
+            return Errors.Authentication.InvalidCredentials;
+        }
+
+        var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(confirmationToken));
+
+        await _emailService.SendEmailAsync(
+            subject: "Confirm Your Email Address",
+            mailTo: email,
+            body: encodedToken);
+        
+        return Result.Success;
     }
 }

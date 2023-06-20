@@ -2,11 +2,11 @@ using ErrorOr;
 using EStore.Domain.Common.Abstractions;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Models;
-using EStore.Domain.UserAggregate.ValueObjects;
+using EStore.Domain.CustomerAggregate.ValueObjects;
 
-namespace EStore.Domain.UserAggregate;
+namespace EStore.Domain.CustomerAggregate;
 
-public sealed class User : AggregateRoot<UserId>, IAuditableEntity
+public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
 {
     public const int MinFirstNameLength = 1;
     
@@ -30,12 +30,12 @@ public sealed class User : AggregateRoot<UserId>, IAuditableEntity
 
     public DateTime UpdatedDateTime { get; private set; }
 
-    private User()
+    private Customer()
     {
     }
 
-    private User(
-        UserId id,
+    private Customer(
+        CustomerId id,
         string email,
         string firstName,
         string lastName)
@@ -46,7 +46,7 @@ public sealed class User : AggregateRoot<UserId>, IAuditableEntity
         LastName = lastName;
     }
 
-    public static ErrorOr<User> Create(
+    public static ErrorOr<Customer> Create(
         string email,
         string firstName,
         string lastName)
@@ -55,7 +55,7 @@ public sealed class User : AggregateRoot<UserId>, IAuditableEntity
 
         if (email.Length < MinEmailLength)
         {
-            errors.Add(Errors.User.InvalidEmailLength);
+            errors.Add(Errors.Customer.InvalidEmailLength);
         }
 
         if (errors.Count > 0)
@@ -63,8 +63,8 @@ public sealed class User : AggregateRoot<UserId>, IAuditableEntity
             return errors;
         }
 
-        return new User(
-            UserId.CreateUnique(),
+        return new Customer(
+            CustomerId.CreateUnique(),
             email,
             firstName,
             lastName);
@@ -93,14 +93,15 @@ public sealed class User : AggregateRoot<UserId>, IAuditableEntity
 
         if (firstName.Length is < MinFirstNameLength or > MaxFirstNameLength)
         {
-            errors.Add(Errors.User.InvalidFirstNameLength);
+            errors.Add(Errors.Customer.InvalidFirstNameLength);
         }
 
         if (lastName.Length is < MinLastNameLength or > MaxLastNameLength)
         {
-            errors.Add(Errors.User.InvalidLastNameLength);
+            errors.Add(Errors.Customer.InvalidLastNameLength);
         }
 
         return errors;
     }
 }
+

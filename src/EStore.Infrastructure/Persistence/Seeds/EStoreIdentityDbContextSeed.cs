@@ -39,20 +39,20 @@ public class EStoreIdentityDbContextSeed
 
         var adminSettings = userSeedingSettingsOptions.Value;
 
-        var admin = await eStoreContext.Users
+        var admin = await eStoreContext.Customers
             .Where(x => x.Email == adminSettings.Email)
             .FirstOrDefaultAsync();
 
         if (admin is null)
         {
-            eStoreContext.Users.Add(Domain.UserAggregate.User.Create(
+            eStoreContext.Customers.Add(Domain.CustomerAggregate.Customer.Create(
                 adminSettings.Email,
                 adminSettings.FirstName,
                 adminSettings.LastName).Value);
 
             await unitOfWork.SaveChangesAsync();
 
-            admin = await eStoreContext.Users
+            admin = await eStoreContext.Customers
                 .Where(x => x.Email == adminSettings.Email)
                 .FirstOrDefaultAsync();
     

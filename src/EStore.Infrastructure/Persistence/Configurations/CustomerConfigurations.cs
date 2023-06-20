@@ -1,28 +1,28 @@
-using EStore.Domain.UserAggregate;
-using EStore.Domain.UserAggregate.ValueObjects;
+using EStore.Domain.CustomerAggregate;
+using EStore.Domain.CustomerAggregate.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EStore.Infrastructure.Persistence.Configurations;
 
-public class UserConfigurations : IEntityTypeConfiguration<User>
+public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public void Configure(EntityTypeBuilder<Customer> builder)
     {
         builder.HasKey(u => u.Id);
 
         builder.Property(u => u.Id)
-            .HasColumnName("UserId")
+            .HasColumnName("CustomerId")
             .ValueGeneratedNever()
             .HasConversion(
                 id => id.Value,
-                value => UserId.Create(value));
+                value => CustomerId.Create(value));
 
         builder.Property(u => u.FirstName)
-            .HasMaxLength(User.MaxFirstNameLength);
+            .HasMaxLength(Customer.MaxFirstNameLength);
 
         builder.Property(u => u.LastName)
-            .HasMaxLength(User.MaxLastNameLength);
+            .HasMaxLength(Customer.MaxLastNameLength);
 
         builder.Property(u => u.Email)
             .HasMaxLength(255);

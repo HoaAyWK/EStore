@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using EStore.Contracts.Authentication;
 using MediatR;
 using MapsterMapper;
-using EStore.Application.Users.Command.CreateUser;
 using EStore.Application.Common.Interfaces.Services;
+using EStore.Application.Customers.Commands.CreateCustomer;
 
 namespace EStore.Api.Controllers;
 
@@ -26,7 +26,7 @@ public class AuthController : ApiController
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command = _mapper.Map<CreateUserCommand>(request);
+        var command = _mapper.Map<CreateCustomerCommand>(request);
         var createUserResult = await _mediator.Send(command);
 
         if (createUserResult.IsError)
@@ -51,4 +51,15 @@ public class AuthController : ApiController
             authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
             errors => Problem(errors));
     }
+
+    [HttpPost("send-confirmation-email")]
+    public async Task<IActionResult> SendConfirmationEmail(SendConfirmationEmailRequest request)
+    {
+        var sendEmailResult = await _authenticationService.SendConfirmationEmailAddressEmailAsync(request.Email);
+
+        return sendEmailResult.Match(
+            success => NoContent(),
+            errors => Problem(errors));
+    }
+
 }

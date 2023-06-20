@@ -3,8 +3,8 @@ using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
+using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
-using EStore.Domain.UserAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Authentication.OptionsSetup;
 using EStore.Infrastructure.Identity;
@@ -12,6 +12,7 @@ using EStore.Infrastructure.Persistence;
 using EStore.Infrastructure.Persistence.Repositories;
 using EStore.Infrastructure.Persistence.Seeds;
 using EStore.Infrastructure.Services;
+using EStore.Infrastructure.Services.OptionsSetup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,7 @@ public static class DependencyInjection
         services.ConfigureOptions<JwtSettingsOptionsSetup>();
         services.ConfigureOptions<JwtBearerOptionsSetup>();
         services.ConfigureOptions<UserSeedingOptionsSetup>();
+        services.ConfigureOptions<MailSettingsOptionsSetup>();
 
         services.AddAuthentication(options =>
         {
@@ -49,15 +51,17 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductReadRepository, ProductReadRepository>();
         services.AddScoped<IBrandReadService, BrandReadService>();
         services.AddScoped<ICategoryReadService, CategoryReadService>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+        services.AddTransient<IEmailService, EmailService>();
 
         services.AddDbContext<EStoreDbContext>(options =>
             options.UseSqlServer(
