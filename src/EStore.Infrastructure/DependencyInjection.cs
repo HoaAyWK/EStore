@@ -1,10 +1,12 @@
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
+using EStore.Application.Products.Services;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
+using EStore.Domain.ProductVariantAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Authentication.OptionsSetup;
 using EStore.Infrastructure.Identity;
@@ -58,6 +60,8 @@ public static class DependencyInjection
         services.AddScoped<IBrandReadService, BrandReadService>();
         services.AddScoped<ICategoryReadService, CategoryReadService>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+        services.AddScoped<IProductReadService, ProductReadService>();
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 

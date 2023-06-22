@@ -11,6 +11,7 @@ public static class CreateProductCommandUtils
         string? name = null,
         string? description = null,
         bool published = true,
+        int displayOrder = 0,
         BrandId? brandId = null,
         CategoryId? categoryId = null)
     {
@@ -18,6 +19,7 @@ public static class CreateProductCommandUtils
             name ?? Constants.Product.Name,
             description ?? Constants.Product.Description,
             published,
+            displayOrder,
             brandId ?? Constants.Product.BrandId,
             categoryId ?? Constants.Product.CategoryId);
     }

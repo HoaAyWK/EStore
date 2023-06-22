@@ -1,37 +1,39 @@
-using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Domain.Common.Collections;
-using EStore.Domain.Common.Utilities;
+using EStore.Domain.Common.Models;
 using Newtonsoft.Json;
 
-namespace EStore.Domain.ProductAggregate;
+namespace EStore.Domain.Common.Utilities;
 
-public sealed class ProductAttributeSelection : IEquatable<ProductAttributeSelection>
+public sealed class AttributeSelection<TKey, TValue>
+    : IEquatable<AttributeSelection<TKey, TValue>>
+    where TKey : ValueObject
+    where TValue : ValueObject
 {
     private string? _rawAttributes;
-    private readonly MultiMap<ProductAttributeId, ProductAttributeValueId> _attributes = new();
+    private readonly MultiMap<TKey, TValue> _attributes = new();
     private bool _dirty = true;
 
-    public IEnumerable<KeyValuePair<ProductAttributeId, ICollection<ProductAttributeValueId>>> AttributesMap =>
+    public IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> AttributesMap =>
         _attributes;
 
-    private ProductAttributeSelection(string? rawAttributes)
+    private AttributeSelection(string? rawAttributes)
     {
         _rawAttributes = !string.IsNullOrEmpty(rawAttributes) ? rawAttributes.Trim() : rawAttributes;
         _attributes = GetFromJson() ?? new();
     }
 
-    public static ProductAttributeSelection Create(string? rawAttributes)
+    public static AttributeSelection<TKey, TValue> Create(string? rawAttributes)
     {
         return new(rawAttributes);
     }
 
-    private MultiMap<ProductAttributeId, ProductAttributeValueId>? GetFromJson()
+    private MultiMap<TKey, TValue>? GetFromJson()
     {
         if (_rawAttributes is null
             || _rawAttributes.Equals(string.Empty)
             || _rawAttributes.Length <= 2)
         {
-            return new MultiMap<ProductAttributeId, ProductAttributeValueId>();
+            return new MultiMap<TKey, TValue>();
         }
 
         if (_rawAttributes[0] != '{' && _rawAttributes[0] != '[')
@@ -41,7 +43,7 @@ public sealed class ProductAttributeSelection : IEquatable<ProductAttributeSelec
 
         try
         {
-            return JsonConvert.DeserializeObject<MultiMap<ProductAttributeId, ProductAttributeValueId>>(_rawAttributes);
+            return JsonConvert.DeserializeObject<MultiMap<TKey, TValue>>(_rawAttributes);
         }
         catch (Exception ex)
         {
@@ -49,9 +51,9 @@ public sealed class ProductAttributeSelection : IEquatable<ProductAttributeSelec
         }
     }
 
-    public void AddAttributeValue(ProductAttributeId attributeId, ProductAttributeValueId value)
+    public void AddAttributeValue(TKey key, TValue value)
     {
-        _attributes.Add(attributeId, value);
+        _attributes.Add(key, value);
         _dirty = true;
     }
 
@@ -84,7 +86,7 @@ public sealed class ProductAttributeSelection : IEquatable<ProductAttributeSelec
 
     public override int GetHashCode()
     {
-        var combiner = HashCodeCombiner<ProductAttributeId, ProductAttributeValueId>.Start();
+        var combiner = HashCodeCombiner<TKey, TValue>.Start();
 
         foreach (var attribute in _attributes)
         {
@@ -100,25 +102,25 @@ public sealed class ProductAttributeSelection : IEquatable<ProductAttributeSelec
     }
 
     public static bool operator ==(
-        ProductAttributeSelection left,
-        ProductAttributeSelection right)
+        AttributeSelection<TKey, TValue> left,
+        AttributeSelection<TKey, TValue> right)
     {
         return Equals(left, right);
     }
 
     public static bool operator !=(
-        ProductAttributeSelection left,
-        ProductAttributeSelection right)
+        AttributeSelection<TKey, TValue> left,
+        AttributeSelection<TKey, TValue> right)
     {
         return Equals(left, right);
     }
 
     public override bool Equals(object? obj)
     {
-        return Equals(obj as ProductAttributeSelection);
+        return Equals(obj as AttributeSelection<TKey, TValue>);
     }
 
-    public bool Equals(ProductAttributeSelection? other)
+    public bool Equals(AttributeSelection<TKey, TValue>? other)
     {
         if (other is null)
         {
@@ -162,3 +164,4 @@ public sealed class ProductAttributeSelection : IEquatable<ProductAttributeSelec
         return true;
     }
 }
+

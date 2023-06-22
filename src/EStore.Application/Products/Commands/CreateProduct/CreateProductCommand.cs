@@ -10,6 +10,7 @@ public record CreateProductCommand(
     string Name,
     string Description,
     bool Published,
+    int DisplayOrder,
     BrandId BrandId,
     CategoryId CategoryId)
     : IRequest<ErrorOr<Product>>;

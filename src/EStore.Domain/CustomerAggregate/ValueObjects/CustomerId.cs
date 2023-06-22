@@ -23,6 +23,6 @@ public sealed class CustomerId : ValueObject
 
     public override IEnumerable<object> GetEqualityComponents()
     {
-        throw new NotImplementedException();
+        yield return Value;
     }
 }

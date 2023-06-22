@@ -5,8 +5,10 @@ public record UpdateProductRequest(
     string Description,
     decimal Price,
     bool Published,
+    int DisplayOrder,
     Guid BrandId,
     Guid CategoryId,
+    int? StockQuantity,
     decimal? SpecialPrice,
     DateTime? SpecialPriceStartDate,
     DateTime? SpecialPriceEndDate);

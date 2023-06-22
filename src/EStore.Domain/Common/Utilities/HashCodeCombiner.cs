@@ -1,11 +1,10 @@
 using System.Runtime.CompilerServices;
-using EStore.Domain.Common.Models;
 
 namespace EStore.Domain.Common.Utilities;
 
 public struct HashCodeCombiner<TKey, TValue>
-    where TKey : ValueObject
-    where TValue : ValueObject
+    where TKey : notnull
+    where TValue : notnull
 {
     private long _combinedHash64;
 

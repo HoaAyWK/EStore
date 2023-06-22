@@ -17,9 +17,10 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
 
     public const decimal MinPrice = 0;
 
+    public const int MinStockQuantity = 0;
+
     private readonly List<ProductImage> _images = new();
     private readonly List<ProductAttribute> _productAttributes = new();
-    private readonly List<ProductVariant> _productVariants = new();
 
     public string Name { get; private set; } = null!;
 
@@ -27,11 +28,15 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
 
     public decimal Price { get; private set; }
 
+    public int DisplayOrder { get; private set; }
+
     public decimal? SpecialPrice { get; private set; }
 
     public DateTime? SpecialPriceStartDateTime { get; private set; }
 
     public DateTime? SpecialPriceEndDateTime { get; private set; }
+
+    public int StockQuantity { get; private set; }
 
     public bool Published { get; private set; }
 
@@ -45,11 +50,11 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
 
     public DateTime UpdatedDateTime { get; private set; }
 
+    public bool HasVariant { get; private set; }
+    
     public IReadOnlyList<ProductImage> Images => _images.AsReadOnly();
 
     public IReadOnlyList<ProductAttribute> ProductAttributes => _productAttributes.AsReadOnly();
-
-    public IReadOnlyList<ProductVariant> ProductVariants => _productVariants.AsReadOnly();
 
     private Product()
     {
@@ -61,6 +66,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         string description,
         bool published,
         decimal price,
+        int displayOrder,
         BrandId brandId,
         CategoryId categoryId,
         AverageRating averageRating)
@@ -71,6 +77,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         Published = published;
         Price = price;
         AverageRating = averageRating;
+        DisplayOrder = displayOrder;
         BrandId = brandId;
         CategoryId = categoryId;
     }
@@ -79,6 +86,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         string name,
         string description,
         bool published,
+        int displayOrder,
         BrandId brandId,
         CategoryId categoryId)
     {
@@ -95,6 +103,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             description,
             published,
             0,
+            displayOrder,
             brandId,
             categoryId,
             AverageRating.Create());
@@ -113,7 +122,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public ErrorOr<Updated> UpdateDetails(
         string name,
         string description,
-        decimal price)
+        decimal price,
+        int displayOrder)
     {
         var errors = ValidateName(name);
         errors.AddRange(ValidatePrice(price));
@@ -126,6 +136,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         Name = name;
         Description = description;
         Price = price;
+        DisplayOrder = displayOrder;
 
         return Result.Updated;
     }
@@ -164,11 +175,6 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         _productAttributes.Add(productAttribute);
     }
 
-    public void AddProductVariant(ProductVariant productVrProductVariant)
-    {
-        _productVariants.Add(productVrProductVariant);
-    }
-
     public void UpdateCategory(CategoryId categoryId)
     {
         CategoryId = categoryId;
@@ -177,6 +183,16 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public void UpdateBrand(BrandId brandId)
     {
         BrandId = brandId;
+    }
+
+    public ErrorOr<Updated> UpdateStockQuantity(int stockQuantity)
+    {
+        if (stockQuantity < MinStockQuantity)
+        {
+            return Errors.Product.InvalidStockQuantity;
+        }
+
+        return Result.Updated;
     }
 
     private static List<Error> ValidateName(string name)

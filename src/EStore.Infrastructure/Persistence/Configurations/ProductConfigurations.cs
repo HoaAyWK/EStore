@@ -15,7 +15,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         ConfigureProductsTable(builder);
         ConfigureProductImagesTable(builder);
         ConfigureProductAttributesTable(builder);
-        ConfigureProductVariantsTable(builder);
     }
 
     private void ConfigureProductsTable(EntityTypeBuilder<Product> builder)
@@ -55,6 +54,8 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
                 value => CategoryId.Create(value));
 
         builder.OwnsOne(p => p.AverageRating);
+
+        builder.Ignore(p => p.HasVariant);
     }
 
     private void ConfigureProductImagesTable(EntityTypeBuilder<Product> builder)
@@ -126,8 +127,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
 
                 pavb.Property(av => av.PriceAdjustment)
                     .HasColumnType("decimal(18, 2)");
-
-                pavb.Ignore(av => av.CombinedAttributes);
             });
 
             pab.Navigation(pva => pva.ProductAttributeValues)
@@ -138,33 +137,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         });
 
         builder.Metadata.FindNavigation(nameof(Product.ProductAttributes))!
-            .SetPropertyAccessMode(PropertyAccessMode.Field);
-    }
-
-    private void ConfigureProductVariantsTable(EntityTypeBuilder<Product> builder)
-    {
-        builder.OwnsMany(p => p.ProductVariants, pvb =>
-        {
-            pvb.ToTable("ProductVariants");
-
-            pvb.WithOwner().HasForeignKey("ProductId");
-
-            pvb.HasKey(nameof(ProductVariant.Id), "ProductId");
-
-            pvb.Property(v => v.Id)
-                .HasColumnName("ProductVariantId")
-                .ValueGeneratedNever()
-                .HasConversion(
-                    id => id.Value,
-                    value => ProductVariantId.Create(value));
-
-            pvb.Property(v => v.Price)
-                .HasColumnType("decimal(18, 2)");
-
-            pvb.Ignore(p => p.AttributeSelection);
-        });
-
-        builder.Metadata.FindNavigation(nameof(Product.ProductVariants))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }

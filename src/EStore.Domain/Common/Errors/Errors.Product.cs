@@ -22,6 +22,11 @@ public static partial class Errors
                 code: "Product.CategoryNotFound",
                 description: $"The category with id = {categoryId.Value} was not found.");
 
+        public static Error InvalidStockQuantity => Error.Validation(
+            code: "Product.InvalidStockQuantity",
+            description: $"Stock quantity must be greater than or equal " +
+                $"{Domain.ProductAggregate.Product.MinStockQuantity}.");
+
         public static Error UnprovidedSpecialPriceStartDate = Error.Validation(
             code: "Product.UnprovidedSpecialPriceStartDate",
             description: "Start date is required when Special price is provided.");

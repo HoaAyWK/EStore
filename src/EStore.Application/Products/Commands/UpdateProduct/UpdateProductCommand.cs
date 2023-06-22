@@ -13,8 +13,10 @@ public record UpdateProductCommand(
     string Description,
     decimal Price,
     bool Published,
+    int DisplayOrder,
     BrandId BrandId,
     CategoryId CategoryId,
+    int? StockQuantity,
     decimal? SpecialPrice,
     DateTime? SpecialPriceStartDate,
     DateTime? SpecialPriceEndDate) : IRequest<ErrorOr<Product>>;

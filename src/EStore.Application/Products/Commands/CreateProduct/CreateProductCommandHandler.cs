@@ -53,6 +53,7 @@ public class CreateProductCommandHandler
             name: request.Name,
             description: request.Description,
             published: request.Published,
+            displayOrder: request.DisplayOrder,
             brandId: request.BrandId,
             categoryId: request.CategoryId);
 

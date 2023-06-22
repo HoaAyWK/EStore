@@ -25,9 +25,10 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
             .HasMaxLength(Customer.MaxLastNameLength);
 
         builder.Property(u => u.Email)
+            .IsUnicode()
             .HasMaxLength(255);
 
-        builder.HasIndex(u => u.Email);
+        builder.HasIndex(u => u.Email).IsUnique();
 
         builder.HasIndex(u => u.Id);
 

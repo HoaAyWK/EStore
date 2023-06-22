@@ -1,6 +1,6 @@
 using EStore.Domain.Common.Models;
 
-namespace EStore.Domain.ProductAggregate.ValueObjects;
+namespace EStore.Domain.ProductVariantAggregate.ValueObjects;
 
 public sealed class ProductVariantId : ValueObject
 {

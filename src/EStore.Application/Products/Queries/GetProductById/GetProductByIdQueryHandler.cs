@@ -1,26 +1,25 @@
 using ErrorOr;
-using EStore.Domain.ProductAggregate;
 using MediatR;
 using EStore.Domain.Common.Errors;
-using EStore.Domain.ProductAggregate.Repositories;
+using EStore.Application.Products.Dtos;
+using EStore.Application.Products.Services;
 
 namespace EStore.Application.Products.Queries.GetProductById;
 
 public class GetProductByIdQueryHandler
-    : IRequestHandler<GetProductByIdQuery, ErrorOr<Product>>
+    : IRequestHandler<GetProductByIdQuery, ErrorOr<ProductDto>>
 {
-    private readonly IProductReadRepository _productReadRepository;
-
-    public GetProductByIdQueryHandler(IProductReadRepository productReadRepository)
+    private readonly IProductReadService _productReadService;
+    public GetProductByIdQueryHandler(IProductReadService productReadService)
     {
-        _productReadRepository = productReadRepository;
+        _productReadService = productReadService;
     }
 
-    public async Task<ErrorOr<Product>> Handle(
+    public async Task<ErrorOr<ProductDto>> Handle(
         GetProductByIdQuery request,
         CancellationToken cancellationToken)
     {
-        var product = await _productReadRepository.GetByIdAsync(request.ProductId);
+        var product = await _productReadService.GetByIdAsync(request.ProductId);
 
         if (product is null)
         {

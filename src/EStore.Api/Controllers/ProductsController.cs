@@ -1,4 +1,3 @@
-using EStore.Application.Products.Commands.AddVariant;
 using EStore.Application.Products.Commands.AddProductAttributeValue;
 using EStore.Application.Products.Commands.AddProductImage;
 using EStore.Application.Products.Commands.CreateProduct;
@@ -7,7 +6,6 @@ using EStore.Application.Products.Commands.UpdateProduct;
 using EStore.Application.Products.Commands.AddProductAttribute;
 using EStore.Application.Products.Commands.UpdateProductAttribute;
 using EStore.Application.Products.Commands.UpdateProductAttributeValue;
-using EStore.Application.Products.Commands.UpdateVariant;
 using EStore.Application.Products.Queries.GetProductById;
 using EStore.Application.Products.Queries.GetProductListPaged;
 using EStore.Contracts.Products;
@@ -20,6 +18,7 @@ using EStore.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using EStore.Domain.BrandAggregate.ValueObjects;
 using EStore.Domain.CategoryAggregate.ValueObjects;
+using EStore.Contracts.Common;
 
 namespace EStore.Api.Controllers;
 
@@ -38,14 +37,20 @@ public class ProductsController : ApiController
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetProducts()
+    public async Task<IActionResult> GetProducts(
+        string? searchTerm,
+        int page = 1,
+        int pageSize = 5)
     {
-        var query = new GetProductListPagedQuery();
-        var getProductsResult = await _mediator.Send(query);
+        var query = new GetProductListPagedQuery(
+            searchTerm,
+            page,
+            pageSize);
 
-        return getProductsResult.Match(
-            products => Ok(_mapper.Map<ICollection<ProductResponse>>(products)),
-            errors => Problem(errors));
+        var listPagedDtos = await _mediator.Send(query);
+        var listPagedResponse = _mapper.Map<PagedList<ProductResponse>>(listPagedDtos);
+
+        return Ok(listPagedResponse);
     }
 
     [AllowAnonymous]
@@ -101,6 +106,8 @@ public class ProductsController : ApiController
             Description: request.Description,
             Price: request.Price,
             Published: request.Published,
+            StockQuantity: request.StockQuantity,
+            DisplayOrder: request.DisplayOrder,
             BrandId: _mapper.Map<BrandId>(request.BrandId),
             CategoryId: _mapper.Map<CategoryId>(request.CategoryId),
             SpecialPrice: request.SpecialPrice,
@@ -206,51 +213,6 @@ public class ProductsController : ApiController
 
         return deleteResult.Match(
             deleteResult => Ok(deleteResult),
-            errors => Problem(errors));
-    }
-
-    [HttpPost("{id:guid}/variants")]
-    public async Task<IActionResult> AddVariant(
-        Guid id,
-        [FromBody] AddProductVariantRequest request)
-    {
-        var selectedAttributes = _mapper.Map<List<AttributeSelection>>(request.AttributeSelections);
-        var assignedImageIds = _mapper.Map<List<Guid>>(request.AssignedImageIds ?? new());
-
-        var command = new AddVariantCommand(
-            ProductId: ProductId.Create(id),
-            AttributeSelections: selectedAttributes,
-            Price: request.Price,
-            StockQuantity: request.StockQuantity,
-            IsActive: request.IsActive,
-            AssignedImageIds: assignedImageIds);
-
-        var addVariantResult = await _mediator.Send(command);
-
-        return addVariantResult.Match(
-            result => Ok(result),
-            errors => Problem(errors));
-    }
-
-    [HttpPut("{id:guid}/variants/{variantId:guid}")]
-    public async Task<IActionResult> UpdateVariant(
-        Guid id,
-        Guid variantId,
-        [FromBody] UpdateVariantRequest request)
-    {
-        var assignedImageIds = _mapper.Map<List<Guid>>(request.AssignedImageIds ?? new());
-        var command = new UpdateVariantCommand(
-            ProductId: ProductId.Create(id),
-            ProductVariantId: ProductVariantId.Create(variantId),
-            StockQuantity: request.StockQuantity,
-            Price: request.Price,
-            IsActive: request.IsActive,
-            AssignedImageIds: assignedImageIds);
-
-        var updateVariantResult = await _mediator.Send(command);
-
-        return updateVariantResult.Match(
-            updated => NoContent(),
             errors => Problem(errors));
     }
 }

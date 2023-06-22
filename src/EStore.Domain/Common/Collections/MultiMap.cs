@@ -1,5 +1,4 @@
 using System.Collections;
-using EStore.Domain.Common.Models;
 using Newtonsoft.Json;
 
 namespace EStore.Domain.Common.Collections;
@@ -52,6 +51,7 @@ public class MultiMap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection
     public MultiMap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items, IEqualityComparer<TKey>? comparer)
     {
         _dict = new Dictionary<TKey, ICollection<TValue>>(comparer ?? EqualityComparer<TKey>.Default);
+        _collectionCreator = DefaultCollectionCreator;
 
         if (items is not null)
         {

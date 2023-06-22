@@ -1,24 +1,27 @@
-using ErrorOr;
-using EStore.Domain.ProductAggregate;
-using EStore.Domain.ProductAggregate.Repositories;
+using EStore.Application.Products.Dtos;
+using EStore.Application.Products.Services;
+using EStore.Contracts.Common;
 using MediatR;
 
 namespace EStore.Application.Products.Queries.GetProductListPaged;
 
 public class GetProductListPagedQueryHandler
-    : IRequestHandler<GetProductListPagedQuery, ErrorOr<List<Product>>>
+    : IRequestHandler<GetProductListPagedQuery, PagedList<ProductDto>>
 {
-    private readonly IProductReadRepository _productReadRepository;
+    private readonly IProductReadService _productReadService;
 
-    public GetProductListPagedQueryHandler(IProductReadRepository productReadRepository)
+    public GetProductListPagedQueryHandler(IProductReadService productReadService)
     {
-        _productReadRepository = productReadRepository;
+        _productReadService = productReadService;
     }
 
-    public async Task<ErrorOr<List<Product>>> Handle(
+    public async Task<PagedList<ProductDto>> Handle(
         GetProductListPagedQuery request,
         CancellationToken cancellationToken)
     {
-        return await _productReadRepository.GetAllWithBrandAndCategory();
+        return await _productReadService.GetProductListPagedAsync(
+            request.SearchTerm,
+            request.Page,
+            request.PageSize);
     }
 }

@@ -1,10 +1,11 @@
 using EStore.Application.Products.Commands.AddProductAttribute;
 using EStore.Application.Products.Commands.AddProductAttributeValue;
 using EStore.Application.Products.Commands.AddProductImage;
-using EStore.Application.Products.Commands.AddVariant;
 using EStore.Application.Products.Commands.CreateProduct;
 using EStore.Application.Products.Commands.DeleteAttributeValue;
 using EStore.Application.Products.Commands.UpdateProduct;
+using EStore.Application.Products.Dtos;
+using EStore.Contracts.Common;
 using EStore.Contracts.Products;
 using EStore.Domain.BrandAggregate;
 using EStore.Domain.BrandAggregate.ValueObjects;
@@ -19,6 +20,10 @@ namespace EStore.Api.Common.Mapping;
 
 public class ProductMappingConfig : IRegister
 {
+    public ProductMappingConfig()
+    {
+    }
+
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<CreateProductRequest, CreateProductCommand>();
@@ -29,11 +34,11 @@ public class ProductMappingConfig : IRegister
 
         config.NewConfig<AddProductAttributeValueRequest, AddProductAttributeValueCommand>();
 
-        config.NewConfig<SelectedAttributes, AttributeSelection>()
-            .Map(dest => dest.ProductAttributeId, src => ProductAttributeId.Create(src.ProductAttributeId))
-            .Map(dest => dest.ProductAttributeValueId, src => ProductAttributeValueId.Create(src.ProductAttributeValueId));
+        // config.NewConfig<SelectedAttributes, AttributeSelection>()
+        //     .Map(dest => dest.ProductAttributeId, src => ProductAttributeId.Create(src.ProductAttributeId))
+        //     .Map(dest => dest.ProductAttributeValueId, src => ProductAttributeValueId.Create(src.ProductAttributeValueId));
 
-        config.NewConfig<AddProductVariantRequest, AddVariantCommand>();
+        // config.NewConfig<AddProductVariantRequest, AddVariantCommand>();
 
         config.NewConfig<DeleteAttributeValueRequest, DeleteAttributeValueCommand>()
             .Map(dest => dest.ProductId, src => src.Id)
@@ -50,39 +55,47 @@ public class ProductMappingConfig : IRegister
 
         config.NewConfig<AverageRating, AverageRatingResponse>();
 
-        config.NewConfig<Brand, BrandResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value);
+        config.NewConfig<BrandDto, BrandResponse>();
 
-        // config.NewConfig<Category, CategoryResponse>()
-        //     .Map(dest => dest.Id, src => src.Id.Value);
+        config.NewConfig<CategoryDto, CategoryDto>();
 
-        config.NewConfig<ProductImage, ProductImageResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value);
+        config.NewConfig<ProductImageDto, ProductImageResponse>();
 
-        config.NewConfig<ProductAttribute, ProductAttributeResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value)
-            .Map(dest => dest.AttributeValues, src => src.ProductAttributeValues);
+        config.NewConfig<ProductAttributeDto, ProductAttributeResponse>()
+            .Map(dest => dest.AttributeValues, src => src.AttributeValues);
 
-        config.NewConfig<ProductAttributeValue, ProductAttributeValueResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value)
+        config.NewConfig<ProductAttributeValueDto, ProductAttributeValueResponse>()
             .Map(
                 dest => dest.CombinedAttributes,
-                src => src.CombinedAttributes.AttributesMap.ToDictionary(
+                src => src.AttributeSelection.AttributesMap.ToDictionary(
                     k => k.Key.Value,
                     v => v.Value.Select(x => x.Value)
                 ));
 
-        config.NewConfig<ProductVariant, ProductVariantResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value)
+        config.NewConfig<ProductVariantDto, ProductVariantResponse>()
             .Map(
                 dest => dest.AssignedProductImageIds,
                 src => src.AssignedProductImageIds.Split(
                     " ",
                     StringSplitOptions.RemoveEmptyEntries));
 
+        config.NewConfig<Brand, BrandResponse>()
+            .Map(src => src.Id, dest => dest.Id.Value);
+
+        config.NewConfig<Category, CategoryDto>()
+            .Map(src => src.Id, dest => dest.Id.Value);
+
+        config.NewConfig<ProductImage, ProductImageResponse>()
+            .Map(src => src.Id, dest => dest.Id.Value);
+
+        config.NewConfig<ProductAttributeValue, ProductAttributeValueResponse>()
+            .Map(dest => dest.Id, src => src.Id.Value);
+
+        config.NewConfig<ProductDto, ProductResponse>();
+
         config.NewConfig<Product, ProductResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value)
-            .Map(dest => dest.Attributes, src => src.ProductAttributes)
-            .Map(dest => dest.Variants, src => src.ProductVariants);
+            .Map(dest => dest.Id, src => src.Id.Value);
+
+        config.NewConfig<PagedList<ProductDto>, PagedList<ProductResponse>>();
     }
 }

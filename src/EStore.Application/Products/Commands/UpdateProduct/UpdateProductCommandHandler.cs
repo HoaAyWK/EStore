@@ -72,11 +72,22 @@ public class UpdateProductCommandHandler
         var updateDetailsResult = product.UpdateDetails(
             name: request.Name,
             description: request.Description,
-            price: request.Price);
+            price: request.Price,
+            displayOrder: request.DisplayOrder);
         
         if (updateDetailsResult.IsError)
         {
             errors.AddRange(updateDetailsResult.Errors);
+        }
+
+        if (request.StockQuantity is not null)
+        {
+            var updateStockQuantityResult = product.UpdateStockQuantity(request.StockQuantity.Value);
+
+            if (updateStockQuantityResult.IsError)
+            {
+                errors.Add(updateDetailsResult.FirstError);
+            }
         }
 
         product.UpdatePublished(request.Published);

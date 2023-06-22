@@ -2,11 +2,11 @@ namespace EStore.Contracts.Products;
 
 public class ProductResponse
 {
-    public string? Id { get; set; }
+    public Guid Id { get; set; }
 
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
-    public string? Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     public decimal Price { get; set; }
 
@@ -18,6 +18,10 @@ public class ProductResponse
 
     public bool Published { get; set; }
 
+    public int DisplayOrder { get; set; }
+
+    public int StockQuantity { get; set; }
+
     public AverageRatingResponse? AverageRating { get; set; }
 
     public BrandResponse? Brand { get; set; }
@@ -28,27 +32,26 @@ public class ProductResponse
 
     public DateTime UpdatedDateTime { get; set; }
 
-    public List<ProductImageResponse>? Images { get; set; }
+    public List<ProductImageResponse> Images { get; set; } = new();
 
-    public List<ProductAttributeResponse>? Attributes { get; set; }
+    public List<ProductAttributeResponse> Attributes { get; set; } = new();
 
-    public List<ProductVariantResponse>? Variants { get; set; }
+    public List<ProductVariantResponse> Variants { get; set; } = new();
+
 }
 
-public record BrandResponse(string Id, string Name);
+public record BrandResponse(Guid Id, string Name);
 
-public record CategoryResponse(string Id, string Name);
+public record CategoryResponse(Guid Id, string Name);
 
 public record AverageRatingResponse(
     double Value,
     int NumRatings);
 
-public class ProductAttributeResponse
-{
-    public string? Id { get; set; }
-    public string? Name { get; set; }
-    public List<ProductAttributeValueResponse>? AttributeValues { get; set; }
-}
+public record ProductAttributeResponse(
+    Guid Id,
+    string Name,
+    List<ProductAttributeValueResponse> AttributeValues);
 
 public record ProductImageResponse(
     Guid Id,
@@ -57,14 +60,15 @@ public record ProductImageResponse(
     int DisplayOrder);
 
 public record ProductAttributeValueResponse(
-    string Id,
+    Guid Id,
     string Name,
     string? Alias,
     decimal? PriceAdjustment,
+    string? RawCombinedAttribute,
     Dictionary<Guid, List<Guid>> CombinedAttributes);
 
 public record ProductVariantResponse(
-    string Id,
+    Guid Id,
     decimal? Price,
     int StockQuantity,
     bool IsActive,

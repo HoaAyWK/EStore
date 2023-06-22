@@ -5,29 +5,13 @@ namespace EStore.Domain.ProductAggregate.Entities;
 
 public sealed class ProductAttributeValue : Entity<ProductAttributeValueId>
 {
-
-    private string? _rawCombinedAttributes;
-    private ProductAttributeSelection? _combinedAttributes;
-
     public string Name { get; private set; } = null!;
 
     public string? Alias { get; private set; }
 
     public decimal PriceAdjustment { get; private set; }
 
-    public string? RawCombinedAttributes
-    {
-        get => _rawCombinedAttributes;
-
-        set
-        {
-            _rawCombinedAttributes = value;
-            _combinedAttributes = null;
-        }
-    }
-
-    public ProductAttributeSelection CombinedAttributes =>
-        _combinedAttributes ??= ProductAttributeSelection.Create(RawCombinedAttributes);
+    public string? RawCombinedAttributes { get; private set; }
 
     private ProductAttributeValue()
     {
@@ -58,7 +42,7 @@ public sealed class ProductAttributeValue : Entity<ProductAttributeValueId>
 
     public void UpdateRawConnectedAttributes(string? rawConnectedAttributes)
     {
-        _rawCombinedAttributes = rawConnectedAttributes;
+        RawCombinedAttributes = rawConnectedAttributes;
     }
 
     public void UpdateDetails(
