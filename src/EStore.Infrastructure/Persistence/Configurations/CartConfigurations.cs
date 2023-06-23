@@ -35,7 +35,13 @@ public class CartConfigurations : IEntityTypeConfiguration<Cart>
                 id => id.Value,
                 value => CustomerId.Create(value));
 
+        builder.HasIndex(c => c.Id);
+
+        builder.HasIndex(c => c.CustomerId).IsUnique();
+
         builder.Ignore(c => c.TotalItems);
+
+        builder.Ignore(c => c.TotalPrice);
     }
 
     private void ConfigureCartItemsTable(EntityTypeBuilder<Cart> builder)
@@ -50,6 +56,7 @@ public class CartConfigurations : IEntityTypeConfiguration<Cart>
 
             ib.Property(i => i.Id)
                 .HasColumnName("CartItemId")
+                .ValueGeneratedNever()
                 .HasConversion(
                     id => id.Value,
                     value => CartItemId.Create(value));

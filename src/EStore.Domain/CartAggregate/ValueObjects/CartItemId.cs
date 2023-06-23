@@ -4,16 +4,21 @@ namespace EStore.Domain.CartAggregate.ValueObjects;
 
 public sealed class CartItemId : ValueObject
 {
-    public int Value { get; }
+    public Guid Value { get; }
 
-    private CartItemId(int value)
+    private CartItemId(Guid value)
     {
         Value = value;
     }
 
-    public static CartItemId Create(int value)
+    public static CartItemId Create(Guid value)
     {
         return new(value);
+    }
+
+    public static CartItemId CreateUnique()
+    {
+        return new(Guid.NewGuid());
     }
 
     public override IEnumerable<object> GetEqualityComponents()

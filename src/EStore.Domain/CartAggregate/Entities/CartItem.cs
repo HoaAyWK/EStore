@@ -22,10 +22,12 @@ public sealed class CartItem : Entity<CartItemId>
     public ProductVariantId? ProductVariantId { get; private set; }
 
     private CartItem(
+        CartItemId id,
         int quantity,
         decimal unitPrice,
         ProductId productId,
-        ProductVariantId productVariantId)
+        ProductVariantId? productVariantId)
+        : base(id)
     {
         Quantity = quantity;
         UnitPrice = unitPrice;
@@ -37,7 +39,7 @@ public sealed class CartItem : Entity<CartItemId>
         int quantity,
         decimal unitPrice,
         ProductId productId,
-        ProductVariantId productVariantId)
+        ProductVariantId? productVariantId)
     {
         var errors = new List<Error>();
 
@@ -56,7 +58,12 @@ public sealed class CartItem : Entity<CartItemId>
             return errors;
         }
 
-        return new CartItem(quantity, unitPrice, productId, productVariantId);
+        return new CartItem(
+            CartItemId.CreateUnique(),
+            quantity,
+            unitPrice,
+            productId,
+            productVariantId);
     }
 
     public ErrorOr<Success> AddQuantity(int quantity)

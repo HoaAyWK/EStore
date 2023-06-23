@@ -1,3 +1,4 @@
+using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Domain.ProductVariantAggregate;
 using EStore.Domain.ProductVariantAggregate.Repositories;
 using EStore.Domain.ProductVariantAggregate.ValueObjects;
@@ -27,5 +28,11 @@ internal sealed class ProductVariantRepository : IProductVariantRepository
     public async Task<ProductVariant?> GetByIdAsync(ProductVariantId id)
     {
         return await _dbContext.ProductVariants.FindAsync(id);
+    }
+
+    public async Task<List<ProductVariant>> GetByProductIdAsync(ProductId productId)
+    {
+        return await _dbContext.ProductVariants.Where(v => v.ProductId == productId)
+            .ToListAsync();
     }
 }

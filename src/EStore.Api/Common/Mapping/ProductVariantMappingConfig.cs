@@ -16,7 +16,7 @@ public class ProductVariantMappingConfig : IRegister
             .Map(dest => dest.ProductAttributeValueId, src => ProductAttributeValueId.Create(src.ProductAttributeValueId));
 
 
-        config.NewConfig< CreateProductVariantRequest, CreateProductVariantCommand>()
+        config.NewConfig<CreateProductVariantRequest, CreateProductVariantCommand>()
             .Map(dest => dest.ProductId, src => ProductId.Create(src.ProductId))
             .Map(
                 dest => dest.AssignedProductImageIds,

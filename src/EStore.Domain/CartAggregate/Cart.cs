@@ -14,6 +14,8 @@ public sealed class Cart : AggregateRoot<CartId>
 
     public CustomerId CustomerId { get; private set; }
 
+    public decimal TotalPrice => _items.Sum(i => i.Quantity * i.UnitPrice);
+
     public int TotalItems => _items.Sum(i => i.Quantity);
 
     public IReadOnlyList<CartItem> Items => _items.AsReadOnly();
@@ -30,7 +32,7 @@ public sealed class Cart : AggregateRoot<CartId>
 
     public ErrorOr<Success> AddItem(
         ProductId productId,
-        ProductVariantId productVariantId,
+        ProductVariantId? productVariantId,
         decimal unitPrice,
         int quantity = 1)
     {
@@ -47,7 +49,9 @@ public sealed class Cart : AggregateRoot<CartId>
 
         var item = createCartItemResult.Value;
 
-        var existingItem = Items.FirstOrDefault(i => i.ProductId == productId);
+        var existingItem = Items.FirstOrDefault(i =>
+            i.ProductId == productId &&
+            i.ProductVariantId! == productVariantId!);
 
         if (existingItem is null)
         {
@@ -64,6 +68,18 @@ public sealed class Cart : AggregateRoot<CartId>
         }
 
         return Result.Success;
+    }
+
+    public void RemoveItem(CartItemId itemId)
+    {
+        var item = Items.FirstOrDefault(i => i.Id == itemId);
+
+        if (item is null)
+        {
+            return;
+        }
+
+        _items.Remove(item);
     }
 
     public void UpdateCustomerId(CustomerId customerId)

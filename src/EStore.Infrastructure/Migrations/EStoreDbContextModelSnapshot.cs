@@ -55,6 +55,11 @@ namespace EStore.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
+                    b.HasIndex("Id");
+
                     b.ToTable("Carts", (string)null);
                 });
 
@@ -217,8 +222,8 @@ namespace EStore.Infrastructure.Migrations
                 {
                     b.OwnsMany("EStore.Domain.CartAggregate.Entities.CartItem", "Items", b1 =>
                         {
-                            b1.Property<int>("Id")
-                                .HasColumnType("int")
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CartItemId");
 
                             b1.Property<Guid>("CartId")

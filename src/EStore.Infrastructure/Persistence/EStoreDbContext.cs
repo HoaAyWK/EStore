@@ -1,4 +1,5 @@
 using EStore.Domain.BrandAggregate;
+using EStore.Domain.CartAggregate;
 using EStore.Domain.CategoryAggregate;
 using EStore.Domain.CustomerAggregate;
 using EStore.Domain.ProductAggregate;
@@ -30,5 +31,7 @@ public class EStoreDbContext : DbContext
     public DbSet<ProductVariant> ProductVariants { get; set; } = null!;
 
     public DbSet<Customer> Customers { get; set; } = null!;
+
+    public DbSet<Cart> Carts { get; set; } = null!;
 
 }

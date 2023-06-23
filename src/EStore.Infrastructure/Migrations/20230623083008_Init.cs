@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace EStore.Infrastructure.Migrations
 {
-    public partial class Init_Migration : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -118,7 +118,7 @@ namespace EStore.Infrastructure.Migrations
                 name: "CartItems",
                 columns: table => new
                 {
-                    CartItemId = table.Column<int>(type: "int", nullable: false),
+                    CartItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CartId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -205,6 +205,17 @@ namespace EStore.Infrastructure.Migrations
                 name: "IX_CartItems_CartId",
                 table: "CartItems",
                 column: "CartId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Carts_CartId",
+                table: "Carts",
+                column: "CartId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Carts_CustomerId",
+                table: "Carts",
+                column: "CustomerId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_ParentCategoryId",

@@ -11,16 +11,13 @@ namespace EStore.Application.Products.Commands.AddProductAttributeValue;
 public class AddProductAttributeValueCommandHandler
     : IRequestHandler<AddProductAttributeValueCommand, ErrorOr<Product>>
 {
-    private readonly IProductReadRepository _productReadRepository;
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public AddProductAttributeValueCommandHandler(
-        IProductReadRepository productReadRepository,
         IProductRepository productRepository,
         IUnitOfWork unitOfWork)
     {
-        _productReadRepository = productReadRepository;
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }

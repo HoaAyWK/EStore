@@ -10,16 +10,13 @@ namespace EStore.Application.Products.Commands.AddProductImage;
 public class AddProductImageCommandHandler
     : IRequestHandler<AddProductImageCommand, ErrorOr<Updated>>
 {
-    private readonly IProductReadRepository _productReadRepository;
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public AddProductImageCommandHandler(
-        IProductReadRepository productReadRepository,
         IProductRepository productRepository,
         IUnitOfWork unitOfWork)
     {
-        _productReadRepository = productReadRepository;
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }

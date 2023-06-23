@@ -1,8 +1,10 @@
+using EStore.Application.Carts.Services;
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Services;
 using EStore.Domain.BrandAggregate.Repositories;
+using EStore.Domain.CartAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
@@ -53,15 +55,17 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<IProductReadRepository, ProductReadRepository>();
+        services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<ICartRepository, CartRepository>();
+
         services.AddScoped<IBrandReadService, BrandReadService>();
         services.AddScoped<ICategoryReadService, CategoryReadService>();
-        services.AddScoped<ICustomerRepository, CustomerRepository>();
-        services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<IProductReadService, ProductReadService>();
+        services.AddScoped<ICartReadService, CartReadService>();
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 

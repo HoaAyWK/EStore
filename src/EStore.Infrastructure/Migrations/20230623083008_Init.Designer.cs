@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EStore.Infrastructure.Migrations
 {
     [DbContext(typeof(EStoreDbContext))]
-    [Migration("20230621072407_Init_Migration")]
-    partial class Init_Migration
+    [Migration("20230623083008_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -56,6 +56,11 @@ namespace EStore.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
+                    b.HasIndex("Id");
 
                     b.ToTable("Carts", (string)null);
                 });
@@ -219,8 +224,8 @@ namespace EStore.Infrastructure.Migrations
                 {
                     b.OwnsMany("EStore.Domain.CartAggregate.Entities.CartItem", "Items", b1 =>
                         {
-                            b1.Property<int>("Id")
-                                .HasColumnType("int")
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CartItemId");
 
                             b1.Property<Guid>("CartId")
