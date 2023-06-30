@@ -9,7 +9,6 @@ public record CreateProductVariantCommand(
     ProductId ProductId,
     int StockQuantity,
     List<SelectedAttribute> SelectedAttributes,
-    decimal? Price,
     bool IsActive,
     string? AssignedProductImageIds)
     : IRequest<ErrorOr<ProductVariant>>;

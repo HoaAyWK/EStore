@@ -1,10 +1,12 @@
 using System.Text;
+using ErrorOr;
 using EStore.Application.Carts.Services;
 using EStore.Contracts.Carts;
 using EStore.Domain.CartAggregate;
 using EStore.Domain.Common.Utilities;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
+using EStore.Domain.Common.Errors;
 using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -120,5 +122,69 @@ internal sealed class CartReadService : ICartReadService
         }).ToList();
 
         return itemResponses;
+    }
+
+
+    public async Task<ErrorOr<Success>> ValidatePurchasedItemsAsync(CustomerId customerId)
+    {
+        var cart = await _dbContext.Carts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.CustomerId == customerId);
+
+        if (cart is null)
+        {
+            return Errors.Cart.NotFound;
+        }
+
+        foreach (var cartItem in cart.Items)
+        {
+            var product = await _dbContext.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.Id == cartItem.ProductId);
+
+            if (product is null)
+            {
+                return Errors.Cart.ProductNotFound(cartItem.ProductId);
+            }
+
+            if (cartItem.ProductVariantId is null)
+            {
+                if (product.StockQuantity < cartItem.Quantity)
+                {
+                    return Errors.Cart.ProductOutOfStock(product.Id);
+                }
+
+                if (product.Price != cartItem.UnitPrice)
+                {
+                    return Errors.Cart.CartItemPriceChanged(cartItem.Id);
+                }
+            }
+            else
+            {
+                var productVariant = await _dbContext.ProductVariants
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == cartItem.ProductVariantId);
+
+                if (productVariant is null)
+                {
+                    return Errors.Cart.ProductVariantNotFound(cartItem.ProductVariantId);
+                }
+
+                if (productVariant.StockQuantity < cartItem.Quantity)
+                {
+                    return Errors.Cart.ProductVariantOutOfStock(productVariant.Id);
+                }
+
+                if (productVariant.Price + product.Price != cartItem.UnitPrice)
+                {
+                    return Errors.Cart.CartItemPriceChanged(cartItem.Id);
+                }
+            }
+
+        }
+
+        return Result.Success;
     }
 }

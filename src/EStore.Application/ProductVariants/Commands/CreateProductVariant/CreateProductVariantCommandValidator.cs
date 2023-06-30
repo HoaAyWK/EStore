@@ -20,8 +20,6 @@ public class CreateProductVariantCommandValidator
             selection.RuleFor(x => x.ProductAttributeValueId).NotEmpty();
         });
 
-        RuleFor(x => x.Price).NotNull();
-
         RuleFor(x => x.StockQuantity).NotNull();
     }
 }

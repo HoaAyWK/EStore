@@ -1,7 +1,9 @@
 using EStore.Domain.BrandAggregate;
 using EStore.Domain.CartAggregate;
 using EStore.Domain.CategoryAggregate;
+using EStore.Domain.Common.Models;
 using EStore.Domain.CustomerAggregate;
+using EStore.Domain.OrderAggregate;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductVariantAggregate;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +20,9 @@ public class EStoreDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         
-        modelBuilder.ApplyConfigurationsFromAssembly(
+        modelBuilder
+            .Ignore<List<IDomainEvent>>()
+            .ApplyConfigurationsFromAssembly(
             typeof(EStoreDbContext).Assembly);
     }
 
@@ -33,5 +37,7 @@ public class EStoreDbContext : DbContext
     public DbSet<Customer> Customers { get; set; } = null!;
 
     public DbSet<Cart> Carts { get; set; } = null!;
+
+    public DbSet<Order> Orders { get; set; } = null!;
 
 }

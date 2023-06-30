@@ -38,6 +38,11 @@ public class AddItemToCartCommandHandler
             return Errors.Cart.ProductNotFound(request.ProductId);
         }
 
+        if (!product.Published)
+        {
+            return Errors.Cart.ProductIsNotPublished(request.ProductId);
+        }
+
         var itemPrice = product.Price;
 
         if (product.HasVariant && request.ProductVariantId is null)
@@ -54,6 +59,11 @@ public class AddItemToCartCommandHandler
             if (productVariant is null)
             {
                 return Errors.Cart.ProductVariantNotFound(request.ProductVariantId);
+            }
+
+            if (productVariant.IsActive)
+            {
+                return Errors.Cart.ProductVariantUnavailable(productVariant.Id);
             }
 
             if (!productVariants.Any(variant => variant.Id == productVariant.Id))

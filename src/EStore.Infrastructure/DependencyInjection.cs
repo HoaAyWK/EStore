@@ -2,17 +2,20 @@ using EStore.Application.Carts.Services;
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
+using EStore.Application.Orders.Services;
 using EStore.Application.Products.Services;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.CartAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.CustomerAggregate.Repositories;
+using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductVariantAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Authentication.OptionsSetup;
 using EStore.Infrastructure.Identity;
 using EStore.Infrastructure.Persistence;
+using EStore.Infrastructure.Persistence.Interceptors;
 using EStore.Infrastructure.Persistence.Repositories;
 using EStore.Infrastructure.Persistence.Seeds;
 using EStore.Infrastructure.Services;
@@ -35,6 +38,7 @@ public static class DependencyInjection
         services.ConfigureOptions<JwtBearerOptionsSetup>();
         services.ConfigureOptions<UserSeedingOptionsSetup>();
         services.ConfigureOptions<MailSettingsOptionsSetup>();
+        services.ConfigureOptions<StripeSettingsOptionsSetup>();
 
         services.AddAuthentication(options =>
         {
@@ -51,6 +55,7 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
         
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddSingleton<ConvertDomainEventsToOutboxMessagesInterceptor>();
         
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         
@@ -61,19 +66,25 @@ public static class DependencyInjection
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<ICartRepository, CartRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
 
         services.AddScoped<IBrandReadService, BrandReadService>();
         services.AddScoped<ICategoryReadService, CategoryReadService>();
         services.AddScoped<IProductReadService, ProductReadService>();
         services.AddScoped<ICartReadService, CartReadService>();
+        services.AddScoped<IPaymentService, PaymentService>();
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         services.AddTransient<IEmailService, EmailService>();
 
-        services.AddDbContext<EStoreDbContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection")!));
+        services.AddDbContext<EStoreDbContext>((sp, options) =>
+        {
+            var interceptor = sp.GetService<ConvertDomainEventsToOutboxMessagesInterceptor>();
+
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")!)
+                .AddInterceptors(interceptor!);
+        });
 
         services.AddDbContext<EStoreIdentityDbContext>(options =>
             options.UseSqlServer(

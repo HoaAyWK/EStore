@@ -1,4 +1,5 @@
 using ErrorOr;
+using EStore.Domain.CartAggregate.ValueObjects;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Domain.ProductVariantAggregate.ValueObjects;
@@ -46,5 +47,30 @@ public static partial class Errors
             code: "Cart.InvalidCartItemUnitPrice",
             description: "Unit price of cart item must be greater than or equal " +
                 $"{Domain.CartAggregate.Entities.CartItem.MinUnitPrice}.");
+
+        public static Error ProductOutOfStock(ProductId productId)
+            => Error.Validation(
+                code: "Order.ProductOutOfStock",
+                description: $"The product with id ={productId.Value} does not have enough quantity.");
+
+        public static Error ProductVariantOutOfStock(ProductVariantId productVariantId)
+            => Error.Validation(
+                code: "Order.ProductVariantOutOfStock",
+                description: $"The product variant with id = {productVariantId.Value} does not have enough quantity.");
+
+        public static Error CartItemPriceChanged(CartItemId itemId)
+            => Error.Validation(
+                code: "Order.CartItemPriceChanged",
+                description: $"The price of cart item with id = {itemId.Value} was changed.");
+
+        public static Error ProductIsNotPublished(ProductId productId)
+            => Error.Validation(
+                code: "Order.ProductIsNotPublished",
+                description: $"The product with id = {productId.Value} was not published.");
+
+        public static Error ProductVariantUnavailable(ProductVariantId productVariantId)
+            => Error.Validation(
+                code: "Order.ProductVariantUnavailable",
+                description: $"The product variant with id = {productVariantId.Value} currently unavailable.");
     }
 }

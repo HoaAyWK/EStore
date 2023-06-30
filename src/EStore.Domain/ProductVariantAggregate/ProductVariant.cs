@@ -2,11 +2,12 @@ using ErrorOr;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Models;
 using EStore.Domain.ProductAggregate.ValueObjects;
+using EStore.Domain.ProductVariantAggregate.Events;
 using EStore.Domain.ProductVariantAggregate.ValueObjects;
 
 namespace EStore.Domain.ProductVariantAggregate;
 
-public sealed class ProductVariant : Entity<ProductVariantId>
+public sealed class ProductVariant : AggregateRoot<ProductVariantId>
 {
     public const int MinStockQuantity = 0;
 
@@ -61,7 +62,7 @@ public sealed class ProductVariant : Entity<ProductVariantId>
             return errors;
         }
 
-        return new ProductVariant(
+        var productVariant = new ProductVariant(
             ProductVariantId.CreateUnique(),
             productId,
             price,
@@ -69,6 +70,11 @@ public sealed class ProductVariant : Entity<ProductVariantId>
             isActive,
             rawAttributeSelection,
             assignedProductImageIds);
+
+        productVariant.RaiseDomainEvent(
+            new ProductVariantCreatedDomainEvent(productVariant.Id));
+        
+        return productVariant;
     }
 
     public void UpdateRawAttributes(string? rawAttributes)

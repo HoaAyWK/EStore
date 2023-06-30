@@ -211,7 +211,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     {
         List<Error> errors = new();
 
-        if (price < MinPrice)
+        if (price <= MinPrice)
         {
             errors.Add(Errors.Product.InvalidPrice);
         }

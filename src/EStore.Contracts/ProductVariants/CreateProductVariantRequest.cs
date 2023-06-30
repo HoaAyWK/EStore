@@ -3,7 +3,6 @@ namespace EStore.Contracts.ProductVariants;
 public record CreateProductVariantRequest(
     Guid ProductId,
     int StockQuantity,
-    decimal? Price,
     bool IsActive,
     List<CreateProductVariantRequest.SelectedAttribute> SelectedAttributes,
     List<Guid>? AssignedImageIds)
