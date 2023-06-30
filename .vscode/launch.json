@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/EStore.Api/bin/Debug/net6.0/EStore.Api.dll",
+            "program": "${workspaceFolder}/src/EStore.Api/bin/Debug/net6.0/EStore.Api.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/EStore.Api",
+            "cwd": "${workspaceFolder}/src/EStore.Api",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {

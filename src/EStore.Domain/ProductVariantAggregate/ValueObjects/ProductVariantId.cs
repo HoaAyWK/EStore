@@ -1,4 +1,5 @@
 using EStore.Domain.Common.Models;
+using Newtonsoft.Json;
 
 namespace EStore.Domain.ProductVariantAggregate.ValueObjects;
 
@@ -19,6 +20,12 @@ public sealed class ProductVariantId : ValueObject
     public static ProductVariantId CreateUnique()
     {
         return new(Guid.NewGuid());
+    }
+
+    [JsonConstructor]
+    private ProductVariantId(string value)
+    {
+        Value = new Guid(value);
     }
 
     public override IEnumerable<object> GetEqualityComponents()

@@ -13,6 +13,7 @@ using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductVariantAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Authentication.OptionsSetup;
+using EStore.Infrastructure.BackgroundJobs;
 using EStore.Infrastructure.Identity;
 using EStore.Infrastructure.Persistence;
 using EStore.Infrastructure.Persistence.Interceptors;
@@ -25,6 +26,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 
 namespace EStore.Infrastructure;
 public static class DependencyInjection
@@ -73,7 +75,6 @@ public static class DependencyInjection
         services.AddScoped<IProductReadService, ProductReadService>();
         services.AddScoped<ICartReadService, CartReadService>();
         services.AddScoped<IPaymentService, PaymentService>();
-
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         services.AddTransient<IEmailService, EmailService>();
@@ -89,6 +90,22 @@ public static class DependencyInjection
         services.AddDbContext<EStoreIdentityDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("AppIdentityConnection")!));
+
+        services.AddQuartz(configure =>
+        {
+            var jobKey = new JobKey(nameof(ProcessOutboxMessagesJob));
+
+            configure.AddJob<ProcessOutboxMessagesJob>(jobKey)
+                .AddTrigger(trigger =>
+                    trigger.ForJob(jobKey)
+                        .WithSimpleSchedule(schedule =>
+                            schedule.WithIntervalInSeconds(10)
+                                .RepeatForever()));
+
+            configure.UseMicrosoftDependencyInjectionJobFactory();
+        });
+
+        services.AddQuartzHostedService();
 
         return services;
     }   
