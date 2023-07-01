@@ -6,6 +6,8 @@ public sealed class StripeSettings
 
     public string SecretKey { get; init; } = string.Empty;
 
+    public string WebhookSecret { get; init; } = string.Empty;
+
     public string PublishKey { get; init; } = string.Empty;
 
     public string SuccessUrl { get; init; } = string.Empty;

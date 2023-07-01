@@ -61,7 +61,7 @@ public class AddItemToCartCommandHandler
                 return Errors.Cart.ProductVariantNotFound(request.ProductVariantId);
             }
 
-            if (productVariant.IsActive)
+            if (!productVariant.IsActive)
             {
                 return Errors.Cart.ProductVariantUnavailable(productVariant.Id);
             }
@@ -73,7 +73,7 @@ public class AddItemToCartCommandHandler
 
             if (productVariant.Price.HasValue)
             {
-                itemPrice = productVariant.Price.Value;
+                itemPrice += productVariant.Price.Value;
             }
         }
         else

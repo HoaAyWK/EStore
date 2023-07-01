@@ -1,4 +1,5 @@
 using EStore.Domain.Common.Models;
+using Newtonsoft.Json;
 
 namespace EStore.Domain.OrderAggregate.ValueObjects;
 
@@ -19,6 +20,12 @@ public sealed class OrderId : ValueObject
     public static OrderId CreateUnique()
     {
         return new(Guid.NewGuid());
+    }
+
+    [JsonConstructor]
+    private OrderId(string value)
+    {
+        Value = new Guid(value);
     }
 
     public override IEnumerable<object> GetEqualityComponents()

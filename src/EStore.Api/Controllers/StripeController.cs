@@ -5,8 +5,13 @@ using MediatR;
 using MapsterMapper;
 using EStore.Application.Orders.Commands.CreateCheckoutSession;
 using Stripe;
-using EStore.Application.Orders.Commands.CreateOrder;
 using Stripe.Checkout;
+using EStore.Infrastructure.Services.Settings;
+using Microsoft.Extensions.Options;
+using EStore.Domain.OrderAggregate.ValueObjects;
+using EStore.Domain.OrderAggregate.Enumerations;
+using EStore.Application.Orders.Commands.UpdateOrder;
+using EStore.Application.Orders.Commands.MarkOrderAsRefunded;
 
 namespace EStore.Api.Controllers;
 
@@ -14,11 +19,16 @@ public class StripeController : ApiController
 {
     private readonly ISender _mediator;
     private readonly IMapper _mapper;
+    private readonly StripeSettings _stripeSettings;
 
-    public StripeController(ISender mediator, IMapper mapper)
+    public StripeController(
+        ISender mediator,
+        IMapper mapper,
+        IOptions<StripeSettings> stripeSettingsOptions)
     {
         _mediator = mediator;
         _mapper = mapper;
+        _stripeSettings = stripeSettingsOptions.Value;
     }
 
     [HttpPost]
@@ -35,14 +45,8 @@ public class StripeController : ApiController
         var createCheckoutSessionResult = await _mediator.Send(command);
 
         return createCheckoutSessionResult.Match(
-            sessionUrl => RedirectTo(sessionUrl),
+            sessionUrl => Ok(sessionUrl),
             errors => Problem(errors));
-    }
-
-    private StatusCodeResult RedirectTo(string url)
-    {
-        Response.Headers.Add("Location", url);
-        return new StatusCodeResult(303);
     }
 
     [HttpPost("webhook")]
@@ -52,7 +56,11 @@ public class StripeController : ApiController
 
         try
         {
-            var stripeEvent = EventUtility.ParseEvent(json);
+            var stripeEvent = EventUtility.ConstructEvent(
+                json,
+                Request.Headers["Stripe-Signature"],
+                _stripeSettings.WebhookSecret
+            );
 
             if (stripeEvent.Type == Events.CheckoutSessionCompleted)
             {
@@ -62,22 +70,43 @@ public class StripeController : ApiController
 
                 if (session is not null)
                 {
-                    
+                    string paymentIntentId = session.PaymentIntentId;
+                    var shippingAddress = ShippingAddress.Create(
+                        street: session.ShippingDetails.Address.Line1,
+                        city: session.ShippingDetails.Address.City,
+                        state: session.ShippingDetails.Address.State,
+                        country: session.ShippingDetails.Address.State,
+                        zipCode: session.ShippingDetails.Address.PostalCode);
+
+                    var orderId = session.Metadata["order_id"];
+
+                    if (orderId is not null)
+                    {
+                        var command = new UpdateOrderCommand(
+                            OrderId.Create(new Guid(orderId)),
+                            OrderStatus.Paid,
+                            paymentIntentId,
+                            shippingAddress);
+                        
+                        var updateOrderResult = await _mediator.Send(command);
+
+                        // TODO: log errors when they occurred
+                    }
                 }
-
-
-            }
-            else if (stripeEvent.Type == Events.PaymentIntentCanceled)
-            {
-                var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-
-                Console.WriteLine("Catch payment intent canceled");
             }
             else if (stripeEvent.Type == Events.ChargeRefunded)
             {
                 var charge = stripeEvent.Data.Object as Charge;
 
                 Console.WriteLine("Catch charge refunded");
+                
+                if (charge is not null)
+                {
+                    var command = new MarkOrderAsRefundedCommand(charge.PaymentIntentId);
+
+                    await _mediator.Send(command);
+                }
+
             }
 
             return Ok();
@@ -86,6 +115,12 @@ public class StripeController : ApiController
         {
             return BadRequest(e.Message);
         }
+    }
+
+    private StatusCodeResult RedirectTo(string url)
+    {
+        Response.Headers.Add("Location", url);
+        return new StatusCodeResult(303);
     }
 
     private Guid? GetCustomerId()

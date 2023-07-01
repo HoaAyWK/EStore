@@ -70,6 +70,11 @@ public sealed class Cart : AggregateRoot<CartId>
         return Result.Success;
     }
 
+    public void Clear()
+    {
+        _items.Clear();
+    }
+
     public void RemoveItem(CartItemId itemId)
     {
         var item = Items.FirstOrDefault(i => i.Id == itemId);

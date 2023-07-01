@@ -4,7 +4,6 @@ using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
-using EStore.Domain.ProductAggregate.Entities;
 
 namespace EStore.Application.Products.Commands.AddProductAttributeValue;
 
@@ -33,20 +32,12 @@ public class AddProductAttributeValueCommandHandler
             return Errors.Product.NotFound;
         }
 
-        var productAttribute = product.ProductAttributes.FirstOrDefault(
-            x => x.Id == request.ProductAttributeId);
-
-        if (productAttribute is null)
-        {
-            return Errors.Product.ProductAttributeNotFound;
-        }
-
-        var productAttributeValue = ProductAttributeValue.Create(
+        product.AddProductAttributeValue(
+            request.ProductAttributeId,
             request.Name,
-            request.PriceAdjustment ?? 0,
+            request.PriceAdjustment,
             request.Alias);
 
-        productAttribute.AddAttributeValue(productAttributeValue);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         
         return product;

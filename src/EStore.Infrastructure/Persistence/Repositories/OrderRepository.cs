@@ -1,6 +1,7 @@
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.OrderAggregate.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace EStore.Infrastructure.Persistence.Repositories;
 
@@ -21,5 +22,12 @@ internal sealed class OrderRepository : IOrderRepository
     public async Task<Order?> GetByIdAsync(OrderId id)
     {
         return await _dbContext.Orders.FindAsync(id);
+    }
+
+    public async Task<Order?> GetByTransactionIdAsync(string transactionId)
+    {
+        return await _dbContext.Orders
+            .Where(o => o.TransactionId == transactionId)
+            .FirstOrDefaultAsync();
     }
 }

@@ -40,7 +40,6 @@ public class UpdateProductVariantCommandHandler
 
         var updateDetailsResult = productVariant.UpdateDetails(
             request.StockQuantity,
-            request.Price,
             request.IsActive);
 
         if (updateDetailsResult.IsError)

@@ -32,17 +32,16 @@ public class UpdateProductAttributeCommandHandler
             return Errors.Product.NotFound;
         }
 
-        var attribute = product.ProductAttributes.FirstOrDefault(a => a.Id == request.Id);
+        var updateProductAttributeResult = product.UpdateProductAttribute(
+            request.Id,
+            request.Name,
+            request.Alias,
+            request.CanCombine);
 
-        if (attribute is null)
+        if (updateProductAttributeResult.IsError)
         {
-            return Errors.Product.ProductAttributeNotFound;
+            return updateProductAttributeResult.Errors;
         }
-
-        attribute.Update(
-            name: request.Name,
-            alias: request.Alias,
-            canCombine: request.CanCombine);
             
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

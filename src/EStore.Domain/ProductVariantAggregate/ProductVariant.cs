@@ -50,12 +50,25 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
     public static ErrorOr<ProductVariant> Create(
         ProductId productId,
         int stockQuantity,
-        decimal? price,
+        decimal price,
         string assignedProductImageIds,
         string? rawAttributeSelection,
         bool isActive = true)
     {
-        var errors =  ValidateQuantityAndPrice(stockQuantity, price);
+        var errors = new List<Error>();
+
+        var validatePriceResult = ValidatePrice(price);
+        var validateStockQuantityResult = ValidateQuantity(stockQuantity);
+
+        if (validateStockQuantityResult.IsError)
+        {
+            errors.Add(validateStockQuantityResult.FirstError);
+        }
+
+        if (validatePriceResult.IsError)
+        {
+            errors.Add(validatePriceResult.FirstError);
+        }
 
         if (errors.Count > 0)
         {
@@ -84,19 +97,47 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
 
     public ErrorOr<Updated> UpdateDetails(
         int stockQuantity,
-        decimal? price,
         bool isActive)
     {
-        var errors =  ValidateQuantityAndPrice(stockQuantity, price);
 
-        if (errors.Count > 0)
+        var validateStockQuantityResult = ValidateQuantity(stockQuantity);
+
+        if (validateStockQuantityResult.IsError)
         {
-            return errors;
+            return validateStockQuantityResult.Errors;
         }
 
         StockQuantity = stockQuantity;
-        Price = price;
         IsActive = isActive;
+
+        return Result.Updated;
+    }
+
+
+    public ErrorOr<Updated> UpdateStockQuantity(int stockQuantity)
+    {
+        var validateStockQuantityResult = ValidateQuantity(stockQuantity);
+
+        if (validateStockQuantityResult.IsError)
+        {
+            return validateStockQuantityResult.Errors;
+        }
+
+        StockQuantity = stockQuantity;
+
+        return Result.Updated;
+    }
+
+    public ErrorOr<Updated> UpdatePrice(decimal? price)
+    {
+        var validatePriceResult = ValidatePrice(price ?? 0);
+
+        if (validatePriceResult.IsError)
+        {
+            return validatePriceResult.Errors;
+        }
+
+        Price = price;
 
         return Result.Updated;
     }
@@ -106,21 +147,23 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
         AssignedProductImageIds = assignedImageIds;
     }
 
-    private static List<Error> ValidateQuantityAndPrice(int stockQuantity, decimal? price)
-    {
-        var errors = new List<Error>();
-
-        if (stockQuantity < MinStockQuantity)
-        {
-            errors.Add(Errors.ProductVariant.InvalidStockQuantity);
-        }
-
+    private static ErrorOr<Success> ValidatePrice(decimal? price)
+    {  
         if (price < MinPrice)
         {
-            errors.Add(Errors.ProductVariant.InvalidPrice);
+            return Errors.ProductVariant.InvalidPrice;
         }
 
-        return errors;
+        return Result.Success;
     }
 
+    private static ErrorOr<Success> ValidateQuantity(int stockQuantity)
+    {
+        if (stockQuantity < MinStockQuantity)
+        {
+            return Errors.ProductVariant.InvalidStockQuantity;
+        }
+
+        return Result.Success;
+    }
 }

@@ -6,6 +6,7 @@ using EStore.Domain.Common.Abstractions;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.ProductAggregate.Entities;
 using ErrorOr;
+using EStore.Domain.ProductAggregate.Events;
 
 namespace EStore.Domain.ProductAggregate;
 
@@ -173,6 +174,87 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public void AddProductAttribute(ProductAttribute productAttribute)
     {
         _productAttributes.Add(productAttribute);
+    }
+
+    public ErrorOr<Updated> UpdateProductAttribute(
+        ProductAttributeId id,
+        string name,
+        string? alias,
+        bool canCombine)
+    {
+        var productAttribute = ProductAttributes.FirstOrDefault(x => x.Id == id);
+
+        if (productAttribute is null)
+        {
+            return Errors.Product.ProductAttributeNotFound;
+        }
+
+        productAttribute.Update(name, alias, canCombine);
+
+        return Result.Updated;
+    }
+
+    public ErrorOr<Created> AddProductAttributeValue(
+        ProductAttributeId productAttributeId,
+        string name,
+        decimal? priceAdjustment,
+        string? alias)
+    {
+        var productAttribute = ProductAttributes.FirstOrDefault(x => x.Id == productAttributeId);
+
+        if (productAttribute is null)
+        {
+            return Errors.Product.ProductAttributeNotFound;
+        }
+
+        var productAttributeValue = ProductAttributeValue.Create(
+            name,
+            priceAdjustment ?? 0,
+            alias);
+
+        productAttribute.AddAttributeValue(productAttributeValue);
+
+        return Result.Created;
+    }
+
+    public ErrorOr<Updated> UpdateProductAttributeValue(
+        ProductAttributeId attributeId,
+        ProductAttributeValueId attributeValueId,
+        string name,
+        decimal? priceAdjustment,
+        string? alias)
+    {
+        var productAttribute = ProductAttributes.FirstOrDefault(x => x.Id == attributeId);
+
+        if (productAttribute is null)
+        {
+            return Errors.Product.ProductAttributeNotFound;
+        }
+
+        var productAttributeValue = productAttribute.ProductAttributeValues
+            .FirstOrDefault(x => x.Id == attributeValueId);
+
+        if (productAttributeValue is null)
+        {
+            return Errors.Product.ProductAttributeValueNotFound;
+        }
+
+        decimal attributeValueOldPrice = productAttributeValue.PriceAdjustment;
+        decimal attributeValueNewPrice = priceAdjustment ?? 0;
+
+        productAttributeValue.UpdateDetails(
+            name,
+            alias,
+            attributeValueNewPrice);
+
+        RaiseDomainEvent(new ProductAttributeValueUpdatedDomainEvent(
+            Id,
+            attributeId,
+            attributeValueId,
+            attributeValueOldPrice,
+            attributeValueNewPrice));
+        
+        return Result.Updated;
     }
 
     public void UpdateCategory(CategoryId categoryId)

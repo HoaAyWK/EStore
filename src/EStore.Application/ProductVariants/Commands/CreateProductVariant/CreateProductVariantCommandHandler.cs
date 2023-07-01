@@ -117,46 +117,6 @@ public class CreateProductVariantCommandHandler
         {
             return errors;
         }
-
-        // // TODO: implement in domain event handler
-        // // Update each product attribute value's raw connected attribute
-        // for (int i = 0; i < request.SelectedAttributes.Count - 1; i++)
-        // {
-        //     var leftAttribute = product!.ProductAttributes.FirstOrDefault(
-        //         x => x.Id == request.SelectedAttributes[i].ProductAttributeId);
-            
-        //     var leftAttributeValue = leftAttribute!.ProductAttributeValues.FirstOrDefault(
-        //         x => x.Id == request.SelectedAttributes[i].ProductAttributeValueId);
-
-        //     var leftAttributeValueSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
-        //         .Create(leftAttributeValue!.RawCombinedAttributes);
-
-        //     for (int j = request.SelectedAttributes.Count - 1; j > i; j--)
-        //     {
-        //         var rightAttribute = product.ProductAttributes.FirstOrDefault(
-        //             x => x.Id == request.SelectedAttributes[j].ProductAttributeId);
-
-        //         var rightAttributeValue = rightAttribute!.ProductAttributeValues.FirstOrDefault(
-        //             x => x.Id == request.SelectedAttributes[j].ProductAttributeValueId);
-
-        //         var rightAttributeValueSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
-        //             .Create(rightAttributeValue!.RawCombinedAttributes);
-
-        //         leftAttributeValueSelection.AddAttributeValue(
-        //             request.SelectedAttributes[i].ProductAttributeId,
-        //             request.SelectedAttributes[j].ProductAttributeValueId);
-
-        //         rightAttributeValueSelection.AddAttributeValue(
-        //             request.SelectedAttributes[j].ProductAttributeId,
-        //             request.SelectedAttributes[i].ProductAttributeValueId);
-
-        //         rightAttributeValue.UpdateRawConnectedAttributes(
-        //             rightAttributeValueSelection.AsJson());
-        //     }
-
-        //     leftAttributeValue!.UpdateRawConnectedAttributes(
-        //         leftAttributeValueSelection.AsJson());
-        // }
         
         await _productVariantRepository.AddAsync(productVariant);
         await _unitOfWork.SaveChangesAsync();

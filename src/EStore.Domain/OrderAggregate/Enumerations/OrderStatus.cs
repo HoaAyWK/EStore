@@ -12,6 +12,8 @@ public sealed class OrderStatus : Enumeration<OrderStatus>
 
     public static readonly OrderStatus Cancelled = new OrderStatus(4, nameof(Cancelled));
 
+    public static readonly OrderStatus Refunded = new OrderStatus(5, nameof(Refunded));
+
     private OrderStatus(int value, string name)
         : base(value, name)
     {

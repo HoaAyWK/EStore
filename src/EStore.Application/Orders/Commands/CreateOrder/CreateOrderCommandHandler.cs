@@ -23,7 +23,8 @@ public class CreateOrderCommandHandler
             request.CustomerId,
             request.OrderStatus,
             request.TransactionId,
-            request.ShippingAddress);
+            request.ShippingAddress,
+            request.OrderItems);
 
         await _orderRepository.AddAsync(order);
         await _unitOfWork.SaveChangesAsync();

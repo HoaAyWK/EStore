@@ -2,8 +2,6 @@ using ErrorOr;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.Common.Errors;
-using EStore.Domain.BrandAggregate.ValueObjects;
-using EStore.Domain.CategoryAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;

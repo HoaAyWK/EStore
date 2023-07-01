@@ -3,6 +3,7 @@ using EStore.Domain.Common.Models;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate.Entities;
 using EStore.Domain.OrderAggregate.Enumerations;
+using EStore.Domain.OrderAggregate.Events;
 using EStore.Domain.OrderAggregate.ValueObjects;
 
 namespace EStore.Domain.OrderAggregate;
@@ -36,26 +37,55 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity
         CustomerId customerId,
         OrderStatus orderStatus,
         string? transactionId,
-        ShippingAddress shippingAddress)
+        ShippingAddress shippingAddress,
+        List<OrderItem> orderItems)
         : base(id)
     {
         CustomerId = customerId;
         OrderStatus = orderStatus;
         TransactionId = transactionId;
         ShippingAddress = shippingAddress;
+        _orderItems = orderItems;
     }
 
     public static Order Create(
         CustomerId customerId,
         OrderStatus status,
         string? transactionId,
-        ShippingAddress shippingAddress)
+        ShippingAddress shippingAddress,
+        List<OrderItem> orderItems)
     {
-        return new(
+        var order = new Order(
             OrderId.CreateUnique(),
             customerId,
             status,
             transactionId,
-            shippingAddress);
+            shippingAddress,
+            orderItems);
+
+        order.RaiseDomainEvent(new OrderCreatedDomainEvent(order.Id, customerId));
+
+        return order;
+    }
+
+    public void UpdateShippingAddress(ShippingAddress shippingAddress)
+    {
+        ShippingAddress = shippingAddress;
+    }
+
+    public void UpdateTransactionId(string transactionId)
+    {
+        TransactionId = transactionId;
+    }
+
+    public void UpdateOrderStatus(OrderStatus orderStatus)
+    {
+        OrderStatus = orderStatus;
+    }
+
+    public void MarkAsRefunded()
+    {
+        OrderStatus = OrderStatus.Refunded;
+        RaiseDomainEvent(new OrderRefundedDomainEvent(Id));
     }
 }

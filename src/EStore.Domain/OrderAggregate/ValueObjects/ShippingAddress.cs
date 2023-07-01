@@ -4,15 +4,15 @@ namespace EStore.Domain.OrderAggregate.ValueObjects;
 
 public sealed class ShippingAddress : ValueObject
 {
-    public string Street { get; } = null!;
+    public string Street { get; } = string.Empty;
 
-    public string City { get; } = null!;
+    public string City { get; } = string.Empty;
 
-    public string State { get; } = null!;
+    public string State { get; } = string.Empty;
 
-    public string Country { get; } = null!;
+    public string Country { get; } = string.Empty;
 
-    public string ZipCode { get; } = null!;
+    public string ZipCode { get; } = string.Empty;
 
     private ShippingAddress()
     {
