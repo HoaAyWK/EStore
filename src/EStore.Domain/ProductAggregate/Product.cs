@@ -210,7 +210,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         var productAttributeValue = ProductAttributeValue.Create(
             name,
             priceAdjustment ?? 0,
-            alias);
+            alias);   
 
         productAttribute.AddAttributeValue(productAttributeValue);
 
