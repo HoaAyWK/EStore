@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.Common.Errors;
@@ -11,14 +10,11 @@ public class UpdateProductAttributeCommandHandler
     : IRequestHandler<UpdateProductAttributeCommand, ErrorOr<Product>>
 {
     private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public UpdateProductAttributeCommandHandler(
-        IProductRepository productRepository,
-        IUnitOfWork unitOfWork)
+        IProductRepository productRepository)
     {
         _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Product>> Handle(
@@ -43,8 +39,6 @@ public class UpdateProductAttributeCommandHandler
             return updateProductAttributeResult.Errors;
         }
             
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
         return product;
     }
 }

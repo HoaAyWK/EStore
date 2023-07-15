@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.CartAggregate;
 using EStore.Domain.CartAggregate.Repositories;
 using EStore.Domain.Common.Errors;
@@ -11,12 +10,10 @@ public class RemoveItemFromCartCommandHandler
     : IRequestHandler<RemoveItemFromCartCommand, ErrorOr<Cart>>
 {
     private readonly ICartRepository _cartRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public RemoveItemFromCartCommandHandler(ICartRepository cartRepository, IUnitOfWork unitOfWork)
+    public RemoveItemFromCartCommandHandler(ICartRepository cartRepository)
     {
         _cartRepository = cartRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Cart>> Handle(RemoveItemFromCartCommand request, CancellationToken cancellationToken)
@@ -29,8 +26,7 @@ public class RemoveItemFromCartCommandHandler
         }
 
         cart.RemoveItem(request.ItemId);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
+        
         return cart;
     }
 }

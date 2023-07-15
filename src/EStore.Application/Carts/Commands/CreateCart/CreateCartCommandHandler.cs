@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.CartAggregate;
 using EStore.Domain.CartAggregate.Repositories;
 using EStore.Domain.Common.Errors;
@@ -11,12 +10,10 @@ public class CreateCartCommandHandler
     : IRequestHandler<CreateCartCommand, ErrorOr<Cart>>
 {
     private readonly ICartRepository _cartRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateCartCommandHandler(ICartRepository cartRepository, IUnitOfWork unitOfWork)
+    public CreateCartCommandHandler(ICartRepository cartRepository)
     {
         _cartRepository = cartRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Cart>> Handle(CreateCartCommand request, CancellationToken cancellationToken)
@@ -30,7 +27,6 @@ public class CreateCartCommandHandler
 
         cart = Cart.Create(request.CustomerId);
         await _cartRepository.AddAsync(cart);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return cart;
     }

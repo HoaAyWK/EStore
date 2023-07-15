@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.BrandAggregate;
 using EStore.Domain.BrandAggregate.Repositories;
 using MediatR;
@@ -10,14 +9,10 @@ public class CreateBrandCommandHandler
     : IRequestHandler<CreateBrandCommand, ErrorOr<Brand>>
 {
     private readonly IBrandRepository _brandRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateBrandCommandHandler(
-        IBrandRepository brandRepository,
-        IUnitOfWork unitOfWork)
+    public CreateBrandCommandHandler(IBrandRepository brandRepository)
     {
         _brandRepository = brandRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Brand>> Handle(
@@ -34,7 +29,6 @@ public class CreateBrandCommandHandler
         var brand = createBrandResult.Value;
 
         await _brandRepository.AddAsync(brand);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return brand;
     }

@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.Repositories;
@@ -15,18 +14,15 @@ public class UpdateOrderCommandHandler
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
     private readonly IProductVariantRepository _productVariantRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public UpdateOrderCommandHandler(
         IOrderRepository orderRepository,
         IProductRepository productRepository,
-        IProductVariantRepository productVariantRepository,
-        IUnitOfWork unitOfWork)
+        IProductVariantRepository productVariantRepository)
     {
         _orderRepository = orderRepository;
         _productRepository = productRepository;
         _productVariantRepository = productVariantRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Updated>> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
@@ -81,8 +77,6 @@ public class UpdateOrderCommandHandler
                 product.UpdateStockQuantity(product.StockQuantity - orderItem.Quantity);
             }
         }
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Updated;
     }

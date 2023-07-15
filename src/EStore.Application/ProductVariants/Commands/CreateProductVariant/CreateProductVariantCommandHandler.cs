@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Utilities;
 using EStore.Domain.ProductAggregate.Repositories;
@@ -15,16 +14,13 @@ public class CreateProductVariantCommandHandler
 {
     private readonly IProductVariantRepository _productVariantRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public CreateProductVariantCommandHandler(
         IProductVariantRepository productVariantRepository,
-        IProductRepository productRepository,
-        IUnitOfWork unitOfWork)
+        IProductRepository productRepository)
     {
         _productVariantRepository = productVariantRepository;
         _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<ProductVariant>> Handle(
@@ -119,7 +115,6 @@ public class CreateProductVariantCommandHandler
         }
         
         await _productVariantRepository.AddAsync(productVariant);
-        await _unitOfWork.SaveChangesAsync();
 
         return productVariant;
     }

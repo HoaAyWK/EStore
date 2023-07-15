@@ -1,6 +1,5 @@
 using System.Text;
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductAggregate.ValueObjects;
@@ -14,16 +13,13 @@ public class UpdateProductVariantCommandHandler
 {
     private readonly IProductVariantRepository _productVariantRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public UpdateProductVariantCommandHandler(
         IProductVariantRepository productVariantRepository,
-        IProductRepository productRepository,
-        IUnitOfWork unitOfWork)
+        IProductRepository productRepository)
     {
         _productVariantRepository = productVariantRepository;
         _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Updated>> Handle(
@@ -86,8 +82,6 @@ public class UpdateProductVariantCommandHandler
 
             productVariant.UpdateAssignedImageIds(assignedImageIds.ToString());
         }
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Updated;
     }

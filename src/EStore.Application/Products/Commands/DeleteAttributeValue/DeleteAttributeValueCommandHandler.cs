@@ -1,8 +1,6 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductAggregate.Repositories;
-using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Domain.Common.Errors;
 using MediatR;
 
@@ -12,14 +10,11 @@ public class DeleteAttributeValueCommandHandler
     : IRequestHandler<DeleteAttributeValueCommand, ErrorOr<Product>>
 {
     private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public DeleteAttributeValueCommandHandler(
-        IProductRepository productRepository,
-        IUnitOfWork unitOfWork)
+        IProductRepository productRepository)
     {
         _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Product>> Handle(
@@ -50,7 +45,6 @@ public class DeleteAttributeValueCommandHandler
         }
 
         attribute.RemoveAttributeValue(attributeValue);
-        await _unitOfWork.SaveChangesAsync();
 
         return product;
     }

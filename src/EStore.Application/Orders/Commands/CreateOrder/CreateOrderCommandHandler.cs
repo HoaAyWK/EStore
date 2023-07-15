@@ -1,4 +1,3 @@
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Repositories;
 using MediatR;
@@ -9,12 +8,10 @@ public class CreateOrderCommandHandler
     : IRequestHandler<CreateOrderCommand, Order>
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateOrderCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork)
+    public CreateOrderCommandHandler(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Order> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -27,7 +24,6 @@ public class CreateOrderCommandHandler
             request.OrderItems);
 
         await _orderRepository.AddAsync(order);
-        await _unitOfWork.SaveChangesAsync();
 
         return order;
     }

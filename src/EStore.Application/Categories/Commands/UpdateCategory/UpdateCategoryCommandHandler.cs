@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
@@ -10,14 +9,10 @@ public class UpdateCategoryCommandHandler
     : IRequestHandler<UpdateCategoryCommand, ErrorOr<Updated>>
 {
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateCategoryCommandHandler(
-        ICategoryRepository categoryRepository,
-        IUnitOfWork unitOfWork)
+    public UpdateCategoryCommandHandler(ICategoryRepository categoryRepository)
     {
         _categoryRepository = categoryRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Updated>> Handle(
@@ -49,8 +44,6 @@ public class UpdateCategoryCommandHandler
 
             category.UpdateParentCategory(request.ParentId);
         }
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Updated;
     }

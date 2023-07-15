@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.Repositories;
@@ -11,12 +10,10 @@ public class MarkOrderAsPaidCommandHandler
     : IRequestHandler<MarkOrderAsPaidCommand, ErrorOr<Updated>>
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public MarkOrderAsPaidCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork)
+    public MarkOrderAsPaidCommandHandler(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Updated>> Handle(MarkOrderAsPaidCommand request, CancellationToken cancellationToken)
@@ -30,8 +27,6 @@ public class MarkOrderAsPaidCommandHandler
 
         order.UpdateOrderStatus(OrderStatus.Paid);
         
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
         return Result.Updated;
     }
 }

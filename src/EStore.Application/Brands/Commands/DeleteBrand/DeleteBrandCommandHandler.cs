@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.Common.Errors;
@@ -12,16 +11,13 @@ public class DeleteBrandCommandHandler
 {
     private readonly IBrandRepository _brandRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public DeleteBrandCommandHandler(
         IBrandRepository brandRepository,
-        IProductRepository productRepository,
-        IUnitOfWork unitOfWork)
+        IProductRepository productRepository)
     {
         _brandRepository = brandRepository;
         _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Deleted>> Handle(
@@ -41,7 +37,6 @@ public class DeleteBrandCommandHandler
         }
 
         _brandRepository.Delete(brand);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Deleted;
     }

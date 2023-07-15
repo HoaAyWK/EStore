@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using MediatR;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.ProductAggregate.Repositories;
@@ -11,14 +10,11 @@ public class AddProductImageCommandHandler
     : IRequestHandler<AddProductImageCommand, ErrorOr<Updated>>
 {
     private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public AddProductImageCommandHandler(
-        IProductRepository productRepository,
-        IUnitOfWork unitOfWork)
+        IProductRepository productRepository)
     {
         _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Updated>> Handle(
@@ -55,9 +51,7 @@ public class AddProductImageCommandHandler
                 request.ImageUrl,
                 isMainImage,
                 request.DisplayOrder));
-        
-        await _unitOfWork.SaveChangesAsync();
-
+                
         return Result.Updated;
     }
 }

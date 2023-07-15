@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.CustomerAggregate.Repositories;
 using MediatR;
@@ -10,14 +9,10 @@ public class UpdateCustomerCommandHandler
     : IRequestHandler<UpdateCustomerCommand, ErrorOr<Updated>>
 {
     private readonly ICustomerRepository _CustomerRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateCustomerCommandHandler(
-        ICustomerRepository CustomerRepository,
-        IUnitOfWork unitOfWork)
+    public UpdateCustomerCommandHandler(ICustomerRepository CustomerRepository)
     {
         _CustomerRepository = CustomerRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Updated>> Handle(
@@ -37,8 +32,6 @@ public class UpdateCustomerCommandHandler
         {
             return updateCustomerDetailResult.Errors;
         }
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Updated;
     }

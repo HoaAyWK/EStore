@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.OrderAggregate.Repositories;
 using MediatR;
@@ -10,12 +9,10 @@ public class MarkOrderAsRefundedCommandHandler
     : IRequestHandler<MarkOrderAsRefundedCommand, ErrorOr<Updated>>
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public MarkOrderAsRefundedCommandHandler(IOrderRepository orderRepository, IUnitOfWork unitOfWork)
+    public MarkOrderAsRefundedCommandHandler(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Updated>> Handle(MarkOrderAsRefundedCommand request, CancellationToken cancellationToken)
@@ -28,8 +25,6 @@ public class MarkOrderAsRefundedCommandHandler
         }
 
         order.MarkAsRefunded();
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Updated;
     }

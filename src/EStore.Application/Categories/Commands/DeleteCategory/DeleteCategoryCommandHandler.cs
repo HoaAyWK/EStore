@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.Common.Errors;
@@ -12,16 +11,13 @@ public class DeleteCategoryCommandHandler
 {
     private readonly ICategoryRepository _categoryRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCategoryCommandHandler(
         ICategoryRepository categoryRepository,
-        IProductRepository productRepository,
-        IUnitOfWork unitOfWork)
+        IProductRepository productRepository)
     {
         _categoryRepository = categoryRepository;
         _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Deleted>> Handle(
@@ -46,8 +42,7 @@ public class DeleteCategoryCommandHandler
         }
 
         _categoryRepository.Delete(category);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+                
         return Result.Deleted;
     }
 }

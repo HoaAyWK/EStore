@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.CustomerAggregate;
 using EStore.Domain.CustomerAggregate.Repositories;
@@ -11,14 +10,10 @@ public class CreateCustomerCommandHandler
     : IRequestHandler<CreateCustomerCommand, ErrorOr<Customer>>
 {
     private readonly ICustomerRepository _CustomerRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateCustomerCommandHandler(
-        ICustomerRepository CustomerRepository,
-        IUnitOfWork unitOfWork)
+    public CreateCustomerCommandHandler(ICustomerRepository CustomerRepository)
     {
         _CustomerRepository = CustomerRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ErrorOr<Customer>> Handle(
@@ -42,7 +37,6 @@ public class CreateCustomerCommandHandler
         var customer = createCustomerResult.Value;
 
         await _CustomerRepository.AddAsync(customer);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return customer;
     }
