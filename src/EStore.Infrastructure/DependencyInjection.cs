@@ -9,6 +9,7 @@ using EStore.Domain.CartAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.Common.Abstractions;
 using EStore.Domain.CustomerAggregate.Repositories;
+using EStore.Domain.DiscountAggregate.Repositories;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductVariantAggregate.Repositories;
@@ -74,6 +75,7 @@ public static class DependencyInjection
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IDiscountRepository, DiscountRepository>();
 
         services.AddScoped<IBrandReadService, BrandReadService>();
         services.AddScoped<ICategoryReadService, CategoryReadService>();
