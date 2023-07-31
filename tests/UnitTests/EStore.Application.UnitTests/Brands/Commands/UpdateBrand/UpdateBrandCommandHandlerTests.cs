@@ -1,5 +1,4 @@
 using EStore.Application.Brands.Commands.UpdateBrand;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Application.UnitTests.TestUtils.Constants;
 using EStore.Application.UnitTests.Brands.Commands.TestUtils;
@@ -14,19 +13,15 @@ public class UpdateBrandCommandHandlerTests
 {
     private readonly UpdateBrandCommandHandler _handler;
     private readonly Mock<IBrandRepository> _mockBrandRepository;
-    private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
     public UpdateBrandCommandHandlerTests()
     {
         _mockBrandRepository = new();
-        _mockUnitOfWork = new();
 
         _mockBrandRepository.Setup(m => m.GetByIdAsync(Constants.Brand.MockExistingBrand.Id))
             .ReturnsAsync(Constants.Brand.MockExistingBrand);
 
-        _handler = new UpdateBrandCommandHandler(
-            _mockBrandRepository.Object,
-            _mockUnitOfWork.Object);
+        _handler = new UpdateBrandCommandHandler(_mockBrandRepository.Object);
     }
 
     [Theory]
@@ -39,7 +34,6 @@ public class UpdateBrandCommandHandlerTests
         result.Value.Should().Be(Result.Updated);
 
         _mockBrandRepository.Verify(m => m.GetByIdAsync(command.Id), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 
     [Theory]
@@ -52,7 +46,6 @@ public class UpdateBrandCommandHandlerTests
         result.FirstError.Should().Be(Errors.Brand.InvalidNameLength);
 
         _mockBrandRepository.Verify(m => m.GetByIdAsync(command.Id), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 
     [Fact]
@@ -66,7 +59,6 @@ public class UpdateBrandCommandHandlerTests
         result.FirstError.Should().Be(Errors.Brand.NotFound);
 
         _mockBrandRepository.Verify(m => m.GetByIdAsync(command.Id), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 }
 

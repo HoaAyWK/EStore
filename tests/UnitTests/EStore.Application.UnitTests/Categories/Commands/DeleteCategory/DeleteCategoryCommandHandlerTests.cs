@@ -26,8 +26,7 @@ public class DeleteCategoryCommandHandlerTests
 
         _handler = new(
             _mockCategoryRepository.Object,
-            _mockProductRepository.Object,
-            _mockUnitOfWork.Object);
+            _mockProductRepository.Object);
 
         _mockCategoryRepository.Setup(m => m.GetByIdAsync(Constants.Category.Id))
             .ReturnsAsync(Constants.Category.MockExistingCategoryNoParent);

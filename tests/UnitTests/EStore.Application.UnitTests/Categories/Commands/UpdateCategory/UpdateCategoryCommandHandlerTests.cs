@@ -1,6 +1,5 @@
 using ErrorOr;
 using EStore.Application.Categories.Commands.UpdateCategory;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.UnitTests.Categories.TestUtils;
 using EStore.Application.UnitTests.TestUtils.Constants;
 using EStore.Domain.CategoryAggregate.Repositories;
@@ -14,13 +13,11 @@ public class UpdateCategoryCommandHandlerTests
 {
     private readonly UpdateCategoryCommandHandler _handler;
     private readonly Mock<ICategoryRepository> _mockCategoryRepository;
-    private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
     public UpdateCategoryCommandHandlerTests()
     {
         _mockCategoryRepository = new();
-        _mockUnitOfWork = new();
-        _handler = new(_mockCategoryRepository.Object, _mockUnitOfWork.Object);
+        _handler = new(_mockCategoryRepository.Object);
 
         _mockCategoryRepository.Setup(m => m.GetByIdAsync(Constants.Category.Id))
             .ReturnsAsync(Constants.Category.MockExistingCategoryNoParent);
@@ -40,7 +37,6 @@ public class UpdateCategoryCommandHandlerTests
 
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(command.Id), Times.Once);
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(command.ParentId!), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 
     [Theory]
@@ -53,7 +49,6 @@ public class UpdateCategoryCommandHandlerTests
         result.Value.Should().Be(Result.Updated);
 
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(command.Id), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 
     [Fact]
@@ -67,7 +62,6 @@ public class UpdateCategoryCommandHandlerTests
         result.FirstError.Should().Be(Errors.Category.NotFound);
 
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(categoryId), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 
     [Fact]
@@ -86,7 +80,6 @@ public class UpdateCategoryCommandHandlerTests
 
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(Constants.Category.Id), Times.Once);
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(parentCategoryId), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 
     [Theory]
@@ -99,7 +92,6 @@ public class UpdateCategoryCommandHandlerTests
         result.FirstError.Should().Be(Errors.Category.InvalidNameLength);
 
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(command.Id), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 }
 

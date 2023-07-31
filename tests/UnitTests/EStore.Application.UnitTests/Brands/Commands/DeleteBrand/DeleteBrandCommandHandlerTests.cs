@@ -1,6 +1,5 @@
 using ErrorOr;
 using EStore.Application.Brands.Commands.DeleteBrand;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.UnitTests.Brands.Commands.TestUtils;
 using EStore.Application.UnitTests.TestUtils.Constants;
 using EStore.Domain.BrandAggregate.Repositories;
@@ -16,12 +15,10 @@ public class DeleteBrandCommandHandlerTests
     private readonly DeleteBrandCommandHandler _handler;
     private readonly Mock<IBrandRepository> _mockBrandRepository;
     private readonly Mock<IProductRepository> _mockProductRepository;
-    private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
     public DeleteBrandCommandHandlerTests()
     {
         _mockBrandRepository = new();
-        _mockUnitOfWork = new();
         _mockProductRepository = new();
 
         _mockBrandRepository.Setup(m => m.GetByIdAsync(Constants.Brand.MockExistingBrand.Id))
@@ -29,8 +26,7 @@ public class DeleteBrandCommandHandlerTests
 
         _handler = new DeleteBrandCommandHandler(
             _mockBrandRepository.Object,
-            _mockProductRepository.Object,
-            _mockUnitOfWork.Object);
+            _mockProductRepository.Object);
     }
 
     [Fact]
@@ -45,7 +41,6 @@ public class DeleteBrandCommandHandlerTests
 
         _mockBrandRepository.Verify(m => m.GetByIdAsync(deleteBrandCommand.Id), Times.Once);
         _mockProductRepository.Verify(m => m.AnyProductWithBrandId(deleteBrandCommand.Id), Times.Never);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 
     [Fact]
@@ -60,7 +55,6 @@ public class DeleteBrandCommandHandlerTests
 
         _mockBrandRepository.Verify(m => m.GetByIdAsync(deleteBrandCommand.Id), Times.Once);
         _mockProductRepository.Verify(m => m.AnyProductWithBrandId(deleteBrandCommand.Id), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 
 

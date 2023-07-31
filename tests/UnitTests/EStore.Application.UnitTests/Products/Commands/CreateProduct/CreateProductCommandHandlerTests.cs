@@ -1,4 +1,3 @@
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Products.Commands.CreateProduct;
 using EStore.Application.UnitTests.Products.Commands.TestUtils;
 using EStore.Application.UnitTests.Products.Commands.TestUtils.Products.Extensions;
@@ -19,20 +18,17 @@ public class CreateProductCommandHandlerTests
     private readonly Mock<IProductRepository> _mockProductRepository;
     private readonly Mock<IBrandRepository> _mockBrandRepository;
     private readonly Mock<ICategoryRepository> _mockCategoryRepository;
-    private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
     public CreateProductCommandHandlerTests()
     {
         _mockProductRepository = new();
-        _mockUnitOfWork = new();
         _mockBrandRepository = new();
         _mockCategoryRepository = new();
 
         _handler = new(
             _mockProductRepository.Object,
             _mockBrandRepository.Object,
-            _mockCategoryRepository.Object,
-            _mockUnitOfWork.Object);
+            _mockCategoryRepository.Object);
 
         _mockCategoryRepository.Setup(m => m.GetByIdAsync(Constants.Product.CategoryId))
             .ReturnsAsync(Constants.Category.MockExistingCategoryNoParent);
@@ -53,7 +49,6 @@ public class CreateProductCommandHandlerTests
         _mockProductRepository.Verify(m => m.AddAsync(result.Value), Times.Once);
         _mockBrandRepository.Verify(m => m.GetByIdAsync(command.BrandId), Times.Once);
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(command.CategoryId), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 
     [Theory]
@@ -66,7 +61,6 @@ public class CreateProductCommandHandlerTests
         result.FirstError.Should().Be(Errors.Product.InvalidNameLength);
 
         _mockProductRepository.Verify(m => m.AddAsync(result.Value), Times.Never);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 
     [Fact]
@@ -82,7 +76,6 @@ public class CreateProductCommandHandlerTests
 
         _mockBrandRepository.Verify(m => m.GetByIdAsync(command.BrandId), Times.Once);
         _mockProductRepository.Verify(m => m.AddAsync(result.Value), Times.Never);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 
     [Fact]
@@ -98,7 +91,6 @@ public class CreateProductCommandHandlerTests
 
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(command.CategoryId), Times.Once);
         _mockProductRepository.Verify(m => m.AddAsync(result.Value), Times.Never);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 }
 

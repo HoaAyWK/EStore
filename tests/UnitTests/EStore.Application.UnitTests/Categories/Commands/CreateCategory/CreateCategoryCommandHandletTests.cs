@@ -1,5 +1,4 @@
 using EStore.Application.Categories.Commands.CreateCategory;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.UnitTests.Categories.TestUtils;
 using EStore.Application.UnitTests.Categories.TestUtils.Categories.Extensions;
 using EStore.Application.UnitTests.TestUtils.Constants;
@@ -14,13 +13,11 @@ public class CreateCategoryCommandHandlerTests
 {
     private readonly CreateCategoryCommandHandler _handler;
     private readonly Mock<ICategoryRepository> _mockCategoryRepository;
-    private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
     public CreateCategoryCommandHandlerTests()
     {
         _mockCategoryRepository = new();
-        _mockUnitOfWork = new();
-        _handler = new(_mockCategoryRepository.Object, _mockUnitOfWork.Object);
+        _handler = new(_mockCategoryRepository.Object);
 
         _mockCategoryRepository.Setup(m => m.GetByIdAsync(Constants.Category.ParentId))
             .ReturnsAsync(Constants.Category.MockExistingParentCategory);
@@ -36,7 +33,6 @@ public class CreateCategoryCommandHandlerTests
         result.Value.ValidateCreatedFrom(command);
 
         _mockCategoryRepository.Verify(m => m.AddAsync(result.Value), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 
     [Theory]
@@ -50,7 +46,6 @@ public class CreateCategoryCommandHandlerTests
 
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(command.ParentId!), Times.Once);
         _mockCategoryRepository.Verify(m => m.AddAsync(result.Value), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 
     [Fact]
@@ -69,7 +64,6 @@ public class CreateCategoryCommandHandlerTests
 
         _mockCategoryRepository.Verify(m => m.GetByIdAsync(parentCategoryId), Times.Once);
         _mockCategoryRepository.Verify(m => m.AddAsync(result.Value), Times.Never);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 
     [Theory]
@@ -82,7 +76,6 @@ public class CreateCategoryCommandHandlerTests
         result.FirstError.Should().Be(Errors.Category.InvalidNameLength);
 
         _mockCategoryRepository.Verify(m => m.AddAsync(result.Value), Times.Never);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 }
 

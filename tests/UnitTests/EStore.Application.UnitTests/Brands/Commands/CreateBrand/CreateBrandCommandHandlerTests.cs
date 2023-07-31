@@ -1,5 +1,4 @@
 using EStore.Application.Brands.Commands.CreateBrand;
-using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.UnitTests.Brands.Commands.TestUtils;
 using EStore.Application.UnitTests.Brands.Commands.TestUtils.Brands.Extensions;
 using EStore.Application.UnitTests.TestUtils.Constants;
@@ -14,15 +13,11 @@ public class CreateBrandCommandHandlerTests
 {
     private readonly CreateBrandCommandHandler _handler;
     private readonly Mock<IBrandRepository> _mockBrandRepository;
-    private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
     public CreateBrandCommandHandlerTests()
     {
         _mockBrandRepository = new();
-        _mockUnitOfWork = new();
-        _handler = new CreateBrandCommandHandler(
-            _mockBrandRepository.Object,
-            _mockUnitOfWork.Object);
+        _handler = new CreateBrandCommandHandler(_mockBrandRepository.Object);
     }
 
     [Theory]
@@ -34,7 +29,6 @@ public class CreateBrandCommandHandlerTests
         result.IsError.Should().BeFalse();
         result.Value.ValidateCreatedFrom(command);
         _mockBrandRepository.Verify(m => m.AddAsync(result.Value), Times.Once);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 
     [Theory]
@@ -46,7 +40,6 @@ public class CreateBrandCommandHandlerTests
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.Brand.InvalidNameLength);
         _mockBrandRepository.Verify(m => m.AddAsync(result.Value), Times.Never);
-        _mockUnitOfWork.Verify(m => m.SaveChangesAsync(default), Times.Never);
     }
 }
 
