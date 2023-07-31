@@ -6,6 +6,10 @@ public static partial class Errors
 {
     public static class Discount
     {
+        public static Error NotFound => Error.NotFound(
+            code: "Discount.NotFound",
+            description: "The discount with specified identifier was not found.");
+
         public static Error InvalidNameLength => Error.Validation(
             code: "Discount.InvalidNameLength",
             description: "Discount name must be between " +

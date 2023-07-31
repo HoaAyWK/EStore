@@ -2,6 +2,7 @@ using EStore.Application.Carts.Services;
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
+using EStore.Application.Discounts.Services;
 using EStore.Application.Orders.Services;
 using EStore.Application.Products.Services;
 using EStore.Domain.BrandAggregate.Repositories;
@@ -82,6 +83,7 @@ public static class DependencyInjection
         services.AddScoped<IProductReadService, ProductReadService>();
         services.AddScoped<ICartReadService, CartReadService>();
         services.AddScoped<IOrderReadService, OrderReadService>();
+        services.AddScoped<IDiscountReadService, DiscountReadService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
