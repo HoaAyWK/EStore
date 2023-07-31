@@ -1,3 +1,4 @@
+using EStore.Api.Common.Contexts;
 using EStore.Application.Carts.Commands.AddItemToCart;
 using EStore.Application.Carts.Commands.CreateCart;
 using EStore.Application.Carts.Commands.RemoveItemFromCart;
@@ -13,17 +14,19 @@ public class CartsController : ApiController
 {
     private readonly ISender _mediator;
     private readonly IMapper _mapper;
+    private readonly IWorkContext _workContext;
 
-    public CartsController(ISender mediator, IMapper mapper)
+    public CartsController(ISender mediator, IMapper mapper, IWorkContext workContext)
     {
         _mediator = mediator;
         _mapper = mapper;
+        _workContext = workContext;
     }
 
     [HttpGet("my")]
     public async Task<IActionResult> GetCustomerCart()
     {
-        var customerId = GetOrSetCartCookieAndCustomerId();
+        var customerId = _workContext.CustomerId;
         var query = _mapper.Map<GetCartByCustomerIdQuery>(customerId);
         var getCustomerCartResult = await _mediator.Send(query);
 
@@ -43,7 +46,7 @@ public class CartsController : ApiController
     [HttpPut]
     public async Task<IActionResult> AddItemToCart([FromBody] AddItemToCartRequest request)
     {
-        var customerId = GetOrSetCartCookieAndCustomerId();
+        var customerId = _workContext.CustomerId;
         var command = _mapper.Map<AddItemToCartCommand>((customerId, request));
         var addItemToCartResult = await _mediator.Send(command);
 

@@ -3,6 +3,7 @@ using EStore.Domain.CartAggregate;
 using EStore.Domain.CategoryAggregate;
 using EStore.Domain.Common.Models;
 using EStore.Domain.CustomerAggregate;
+using EStore.Domain.DiscountAggregate;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductVariantAggregate;
@@ -39,5 +40,7 @@ public class EStoreDbContext : DbContext
     public DbSet<Cart> Carts { get; set; } = null!;
 
     public DbSet<Order> Orders { get; set; } = null!;
+
+    public DbSet<Discount> Discounts { get; set; } = null!;
 
 }

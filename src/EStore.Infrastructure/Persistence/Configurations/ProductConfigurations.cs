@@ -1,5 +1,6 @@
 using EStore.Domain.BrandAggregate.ValueObjects;
 using EStore.Domain.CategoryAggregate.ValueObjects;
+using EStore.Domain.DiscountAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductAggregate.Entities;
 using EStore.Domain.ProductAggregate.ValueObjects;
@@ -52,6 +53,13 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .HasConversion(
                 id => id.Value,
                 value => CategoryId.Create(value));
+
+        builder.Property(p => p.DiscountId)
+            .HasColumnName("ProductDiscountId")
+            .ValueGeneratedNever()
+            .HasConversion(
+                id => id!.Value,
+                value => DiscountId.Create(value));
 
         builder.OwnsOne(p => p.AverageRating);
 

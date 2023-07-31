@@ -1,6 +1,8 @@
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Contracts.Brands;
+using EStore.Domain.BrandAggregate;
 using EStore.Domain.BrandAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate;
 using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

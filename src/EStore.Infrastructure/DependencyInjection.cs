@@ -7,6 +7,7 @@ using EStore.Application.Products.Services;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.CartAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
+using EStore.Domain.Common.Abstractions;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
@@ -15,12 +16,14 @@ using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Authentication.OptionsSetup;
 using EStore.Infrastructure.BackgroundJobs;
 using EStore.Infrastructure.Identity;
+using EStore.Infrastructure.Messaging;
 using EStore.Infrastructure.Persistence;
 using EStore.Infrastructure.Persistence.Interceptors;
 using EStore.Infrastructure.Persistence.Repositories;
 using EStore.Infrastructure.Persistence.Seeds;
 using EStore.Infrastructure.Services;
 using EStore.Infrastructure.Services.OptionsSetup;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +44,8 @@ public static class DependencyInjection
         services.ConfigureOptions<UserSeedingOptionsSetup>();
         services.ConfigureOptions<MailSettingsOptionsSetup>();
         services.ConfigureOptions<StripeSettingsOptionsSetup>();
+
+        services.AddMediatR(typeof(DependencyInjection).Assembly);
 
         services.AddAuthentication(options =>
         {
@@ -78,6 +83,7 @@ public static class DependencyInjection
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
         services.AddTransient<IEmailService, EmailService>();
 

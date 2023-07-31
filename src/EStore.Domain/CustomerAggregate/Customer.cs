@@ -2,6 +2,7 @@ using ErrorOr;
 using EStore.Domain.Common.Abstractions;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Models;
+using EStore.Domain.CustomerAggregate.Events;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 
 namespace EStore.Domain.CustomerAggregate;
@@ -63,11 +64,15 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
             return errors;
         }
 
-        return new Customer(
+        var customer = new Customer(
             CustomerId.CreateUnique(),
             email,
             firstName,
             lastName);
+
+        customer.RaiseDomainEvent(new CustomerCreatedDomainEvent(customer.Id, email));
+
+        return customer;
     }
 
 

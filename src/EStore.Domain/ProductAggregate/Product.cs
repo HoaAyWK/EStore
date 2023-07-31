@@ -7,6 +7,7 @@ using EStore.Domain.Common.Errors;
 using EStore.Domain.ProductAggregate.Entities;
 using ErrorOr;
 using EStore.Domain.ProductAggregate.Events;
+using EStore.Domain.DiscountAggregate.ValueObjects;
 
 namespace EStore.Domain.ProductAggregate;
 
@@ -52,6 +53,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public DateTime UpdatedDateTime { get; private set; }
 
     public bool HasVariant { get; private set; }
+
+    public DiscountId? DiscountId { get; private set; }
     
     public IReadOnlyList<ProductImage> Images => _images.AsReadOnly();
 

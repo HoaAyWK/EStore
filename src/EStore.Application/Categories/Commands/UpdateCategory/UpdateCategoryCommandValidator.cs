@@ -1,3 +1,4 @@
+using EStore.Domain.CategoryAggregate;
 using FluentValidation;
 
 namespace EStore.Application.Categories.Commands.UpdateCategory;
@@ -10,7 +11,7 @@ public class UpdateCategoryCommandValidator
         RuleFor(x => x.Id).NotEmpty();
 
         RuleFor(x => x.Name).NotEmpty()
-            .MinimumLength(2)
-            .MaximumLength(100);
+            .MinimumLength(Category.MinNameLength)
+            .MaximumLength(Category.MaxNameLength);
     }
 }

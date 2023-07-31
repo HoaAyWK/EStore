@@ -1,3 +1,4 @@
+using EStore.Domain.ProductAggregate;
 using FluentValidation;
 
 namespace EStore.Application.Products.Commands.CreateProduct;
@@ -6,7 +7,9 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
 {
     public CreateProductCommandValidator()
     {
-        RuleFor(x => x.Name).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty()
+            .MinimumLength(Product.MinNameLength)
+            .MaximumLength(Product.MaxNameLength);
 
         RuleFor(x => x.Description).NotEmpty();
 
