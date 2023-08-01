@@ -1,16 +1,18 @@
 using EStore.Domain.DiscountAggregate;
 using FluentValidation;
 
-namespace EStore.Application.Discounts.Commands.CreateDiscount;
+namespace EStore.Application.Discounts.Commands.UpdateDiscount;
 
-public class CreateDiscountCommandValidator : AbstractValidator<CreateDiscountCommand>
+public class UpdateDiscountCommandValidator : AbstractValidator<UpdateDiscountCommand>
 {
-    public CreateDiscountCommandValidator()
+    public UpdateDiscountCommandValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .MinimumLength(Discount.MinNameLength)
-            .MaximumLength(Discount.MaxNameLength);
+            .Must(name => name.Length >= Discount.MinNameLength && name.Length <= Discount.MaxNameLength)
+            .WithMessage("Discount Name must be between " +
+                $"{Discount.MinNameLength} and " +
+                $"{Discount.MaxNameLength} characters.");
 
         RuleFor(x => x.DiscountPercentage)
             .Must(percentage => percentage > Discount.MinPercentage && percentage < Discount.MaxPercentage)

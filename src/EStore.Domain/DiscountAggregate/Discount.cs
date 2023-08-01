@@ -11,7 +11,7 @@ public sealed class Discount : AggregateRoot<DiscountId>, IAuditableEntity
     public const int MinNameLength = 2;
     public const int MaxNameLength = 100;
     public const decimal MinPercentage = 0;
-    public const decimal MaxPercentage = 100;
+    public const decimal MaxPercentage = 0.99m;
     public const decimal MinAmount = 0;
 
     public string Name { get; private set; } = null!;
@@ -101,6 +101,58 @@ public sealed class Discount : AggregateRoot<DiscountId>, IAuditableEntity
             discountAmount,
             startDateTime,
             endDateTime);
+    }
+
+    public ErrorOr<Updated> UpdateName(string name)
+    {
+        var validateNameResult = ValidateName(name);
+
+        if (validateNameResult.IsError)
+            return validateNameResult.FirstError;
+
+        Name = name;
+
+        return Result.Updated;
+    }
+
+    public void UpdateUsePercentage(bool usePercentage)
+        => UsePercentage = usePercentage;
+
+    public ErrorOr<Updated> UpdateDiscountPercentage(decimal discountPercentage)
+    {
+        var validateDiscountPercentageResult = ValidateDiscountPercentage(discountPercentage);
+
+        if (validateDiscountPercentageResult.IsError)
+            return validateDiscountPercentageResult.FirstError;
+
+        DiscountPercentage = discountPercentage;
+
+        return Result.Updated;
+    }
+
+    public ErrorOr<Updated> UpdateDiscountAmount(decimal discountAmount)
+    {
+        var validateDiscountAmountResult = ValidateDiscountAmount(discountAmount);
+
+        if (validateDiscountAmountResult.IsError)
+            return validateDiscountAmountResult.FirstError;
+
+        DiscountAmount = discountAmount;
+
+        return Result.Updated;
+    }
+
+    public ErrorOr<Updated> UpdateDates(DateTime startDate, DateTime endDate)
+    {
+        var validateDatesResult = ValidateDiscountDateTime(startDate, endDate);
+
+        if (validateDatesResult.IsError)
+            return validateDatesResult.Errors;
+
+        StartDateTime = startDate;
+        EndDateTime = endDate;
+
+        return Result.Updated;
     }
 
     private static ErrorOr<Success> ValidateName(string name)

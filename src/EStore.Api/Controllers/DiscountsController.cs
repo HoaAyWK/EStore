@@ -1,7 +1,7 @@
 using EStore.Application.Discounts.Commands.CreateDiscount;
+using EStore.Application.Discounts.Commands.UpdateDiscount;
 using EStore.Application.Discounts.Queries.GetDiscountByIdQuery;
 using EStore.Contracts.Discounts;
-using EStore.Domain.DiscountAggregate.ValueObjects;
 using EStore.Infrastructure.Authentication;
 using MapsterMapper;
 using MediatR;
@@ -43,6 +43,18 @@ public sealed class DiscountsController : ApiController
 
         return createDiscountResult.Match(
             discount => CreatedAtGetDiscount(_mapper.Map<DiscountResponse>(discount)),
+            errors => Problem(errors));
+    }
+
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateDiscount(Guid id, [FromBody] UpdateDiscountRequest request)
+    {
+        var command = _mapper.Map<UpdateDiscountCommand>((id, request));
+        var updateDiscountResult = await _mediator.Send(command);
+
+        return updateDiscountResult.Match(
+            updated => NoContent(),
             errors => Problem(errors));
     }
 

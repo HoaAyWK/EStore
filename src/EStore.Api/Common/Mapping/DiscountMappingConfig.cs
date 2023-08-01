@@ -1,3 +1,4 @@
+using EStore.Application.Discounts.Commands.UpdateDiscount;
 using EStore.Application.Discounts.Queries.GetDiscountByIdQuery;
 using EStore.Contracts.Discounts;
 using EStore.Domain.DiscountAggregate;
@@ -15,5 +16,9 @@ public class DiscountMappingConfig : IRegister
 
         config.NewConfig<Discount, DiscountResponse>()
             .Map(dest => dest.Id, src => src.Id.Value);
+
+        config.NewConfig<(Guid, UpdateDiscountRequest), UpdateDiscountCommand>()
+            .Map(dest => dest.Id, src => DiscountId.Create(src.Item1))
+            .Map(dest => dest, src => src.Item2);
     }
 }
