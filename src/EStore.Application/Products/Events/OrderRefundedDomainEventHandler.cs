@@ -33,13 +33,20 @@ public class OrderRefundedDomainEventHandler : INotificationHandler<OrderRefunde
 
         foreach (var orderItem in order.OrderItems)
         {
-            if (orderItem.ItemOrdered.ProductVariantId is null)
-            {
-                var product = await _productRepository.GetByIdAsync(orderItem.ItemOrdered.ProductId);
+            var product = await _productRepository.GetByIdAsync(orderItem.ItemOrdered.ProductId);
 
-                if (product is not null)
+            if (product is not null)
+            {
+                if (orderItem.ItemOrdered.ProductVariantId is null)
                 {
                     product.UpdateStockQuantity(product.StockQuantity + orderItem.Quantity);
+                }
+                else
+                {
+                    var productVariant =  product.ProductVariants
+                        .FirstOrDefault(v => v.Id == orderItem.ItemOrdered.ProductVariantId);
+                    
+                    productVariant.UpdateStockQuantity(productVariant.StockQuantity + orderItem.Quantity);
                 }
             }
         }

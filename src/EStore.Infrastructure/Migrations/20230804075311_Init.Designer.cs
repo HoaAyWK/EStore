@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EStore.Infrastructure.Migrations
 {
     [DbContext(typeof(EStoreDbContext))]
-    [Migration("20230630072342_Add_Outbox_Message")]
-    partial class Add_Outbox_Message
+    [Migration("20230804075311_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -131,6 +131,43 @@ namespace EStore.Infrastructure.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("EStore.Domain.DiscountAggregate.Discount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DiscountId");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("UsePercentage")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Discounts", (string)null);
+                });
+
             modelBuilder.Entity("EStore.Domain.OrderAggregate.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -178,6 +215,10 @@ namespace EStore.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("DiscountId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ProductDiscountId");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
@@ -212,40 +253,6 @@ namespace EStore.Infrastructure.Migrations
                     b.ToTable("Products", (string)null);
                 });
 
-            modelBuilder.Entity("EStore.Domain.ProductVariantAggregate.ProductVariant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("ProductVariantId");
-
-                    b.Property<string>("AssignedProductImageIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("RawAttributeSelection")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StockQuantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductVariants", (string)null);
-                });
-
             modelBuilder.Entity("EStore.Infrastructure.Persistence.Outbox.OutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -261,7 +268,7 @@ namespace EStore.Infrastructure.Migrations
                     b.Property<DateTime>("OccurredOnUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("ProcessedOnUtc")
+                    b.Property<DateTime?>("ProcessedOnUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Type")
@@ -502,6 +509,41 @@ namespace EStore.Infrastructure.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
+                    b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductVariant", "ProductVariants", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("ProductVariantId");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("AssignedProductImageIds")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool>("IsActive")
+                                .HasColumnType("bit");
+
+                            b1.Property<decimal?>("Price")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<string>("RawAttributeSelection")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<int>("StockQuantity")
+                                .HasColumnType("int");
+
+                            b1.HasKey("Id", "ProductId");
+
+                            b1.HasIndex("ProductId");
+
+                            b1.ToTable("ProductVariants", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
                     b.OwnsOne("EStore.Domain.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
@@ -527,6 +569,8 @@ namespace EStore.Infrastructure.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("ProductAttributes");
+
+                    b.Navigation("ProductVariants");
                 });
 
             modelBuilder.Entity("EStore.Domain.CategoryAggregate.Category", b =>

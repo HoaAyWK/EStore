@@ -6,7 +6,6 @@ using EStore.Domain.CustomerAggregate;
 using EStore.Domain.DiscountAggregate;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.ProductAggregate;
-using EStore.Domain.ProductVariantAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace EStore.Infrastructure.Persistence;
@@ -32,8 +31,6 @@ public class EStoreDbContext : DbContext
     public DbSet<Brand> Brands { get; set; } = null!;
 
     public DbSet<Product> Products { get; set; } = null!;
-
-    public DbSet<ProductVariant> ProductVariants { get; set; } = null!;
 
     public DbSet<Customer> Customers { get; set; } = null!;
 

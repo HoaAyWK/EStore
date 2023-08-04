@@ -8,6 +8,7 @@ public record UpdateProductRequest(
     int DisplayOrder,
     Guid BrandId,
     Guid CategoryId,
+    Guid? DiscountId,
     int? StockQuantity,
     decimal? SpecialPrice,
     DateTime? SpecialPriceStartDate,

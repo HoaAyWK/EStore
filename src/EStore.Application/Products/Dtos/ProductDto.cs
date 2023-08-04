@@ -32,6 +32,8 @@ public class ProductDto
 
     public CategoryDto? Category { get; set; }
 
+    public DiscountDto? Discount { get; set; }
+
     public IEnumerable<ProductImageDto> Images { get; set; } = null!;
 
     public IEnumerable<ProductAttributeDto> Attributes { get; set; } = null!;

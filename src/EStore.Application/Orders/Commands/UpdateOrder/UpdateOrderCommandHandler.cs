@@ -3,7 +3,6 @@ using EStore.Domain.Common.Errors;
 using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
-using EStore.Domain.ProductVariantAggregate.Repositories;
 using MediatR;
 
 namespace EStore.Application.Orders.Commands.UpdateOrder;
@@ -13,16 +12,13 @@ public class UpdateOrderCommandHandler
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IProductVariantRepository _productVariantRepository;
 
     public UpdateOrderCommandHandler(
         IOrderRepository orderRepository,
-        IProductRepository productRepository,
-        IProductVariantRepository productVariantRepository)
+        IProductRepository productRepository)
     {
         _orderRepository = orderRepository;
         _productRepository = productRepository;
-        _productVariantRepository = productVariantRepository;
     }
 
     public async Task<ErrorOr<Updated>> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
@@ -53,10 +49,17 @@ public class UpdateOrderCommandHandler
 
         foreach (var orderItem in order.OrderItems)
         {
+            var product = await _productRepository.GetByIdAsync(orderItem.ItemOrdered.ProductId);
+
+            if (product is null)
+            {
+                return Errors.Order.ProductNotFound(orderItem.ItemOrdered.ProductId);
+            }
+
             if (orderItem.ItemOrdered.ProductVariantId is not null)
             {
-                var productVariant = await _productVariantRepository
-                    .GetByIdAsync(orderItem.ItemOrdered.ProductVariantId);
+                var productVariant = product.ProductVariants
+                    .FirstOrDefault(v => v.Id == orderItem.ItemOrdered.ProductVariantId);
 
                 if (productVariant is null)
                 {
@@ -67,13 +70,6 @@ public class UpdateOrderCommandHandler
             }
             else
             {
-                var product = await _productRepository.GetByIdAsync(orderItem.ItemOrdered.ProductId);
-
-                if (product is null)
-                {
-                    return Errors.Order.ProductNotFound(orderItem.ItemOrdered.ProductId);
-                }
-
                 product.UpdateStockQuantity(product.StockQuantity - orderItem.Quantity);
             }
         }

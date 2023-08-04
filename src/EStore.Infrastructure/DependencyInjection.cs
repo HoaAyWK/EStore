@@ -13,7 +13,6 @@ using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.DiscountAggregate.Repositories;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
-using EStore.Domain.ProductVariantAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Authentication.OptionsSetup;
 using EStore.Infrastructure.BackgroundJobs;
@@ -72,7 +71,6 @@ public static class DependencyInjection
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();

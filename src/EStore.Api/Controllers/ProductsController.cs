@@ -16,9 +16,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using EStore.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using EStore.Domain.BrandAggregate.ValueObjects;
-using EStore.Domain.CategoryAggregate.ValueObjects;
 using EStore.Contracts.Common;
+using EStore.Application.Products.Commands.AddProductVariant;
+using EStore.Application.Products.Commands.UpdateProductVariant;
 
 namespace EStore.Api.Controllers;
 
@@ -100,19 +100,7 @@ public class ProductsController : ApiController
         Guid id,
         [FromBody] UpdateProductRequest request)
     {
-        var command = new UpdateProductCommand(
-            Id: ProductId.Create(id),
-            Name: request.Name,
-            Description: request.Description,
-            Price: request.Price,
-            Published: request.Published,
-            StockQuantity: request.StockQuantity,
-            DisplayOrder: request.DisplayOrder,
-            BrandId: _mapper.Map<BrandId>(request.BrandId),
-            CategoryId: _mapper.Map<CategoryId>(request.CategoryId),
-            SpecialPrice: request.SpecialPrice,
-            SpecialPriceStartDate: request.SpecialPriceStartDate,
-            SpecialPriceEndDate: request.SpecialPriceEndDate);
+        var command = _mapper.Map<UpdateProductCommand>((id, request));
 
         var updateProductResult = await _mediator.Send(command);
 
@@ -213,6 +201,33 @@ public class ProductsController : ApiController
 
         return deleteResult.Match(
             deleteResult => Ok(deleteResult),
+            errors => Problem(errors));
+    }
+
+    [HttpPost]
+    [Route("{id:guid}/variants")]
+    public async Task<IActionResult> AddProductVariant(Guid id, [FromBody] CreateProductVariantRequest request)
+    {
+        var command = _mapper.Map<AddProductVariantCommand>((id, request));
+        var addProductVariantResult = await _mediator.Send(command);
+
+        return addProductVariantResult.Match(
+            productVariant => Ok(productVariant),
+            errors => Problem(errors));
+    }
+
+    [HttpPut]
+    [Route("{id:guid}/variants/{productVariantId:guid}")]
+    public async Task<IActionResult> UpdateProductVariant(
+        Guid id,
+        Guid productVariantId,
+        [FromBody] UpdateProductVariantRequest request)
+    {
+        var command = _mapper.Map<UpdateProductVariantCommand>((id, productVariantId, request));
+        var updateProductVariantResult = await _mediator.Send(command);
+
+        return updateProductVariantResult.Match(
+            updated => NoContent(),
             errors => Problem(errors));
     }
 }

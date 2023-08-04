@@ -33,10 +33,18 @@ internal sealed class CartReadService : ICartReadService
             return null;
         }
 
+        var cartItems = await GetCartItemsAsync(cart);
+        var totalAmountExcludeDiscount = cartItems.Sum(item => item.SubTotal);
+        var TotalAmountIncludeDiscount = cartItems.Sum(item => item.SubTotal - item.SubDiscountTotal);
+        var totalDiscountAmount = cartItems.Sum(item => item.SubDiscountTotal);
+
         return new CartResponse(
             cart.Id.Value,
             cart.CustomerId.Value,
-            await GetCartItemsAsync(cart));
+            totalAmountExcludeDiscount,
+            TotalAmountIncludeDiscount,
+            totalDiscountAmount,
+            cartItems);
     }
 
     private async Task<List<CartResponse.CartItemResponse>> GetCartItemsAsync(Cart cart)
@@ -44,48 +52,50 @@ internal sealed class CartReadService : ICartReadService
         var productIds = cart.Items.Select(i => i.ProductId);
         var productVariantIds = cart.Items.Select(i => i.ProductVariantId);
 
-        var products = await _dbContext.Products
-            .AsNoTracking()
-            .Where(p => productIds.Contains(p.Id))
-            .ToListAsync();
-
-        var productVariants = await _dbContext.ProductVariants
-            .AsNoTracking()
-            .Where(v => productVariantIds.Contains(v.Id))
-            .Select(v => new
+        var productsWithDiscountQuery =
+            from product in _dbContext.Products.AsNoTracking()
+            join discount in _dbContext.Discounts.AsNoTracking()
+            on product.DiscountId equals discount.Id
+            where productIds.Contains(product.Id)
+            select new
             {
-                Id = v.Id,
-                RawAttributeSelection = v.RawAttributeSelection
-            })
-            .ToListAsync();
+                Product = product,
+                Discount = discount
+            };
+            
+        var productsWithDiscount = await productsWithDiscountQuery.ToListAsync();
 
         List<CartResponse.CartItemResponse> itemResponses = cart.Items.Select(cartItem =>
         {
-            var product = products.First(p => p.Id == cartItem.ProductId);
+            var productWithDiscount = productsWithDiscount.First(p => p.Product.Id == cartItem.ProductId);
             string? rawAttributeSelection = null;
+            decimal variantPrice = 0;
 
             if (cartItem.ProductVariantId is not null)
             {
-                var variant = productVariants.FirstOrDefault(v => v.Id == cartItem.ProductVariantId);
+                var variant = productWithDiscount.Product.ProductVariants
+                    .FirstOrDefault(v => v.Id == cartItem.ProductVariantId);
 
                 if (variant is not null)
                 {
+                    variantPrice = variant.Price ?? 0;
                     rawAttributeSelection = variant.RawAttributeSelection;
                 }
             }
 
-            StringBuilder productAttributesSb = new StringBuilder();
+            StringBuilder productAttributesSb = new();
 
             if (rawAttributeSelection is not null)
             {
                 var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
                     .Create(rawAttributeSelection);
 
-                var lastAttribute = product.ProductAttributes.Last();
+                var lastAttribute = productWithDiscount.Product.ProductAttributes.Last();
 
                 foreach (var selection in attributeSelection.AttributesMap)
                 {
-                    var attribute = product.ProductAttributes.FirstOrDefault(a => a.Id == selection.Key);
+                    var attribute = productWithDiscount.Product.ProductAttributes
+                        .FirstOrDefault(a => a.Id == selection.Key);
 
                     if (attribute is not null)
                     {
@@ -107,18 +117,55 @@ internal sealed class CartReadService : ICartReadService
                 }
             }
 
+            decimal? specialPrice = null;
+
+            if (productWithDiscount.Product.SpecialPrice.HasValue &&
+                DateTime.UtcNow >= productWithDiscount.Product.SpecialPriceStartDateTime &&
+                DateTime.UtcNow <= productWithDiscount.Product.SpecialPriceEndDateTime)
+            {
+                specialPrice = productWithDiscount.Product.SpecialPrice.Value;
+            }
+
             Guid? productVariantId = cartItem.ProductVariantId! != null!
                 ? cartItem.ProductVariantId.Value
                 : null;
+            
+            CartResponse.CartItemResponse.DiscountResponse? discount = null;
+            decimal discountSubTotal = 0;
+
+            if (productWithDiscount.Discount is not null &&
+                DateTime.UtcNow >= productWithDiscount.Discount.StartDateTime &&
+                DateTime.UtcNow <= productWithDiscount.Discount.EndDateTime)
+            {
+                discount = new(
+                    productWithDiscount.Discount.UsePercentage,
+                    productWithDiscount.Discount.DiscountPercentage,
+                    productWithDiscount.Discount.DiscountAmount);
+
+                if (discount.UseDiscountPercentage)
+                {
+                    discountSubTotal = (productWithDiscount.Product.Price + variantPrice) * discount.Percentage * cartItem.Quantity;
+                }
+                else
+                {
+                    discountSubTotal = discount.Amount * cartItem.Quantity; 
+                }
+            }
+
+            decimal subTotal = (productWithDiscount.Product.Price + variantPrice) * cartItem.Quantity;
 
             return new CartResponse.CartItemResponse(
                 cartItem.Id.Value,
                 cartItem.ProductId.Value,
                 productVariantId,
-                product.Name,
+                productWithDiscount.Product.Name,
                 productAttributesSb.ToString(),
                 cartItem.UnitPrice,
-                cartItem.Quantity);
+                specialPrice,
+                discount,
+                cartItem.Quantity,
+                subTotal,
+                discountSubTotal);
         }).ToList();
 
         return itemResponses;
@@ -162,10 +209,8 @@ internal sealed class CartReadService : ICartReadService
             }
             else
             {
-                var productVariant = await _dbContext.ProductVariants
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(x =>
-                        x.Id == cartItem.ProductVariantId);
+                var productVariant = product.ProductVariants
+                    .FirstOrDefault(v => v.Id == cartItem.ProductVariantId);
 
                 if (productVariant is null)
                 {

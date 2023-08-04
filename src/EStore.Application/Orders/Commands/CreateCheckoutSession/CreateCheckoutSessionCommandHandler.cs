@@ -9,7 +9,6 @@ using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.OrderAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Orders.Commands.CreateCheckoutSession;

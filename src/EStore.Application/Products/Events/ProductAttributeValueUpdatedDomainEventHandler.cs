@@ -3,25 +3,21 @@ using EStore.Domain.Common.Utilities;
 using EStore.Domain.ProductAggregate.Events;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.Repositories;
 using MediatR;
 
-namespace EStore.Application.ProductVariants.Events;
+namespace EStore.Application.Products.Events;
 
 public class ProductAttributeValueUpdatedDomainEventHandler
     : INotificationHandler<ProductAttributeValueUpdatedDomainEvent>
 {
     private readonly IProductRepository _productRepository;
-    private readonly IProductVariantRepository _productVariantRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public ProductAttributeValueUpdatedDomainEventHandler(
         IProductRepository productRepository,
-        IProductVariantRepository productVariantRepository,
         IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
-        _productVariantRepository = productVariantRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -32,9 +28,14 @@ public class ProductAttributeValueUpdatedDomainEventHandler
             return;
         }
 
-        var productVariants = await _productVariantRepository.GetByProductIdAsync(notification.ProductId);
+        var product = await _productRepository.GetByIdAsync(notification.ProductId);
 
-        foreach (var variant in productVariants)
+        if (product is null)
+        {
+            return;
+        }
+
+        foreach (var variant in product.ProductVariants)
         {
             var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
                 .Create(variant.RawAttributeSelection);

@@ -2,18 +2,14 @@ using ErrorOr;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Models;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.Events;
-using EStore.Domain.ProductVariantAggregate.ValueObjects;
 
-namespace EStore.Domain.ProductVariantAggregate;
+namespace EStore.Domain.ProductAggregate.Entities;
 
-public sealed class ProductVariant : AggregateRoot<ProductVariantId>
+public sealed class ProductVariant : Entity<ProductVariantId>
 {
     public const int MinStockQuantity = 0;
 
     public const decimal MinPrice = 0;
-
-    public ProductId ProductId { get; private set; } = null!;
 
     public decimal? Price { get; private set; }
 
@@ -31,7 +27,6 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
 
     private ProductVariant(
         ProductVariantId id,
-        ProductId productId,
         decimal? price,
         int stockQuantity,
         bool isActive,
@@ -39,7 +34,6 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
         string assignedProductImageIds)
         : base(id)
     {
-        ProductId = productId;
         Price = price;
         StockQuantity = stockQuantity;
         IsActive = isActive;
@@ -48,7 +42,6 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
     }
 
     public static ErrorOr<ProductVariant> Create(
-        ProductId productId,
         int stockQuantity,
         decimal price,
         string assignedProductImageIds,
@@ -75,19 +68,13 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
             return errors;
         }
 
-        var productVariant = new ProductVariant(
+        return new ProductVariant(
             ProductVariantId.CreateUnique(),
-            productId,
             price,
             stockQuantity,
             isActive,
             rawAttributeSelection,
             assignedProductImageIds);
-
-        productVariant.RaiseDomainEvent(
-            new ProductVariantCreatedDomainEvent(productVariant.Id));
-        
-        return productVariant;
     }
 
     public void UpdateRawAttributes(string? rawAttributes)
@@ -151,7 +138,7 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
     {  
         if (price < MinPrice)
         {
-            return Errors.ProductVariant.InvalidPrice;
+            return Errors.Product.InvalidProductVariantPrice;
         }
 
         return Result.Success;
@@ -161,7 +148,7 @@ public sealed class ProductVariant : AggregateRoot<ProductVariantId>
     {
         if (stockQuantity < MinStockQuantity)
         {
-            return Errors.ProductVariant.InvalidStockQuantity;
+            return Errors.Product.InvalidProductVariantStockQuantity;
         }
 
         return Result.Success;

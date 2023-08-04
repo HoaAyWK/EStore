@@ -5,7 +5,6 @@ using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

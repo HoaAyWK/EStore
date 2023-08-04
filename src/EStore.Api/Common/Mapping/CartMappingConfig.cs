@@ -6,7 +6,6 @@ using EStore.Contracts.Carts;
 using EStore.Domain.CartAggregate.ValueObjects;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.ValueObjects;
 using Mapster;
 
 namespace EStore.Api.Common.Mapping;

@@ -1,7 +1,7 @@
 using EStore.Domain.Common.Models;
 using Newtonsoft.Json;
 
-namespace EStore.Domain.ProductVariantAggregate.ValueObjects;
+namespace EStore.Domain.ProductAggregate.ValueObjects;
 
 public sealed class ProductVariantId : ValueObject
 {

@@ -1,9 +1,8 @@
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.Common.Utilities;
+using EStore.Domain.ProductAggregate.Events;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.Events;
-using EStore.Domain.ProductVariantAggregate.Repositories;
 using MediatR;
 
 namespace EStore.Application.Products.Events;
@@ -12,23 +11,27 @@ public class ProductVariantCreatedDomainEventHandler
     : INotificationHandler<ProductVariantCreatedDomainEvent>
 {
     private readonly IProductRepository _productRepository;
-    private readonly IProductVariantRepository _productVariantRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public ProductVariantCreatedDomainEventHandler(
         IProductRepository productRepository,
-        IProductVariantRepository productVariantRepository,
         IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
-        _productVariantRepository = productVariantRepository;
         _unitOfWork = unitOfWork;
     }
 
 
     public async Task Handle(ProductVariantCreatedDomainEvent notification, CancellationToken cancellationToken)
     {
-        var productVariant = await _productVariantRepository.GetByIdAsync(notification.ProductVariantId);
+        var product = await _productRepository.GetByIdAsync(notification.ProductId);
+
+        if (product is null)
+        {
+            return;
+        }
+
+        var productVariant = product.ProductVariants.FirstOrDefault(v => v.Id == notification.ProductVariantId);
 
         if (productVariant is null)
         {
@@ -36,13 +39,7 @@ public class ProductVariantCreatedDomainEventHandler
         }
 
         // TODO: add flag to indicate product variant is invalid by default
-        // if everything go right, mark product variant as valid
-        var product = await _productRepository.GetByIdAsync(productVariant.ProductId);
-
-        if (product is null)
-        {
-            return;
-        }
+        // if everything goes right, mark product variant as valid
 
         var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
             .Create(productVariant.RawAttributeSelection);

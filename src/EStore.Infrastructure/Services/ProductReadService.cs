@@ -53,6 +53,19 @@ internal sealed class ProductReadService : IProductReadService
                         Name = category.Name
                     })
                     .FirstOrDefault(),
+                Discount = _dbContext.Discounts.AsNoTracking()
+                    .Where(discount => discount.Id == p.DiscountId!)
+                    .Select(discount => new DiscountDto
+                    {
+                        Id = discount.Id.Value,
+                        Name = discount.Name,
+                        UsePercentage = discount.UsePercentage,
+                        Percentage = discount.DiscountPercentage,
+                        Amount = discount.DiscountAmount,
+                        StartDate = discount.StartDateTime,
+                        EndDate = discount.EndDateTime
+                    })
+                    .FirstOrDefault(),
                 Images = p.Images.Select(image => new ProductImageDto
                 {
                     Id = image.Id.Value,
@@ -75,9 +88,7 @@ internal sealed class ProductReadService : IProductReadService
                                 RawCombinedAttributes = attributeValue.RawCombinedAttributes
                             })
                         }),
-                Variants = _dbContext.ProductVariants.AsNoTracking()
-                    .Where(variant => variant.ProductId == p.Id)
-                    .Select(variant => new ProductVariantDto
+                Variants = p.ProductVariants.Select(variant => new ProductVariantDto
                     {
                         Id = variant.Id.Value,
                         StockQuantity = variant.StockQuantity,
@@ -86,7 +97,6 @@ internal sealed class ProductReadService : IProductReadService
                         AssignedProductImageIds = variant.AssignedProductImageIds,
                         RawAttributeSelection = variant.RawAttributeSelection
                     })
-                    .ToList()
             })
             .FirstOrDefaultAsync();
 
@@ -158,9 +168,7 @@ internal sealed class ProductReadService : IProductReadService
                                 RawCombinedAttributes = attributeValue.RawCombinedAttributes
                             })
                         }),
-                Variants = _dbContext.ProductVariants.AsNoTracking()
-                    .Where(variant => variant.ProductId == p.Id)
-                    .Select(variant => new ProductVariantDto
+                Variants = p.ProductVariants.Select(variant => new ProductVariantDto
                     {
                         Id = variant.Id.Value,
                         StockQuantity = variant.StockQuantity,
@@ -169,7 +177,6 @@ internal sealed class ProductReadService : IProductReadService
                         AssignedProductImageIds = variant.AssignedProductImageIds,
                         RawAttributeSelection = variant.RawAttributeSelection
                     })
-                    .ToList()
             })
             .ToListAsync();
             

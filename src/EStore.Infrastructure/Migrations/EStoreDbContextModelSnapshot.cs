@@ -251,40 +251,6 @@ namespace EStore.Infrastructure.Migrations
                     b.ToTable("Products", (string)null);
                 });
 
-            modelBuilder.Entity("EStore.Domain.ProductVariantAggregate.ProductVariant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("ProductVariantId");
-
-                    b.Property<string>("AssignedProductImageIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("RawAttributeSelection")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StockQuantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductVariants", (string)null);
-                });
-
             modelBuilder.Entity("EStore.Infrastructure.Persistence.Outbox.OutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -541,6 +507,41 @@ namespace EStore.Infrastructure.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
+                    b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductVariant", "ProductVariants", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("ProductVariantId");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("AssignedProductImageIds")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool>("IsActive")
+                                .HasColumnType("bit");
+
+                            b1.Property<decimal?>("Price")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<string>("RawAttributeSelection")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<int>("StockQuantity")
+                                .HasColumnType("int");
+
+                            b1.HasKey("Id", "ProductId");
+
+                            b1.HasIndex("ProductId");
+
+                            b1.ToTable("ProductVariants", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
                     b.OwnsOne("EStore.Domain.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
@@ -566,6 +567,8 @@ namespace EStore.Infrastructure.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("ProductAttributes");
+
+                    b.Navigation("ProductVariants");
                 });
 
             modelBuilder.Entity("EStore.Domain.CategoryAggregate.Category", b =>

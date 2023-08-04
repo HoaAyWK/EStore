@@ -16,6 +16,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         ConfigureProductsTable(builder);
         ConfigureProductImagesTable(builder);
         ConfigureProductAttributesTable(builder);
+        ConfigureProductVariantsTable(builder);
     }
 
     private void ConfigureProductsTable(EntityTypeBuilder<Product> builder)
@@ -145,6 +146,31 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         });
 
         builder.Metadata.FindNavigation(nameof(Product.ProductAttributes))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
+    }
+
+    private void ConfigureProductVariantsTable(EntityTypeBuilder<Product> builder)
+    {
+        builder.OwnsMany(p => p.ProductVariants, vb =>
+        {
+            vb.ToTable("ProductVariants");
+
+            vb.WithOwner().HasForeignKey("ProductId");
+
+            vb.HasKey(nameof(ProductVariant.Id), "ProductId");
+
+            vb.Property(v => v.Id)
+                .HasColumnName("ProductVariantId")
+                .ValueGeneratedNever()
+                .HasConversion(
+                    id => id.Value,
+                    value => ProductVariantId.Create(value));
+
+            builder.Property(v => v.Price)
+                .HasColumnType("decimal(18,2)");
+        });
+
+        builder.Metadata.FindNavigation(nameof(Product.ProductVariants))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }

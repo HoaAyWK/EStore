@@ -1,9 +1,11 @@
 using EStore.Application.Products.Commands.AddProductAttribute;
 using EStore.Application.Products.Commands.AddProductAttributeValue;
 using EStore.Application.Products.Commands.AddProductImage;
+using EStore.Application.Products.Commands.AddProductVariant;
 using EStore.Application.Products.Commands.CreateProduct;
 using EStore.Application.Products.Commands.DeleteAttributeValue;
 using EStore.Application.Products.Commands.UpdateProduct;
+using EStore.Application.Products.Commands.UpdateProductVariant;
 using EStore.Application.Products.Dtos;
 using EStore.Contracts.Common;
 using EStore.Contracts.Products;
@@ -11,6 +13,7 @@ using EStore.Domain.BrandAggregate;
 using EStore.Domain.BrandAggregate.ValueObjects;
 using EStore.Domain.CategoryAggregate;
 using EStore.Domain.CategoryAggregate.ValueObjects;
+using EStore.Domain.DiscountAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductAggregate.Entities;
 using EStore.Domain.ProductAggregate.ValueObjects;
@@ -30,15 +33,18 @@ public class ProductMappingConfig : IRegister
 
         config.NewConfig<AddProductImageRequest, AddProductImageCommand>();
 
-        config.NewConfig<UpdateProductRequest, UpdateProductCommand>();
+        config.NewConfig<(Guid, UpdateProductRequest), UpdateProductCommand>()
+            .Map(dest => dest.Id, src => ProductId.Create(src.Item1))
+            .Map(dest => dest.CategoryId, src => CategoryId.Create(src.Item2.CategoryId))
+            .Map(dest => dest.BrandId, src => BrandId.Create(src.Item2.BrandId))
+            .Map(
+                dest => dest.DiscountId,
+                src => src.Item2.DiscountId == null
+                    ? null
+                    : DiscountId.Create(src.Item2.DiscountId.Value))
+            .Map(dest => dest, src => src.Item2);
 
         config.NewConfig<AddProductAttributeValueRequest, AddProductAttributeValueCommand>();
-
-        // config.NewConfig<SelectedAttributes, AttributeSelection>()
-        //     .Map(dest => dest.ProductAttributeId, src => ProductAttributeId.Create(src.ProductAttributeId))
-        //     .Map(dest => dest.ProductAttributeValueId, src => ProductAttributeValueId.Create(src.ProductAttributeValueId));
-
-        // config.NewConfig<AddProductVariantRequest, AddVariantCommand>();
 
         config.NewConfig<DeleteAttributeValueRequest, DeleteAttributeValueCommand>()
             .Map(dest => dest.ProductId, src => src.Id)
@@ -97,5 +103,29 @@ public class ProductMappingConfig : IRegister
             .Map(dest => dest.Id, src => src.Id.Value);
 
         config.NewConfig<PagedList<ProductDto>, PagedList<ProductResponse>>();
+
+        config.NewConfig<CreateProductVariantRequest.SelectedAttribute, SelectedAttribute>()
+            .Map(
+                dest => dest.ProductAttributeId,
+                src => ProductAttributeId.Create(src.ProductAttributeId))
+            .Map(
+                dest => dest.ProductAttributeValueId,
+                src => ProductAttributeValueId.Create(src.ProductAttributeValueId));
+
+        config.NewConfig<(Guid, CreateProductVariantRequest), AddProductVariantCommand>()
+            .Map(dest => dest.ProductId, src => ProductId.Create(src.Item1))
+            .Map(dest => dest.SelectedAttributes, src => src.Item2.SelectedAttributes)
+            .Map(
+                dest => dest.AssignedProductImageIds,
+                src => src.Item2.AssignedImageIds)
+            .Map(dest => dest, src => src.Item2);
+
+        config.NewConfig<(Guid, Guid, UpdateProductVariantRequest), UpdateProductVariantCommand>()
+            .Map(dest => dest.ProductVariantId, src => ProductVariantId.Create(src.Item1))
+            .Map(dest => dest.ProductVariantId, src => src.Item2)
+            .Map(
+                dest => dest.ImageIds,
+                src => src.Item3.AssignedImageIds)
+            .Map(dest => dest, src => src.Item3);
     }
 }

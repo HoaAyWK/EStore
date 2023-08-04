@@ -3,7 +3,6 @@ using EStore.Domain.CartAggregate;
 using EStore.Domain.CartAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.ProductAggregate.Repositories;
-using EStore.Domain.ProductVariantAggregate.Repositories;
 using MediatR;
 
 namespace EStore.Application.Carts.Commands.AddItemToCart;
@@ -13,16 +12,13 @@ public class AddItemToCartCommandHandler
 {
     private readonly ICartRepository _cartRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IProductVariantRepository _productVariantRepository;
 
     public AddItemToCartCommandHandler(
         ICartRepository cartRepository,
-        IProductRepository productRepository,
-        IProductVariantRepository productVariantRepository)
+        IProductRepository productRepository)
     {
         _cartRepository = cartRepository;
         _productRepository = productRepository;
-        _productVariantRepository = productVariantRepository;
     }
 
     public async Task<ErrorOr<Cart>> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
@@ -46,11 +42,9 @@ public class AddItemToCartCommandHandler
             return Errors.Cart.InvalidProductVariant;
         }
 
-        var productVariants = await _productVariantRepository.GetByProductIdAsync(request.ProductId);
-
         if (request.ProductVariantId is not null)
         {
-            var productVariant = await _productVariantRepository.GetByIdAsync(request.ProductVariantId);
+            var productVariant = product.ProductVariants.FirstOrDefault(v => v.Id == request.ProductVariantId);
 
             if (productVariant is null)
             {
@@ -62,7 +56,7 @@ public class AddItemToCartCommandHandler
                 return Errors.Cart.ProductVariantUnavailable(productVariant.Id);
             }
 
-            if (!productVariants.Any(variant => variant.Id == productVariant.Id))
+            if (!product.ProductVariants.Any(variant => variant.Id == productVariant.Id))
             {
                 return Errors.Cart.ProductNotHadVariant(request.ProductId, request.ProductVariantId);
             }
@@ -70,13 +64,6 @@ public class AddItemToCartCommandHandler
             if (productVariant.Price.HasValue)
             {
                 itemPrice += productVariant.Price.Value;
-            }
-        }
-        else
-        {
-            if (productVariants.Any())
-            {
-                return Errors.Cart.InvalidProductVariant;
             }
         }
         

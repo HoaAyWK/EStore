@@ -28,6 +28,8 @@ public class ProductResponse
 
     public CategoryResponse? Category { get; set; }
 
+    public DiscountResponse? Discount { get; set; }
+
     public DateTime CreatedDateTime { get; set; }
 
     public DateTime UpdatedDateTime { get; set; }
@@ -73,3 +75,12 @@ public record ProductVariantResponse(
     int StockQuantity,
     bool IsActive,
     List<string>? AssignedProductImageIds);
+
+public record DiscountResponse(
+    Guid Id,
+    string Name,
+    bool UsePercentage,
+    decimal Percentage,
+    decimal Amount,
+    DateTime StartDate,
+    DateTime EndDate);

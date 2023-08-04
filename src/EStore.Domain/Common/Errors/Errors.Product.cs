@@ -1,6 +1,7 @@
 using ErrorOr;
 using EStore.Domain.BrandAggregate.ValueObjects;
 using EStore.Domain.CategoryAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate.ValueObjects;
 
 namespace EStore.Domain.Common.Errors;
 
@@ -94,5 +95,19 @@ public static partial class Errors
         public static Error InvalidSpecialPriceEndDate = Error.Validation(
             code: "Product.InvalidSpecialPriceEndDate",
             description: "Product Special Price End Date must be larger than Product Special Price Start Date.");
+
+        public static Error InvalidProductVariantPrice = Error.Validation(
+            code: "Product.InvalidProductVariantPrice",
+            description: "Price must be greater than or equal " +
+                $"{Domain.ProductAggregate.Entities.ProductVariant.MinPrice}");
+
+        public static Error InvalidProductVariantStockQuantity = Error.Validation(
+            code: "Product.InvalidProductVariantStockQuantity",
+            description: "Stock quantity must be greater than or equal " +
+                $"{Domain.ProductAggregate.Entities.ProductVariant.MinStockQuantity}");
+
+        public static Error DuplicateVariant = Error.Validation(
+            code: "Product.DuplicateVariant",
+            description: "Product variant already exists.");
     }
 }

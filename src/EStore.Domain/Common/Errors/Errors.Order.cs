@@ -1,7 +1,6 @@
 using ErrorOr;
 using EStore.Domain.OrderAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.ValueObjects;
 
 namespace EStore.Domain.Common.Errors;
 

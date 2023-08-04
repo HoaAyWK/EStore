@@ -8,6 +8,7 @@ using EStore.Domain.ProductAggregate.Entities;
 using ErrorOr;
 using EStore.Domain.ProductAggregate.Events;
 using EStore.Domain.DiscountAggregate.ValueObjects;
+using System.Text;
 
 namespace EStore.Domain.ProductAggregate;
 
@@ -23,6 +24,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
 
     private readonly List<ProductImage> _images = new();
     private readonly List<ProductAttribute> _productAttributes = new();
+    private readonly List<ProductVariant> _productVariants = new();
 
     public string Name { get; private set; } = null!;
 
@@ -59,6 +61,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public IReadOnlyList<ProductImage> Images => _images.AsReadOnly();
 
     public IReadOnlyList<ProductAttribute> ProductAttributes => _productAttributes.AsReadOnly();
+
+    public IReadOnlyList<ProductVariant> ProductVariants => _productVariants.AsReadOnly();
 
     private Product()
     {
@@ -257,6 +261,65 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             attributeValueOldPrice,
             attributeValueNewPrice));
         
+        return Result.Updated;
+    }
+
+    public void AddProductVariant(ProductVariant productVariant)
+    {
+        _productVariants.Add(productVariant);
+        RaiseDomainEvent(new ProductVariantCreatedDomainEvent(Id, productVariant.Id));
+    }
+
+    public ErrorOr<Updated> UpdateProductVariant(
+        ProductVariantId productVariantId,
+        int stockQuantity,
+        bool isActive,
+        List<Guid>? imageIds = null)
+    {
+        var productVariant = ProductVariants.FirstOrDefault(v => v.Id == productVariantId);
+
+        if (productVariant is null)
+        {
+            return Errors.Product.ProductVariantNotFound;
+        }
+
+        var updateDetailsResult = productVariant.UpdateDetails(
+            stockQuantity,
+            isActive);
+
+        if (updateDetailsResult.IsError)
+        {
+            return updateDetailsResult.Errors;
+        }
+
+        StringBuilder assignedImageIds = new StringBuilder();
+
+        if (imageIds is not null)
+        {
+            for (int i = 0; i < imageIds.Count; i++)
+            {
+                var assignedId = imageIds.ElementAt(i);
+                var productImageId = Images.FirstOrDefault(
+                    image => image.Id == ProductImageId.Create(assignedId));
+
+                if (productImageId is null)
+                {
+                    return Errors.Product.ProductImageNotFound;
+                }
+
+                if (i is 0)
+                {
+                    assignedImageIds.Append(assignedId.ToString().ToLower());
+                }
+                else
+                {
+                    assignedImageIds.Append($" {assignedId.ToString().ToLower()}");
+                }
+            }
+
+            productVariant.UpdateAssignedImageIds(assignedImageIds.ToString());
+        }
+
         return Result.Updated;
     }
 

@@ -1,18 +1,19 @@
 using ErrorOr;
+using EStore.Domain.ProductAggregate.Entities;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate;
 using MediatR;
 
-namespace EStore.Application.ProductVariants.Commands.CreateProductVariant;
+namespace EStore.Application.Products.Commands.AddProductVariant;
 
-public record CreateProductVariantCommand(
+public record AddProductVariantCommand(
     ProductId ProductId,
     int StockQuantity,
     List<SelectedAttribute> SelectedAttributes,
     bool IsActive,
     string? AssignedProductImageIds)
     : IRequest<ErrorOr<ProductVariant>>;
-    
+
 public record SelectedAttribute(
     ProductAttributeId ProductAttributeId,
     ProductAttributeValueId ProductAttributeValueId);
+

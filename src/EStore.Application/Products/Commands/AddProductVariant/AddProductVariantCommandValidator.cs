@@ -1,11 +1,10 @@
 using FluentValidation;
 
-namespace EStore.Application.ProductVariants.Commands.CreateProductVariant;
+namespace EStore.Application.Products.Commands.AddProductVariant;
 
-public class CreateProductVariantCommandValidator
-    : AbstractValidator<CreateProductVariantCommand>
+public class AddProductVariantCommandValidator : AbstractValidator<AddProductVariantCommand>
 {
-    public CreateProductVariantCommandValidator()
+    public AddProductVariantCommandValidator()
     {
         RuleFor(x => x.ProductId).NotEmpty();
 

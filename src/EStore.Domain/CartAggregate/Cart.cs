@@ -4,7 +4,6 @@ using EStore.Domain.CartAggregate.ValueObjects;
 using EStore.Domain.Common.Models;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.ValueObjects;
 
 namespace EStore.Domain.CartAggregate;
 

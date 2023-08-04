@@ -1,6 +1,5 @@
 using EStore.Domain.Common.Models;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Domain.ProductVariantAggregate.ValueObjects;
 
 namespace EStore.Domain.OrderAggregate.ValueObjects;
 
