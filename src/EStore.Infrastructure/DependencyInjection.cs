@@ -85,6 +85,7 @@ public static class DependencyInjection
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IPriceCalculationService, PriceCalculationService>();
         services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
         services.AddTransient<IEmailService, EmailService>();

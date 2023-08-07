@@ -2,6 +2,7 @@ using EStore.Application.Carts.Services;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Domain.CartAggregate;
 using EStore.Domain.CartAggregate.Repositories;
+using EStore.Domain.CartAggregate.ValueObjects;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 
 namespace EStore.Infrastructure.Services;
@@ -29,10 +30,7 @@ internal sealed class CartService : ICartService
         var customerCart = await _cartRepository
             .GetCartByCustomerId(CustomerId.Create(customerId));
 
-        if (customerCart is null)
-        {
-            customerCart = Cart.Create(CustomerId.Create(customerId));
-        }
+        customerCart ??= Cart.Create(CustomerId.Create(customerId));
 
         foreach (var anonymousCartItem in anonymousCart.Items)
         {

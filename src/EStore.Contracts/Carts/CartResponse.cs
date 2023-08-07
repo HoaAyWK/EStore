@@ -3,9 +3,7 @@ namespace EStore.Contracts.Carts;
 public record CartResponse(
     Guid Id,
     Guid CustomerId,
-    decimal TotalAmountExcludeDiscount,
     decimal TotalAmountIncludeDiscount,
-    decimal TotalDiscountAmount,
     List<CartResponse.CartItemResponse> Items)
 {
     public record CartItemResponse(
@@ -14,12 +12,10 @@ public record CartResponse(
         Guid? ProductVariantId,
         string ProductName,
         string? ProductAttributes,
-        decimal ProductPrice,
-        decimal? SpecialPrice,
+        decimal Price,
         CartItemResponse.DiscountResponse? Discount,
         int Quantity,
-        decimal SubTotal,
-        decimal SubDiscountTotal)
+        decimal SubTotal)
     {
         public record DiscountResponse(
             bool UseDiscountPercentage,

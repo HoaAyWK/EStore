@@ -1,4 +1,5 @@
 using EStore.Application.Orders.Commands.CreateCheckoutSession;
+using EStore.Contracts.Carts;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using Mapster;
 
@@ -8,7 +9,8 @@ public class StripeMappingConfig : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<Guid, CreateCheckoutSessionCommand>()
-            .Map(dest => dest.CustomerId, src => CustomerId.Create(src));
+        config.NewConfig<(Guid, CheckoutRequest), CreateCheckoutSessionCommand>()
+            .Map(dest => dest.CustomerId, src => CustomerId.Create(src.Item1))
+            .Map(dest => dest, src => src.Item2);
     }
 }

@@ -12,6 +12,8 @@ using EStore.Domain.OrderAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Application.Orders.Commands.UpdateOrder;
 using EStore.Application.Orders.Commands.MarkOrderAsRefunded;
+using EStore.Contracts.Carts;
+using EStore.Api.Common.Contexts;
 
 namespace EStore.Api.Controllers;
 
@@ -19,29 +21,32 @@ public class StripeController : ApiController
 {
     private readonly ISender _mediator;
     private readonly IMapper _mapper;
+    private readonly IWorkContext _workContext;
     private readonly StripeSettings _stripeSettings;
 
     public StripeController(
         ISender mediator,
         IMapper mapper,
+        IWorkContext workContext,
         IOptions<StripeSettings> stripeSettingsOptions)
     {
         _mediator = mediator;
         _mapper = mapper;
+        _workContext = workContext;
         _stripeSettings = stripeSettingsOptions.Value;
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCheckoutSession()
+    public async Task<IActionResult> CreateCheckoutSession([FromBody] CheckoutRequest request)
     {
-        Guid? id = GetCustomerId();
+        Guid? id = _workContext.CustomerId;
 
         if (id is null)
         {
             return Problem(new List<Error> { Errors.Authentication.Unauthenticated });
         }
 
-        var command = _mapper.Map<CreateCheckoutSessionCommand>(id.Value);
+        var command = _mapper.Map<CreateCheckoutSessionCommand>((id.Value, request));
         var createCheckoutSessionResult = await _mediator.Send(command);
 
         return createCheckoutSessionResult.Match(
@@ -115,39 +120,5 @@ public class StripeController : ApiController
         {
             return BadRequest(e.Message);
         }
-    }
-
-    private StatusCodeResult RedirectTo(string url)
-    {
-        Response.Headers.Add("Location", url);
-        return new StatusCodeResult(303);
-    }
-
-    private Guid? GetCustomerId()
-    {
-        if (Request.HttpContext.User.Identity is not null)
-        {
-            if (Request.HttpContext.User.Identity.IsAuthenticated)
-            {
-                var id = Request.HttpContext.User.Identity.Name;
-
-                if (Guid.TryParse(id, out Guid customerFromCtxId))
-                {
-                    return customerFromCtxId;
-                }
-            }
-        }
-
-        if (Request.Cookies.ContainsKey("Cart"))
-        {
-            var id = Request.Cookies["Cart"];
-
-            if (Guid.TryParse(id, out Guid customerFromCookieId))
-            {
-                return customerFromCookieId;
-            }
-        }
-
-        return null;
     }
 }

@@ -9,16 +9,21 @@ using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Domain.Common.Errors;
 using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using EStore.Application.Common.Interfaces.Services;
 
 namespace EStore.Infrastructure.Services;
 
 internal sealed class CartReadService : ICartReadService
 {
     private readonly EStoreDbContext _dbContext;
+    private readonly IPriceCalculationService _priceCalculationService;
 
-    public CartReadService(EStoreDbContext dbContext)
+    public CartReadService(
+        EStoreDbContext dbContext,
+        IPriceCalculationService priceCalculationService)
     {
         _dbContext = dbContext;
+        _priceCalculationService = priceCalculationService;
     }
 
     public async Task<CartResponse?> GetByCustomerIdAsync(CustomerId customerId)
@@ -34,23 +39,17 @@ internal sealed class CartReadService : ICartReadService
         }
 
         var cartItems = await GetCartItemsAsync(cart);
-        var totalAmountExcludeDiscount = cartItems.Sum(item => item.SubTotal);
-        var TotalAmountIncludeDiscount = cartItems.Sum(item => item.SubTotal - item.SubDiscountTotal);
-        var totalDiscountAmount = cartItems.Sum(item => item.SubDiscountTotal);
 
         return new CartResponse(
             cart.Id.Value,
             cart.CustomerId.Value,
-            totalAmountExcludeDiscount,
-            TotalAmountIncludeDiscount,
-            totalDiscountAmount,
+            cartItems.Sum(item => item.Price * item.Quantity),
             cartItems);
     }
 
     private async Task<List<CartResponse.CartItemResponse>> GetCartItemsAsync(Cart cart)
     {
         var productIds = cart.Items.Select(i => i.ProductId);
-        var productVariantIds = cart.Items.Select(i => i.ProductVariantId);
 
         var productsWithDiscountQuery =
             from product in _dbContext.Products.AsNoTracking()
@@ -69,7 +68,6 @@ internal sealed class CartReadService : ICartReadService
         {
             var productWithDiscount = productsWithDiscount.First(p => p.Product.Id == cartItem.ProductId);
             string? rawAttributeSelection = null;
-            decimal variantPrice = 0;
 
             if (cartItem.ProductVariantId is not null)
             {
@@ -78,7 +76,6 @@ internal sealed class CartReadService : ICartReadService
 
                 if (variant is not null)
                 {
-                    variantPrice = variant.Price ?? 0;
                     rawAttributeSelection = variant.RawAttributeSelection;
                 }
             }
@@ -117,62 +114,33 @@ internal sealed class CartReadService : ICartReadService
                 }
             }
 
-            decimal? specialPrice = null;
+            var discountResponse = new CartResponse.CartItemResponse.DiscountResponse(
+                productWithDiscount.Discount.UsePercentage,
+                productWithDiscount.Discount.DiscountPercentage,
+                productWithDiscount.Discount.DiscountAmount);
 
-            if (productWithDiscount.Product.SpecialPrice.HasValue &&
-                DateTime.UtcNow >= productWithDiscount.Product.SpecialPriceStartDateTime &&
-                DateTime.UtcNow <= productWithDiscount.Product.SpecialPriceEndDateTime)
-            {
-                specialPrice = productWithDiscount.Product.SpecialPrice.Value;
-            }
-
-            Guid? productVariantId = cartItem.ProductVariantId! != null!
-                ? cartItem.ProductVariantId.Value
-                : null;
-            
-            CartResponse.CartItemResponse.DiscountResponse? discount = null;
-            decimal discountSubTotal = 0;
-
-            if (productWithDiscount.Discount is not null &&
-                DateTime.UtcNow >= productWithDiscount.Discount.StartDateTime &&
-                DateTime.UtcNow <= productWithDiscount.Discount.EndDateTime)
-            {
-                discount = new(
-                    productWithDiscount.Discount.UsePercentage,
-                    productWithDiscount.Discount.DiscountPercentage,
-                    productWithDiscount.Discount.DiscountAmount);
-
-                if (discount.UseDiscountPercentage)
-                {
-                    discountSubTotal = (productWithDiscount.Product.Price + variantPrice) * discount.Percentage * cartItem.Quantity;
-                }
-                else
-                {
-                    discountSubTotal = discount.Amount * cartItem.Quantity; 
-                }
-            }
-
-            decimal subTotal = (productWithDiscount.Product.Price + variantPrice) * cartItem.Quantity;
+            var price = _priceCalculationService.CalculatePrice(
+                productWithDiscount.Product,
+                cartItem.ProductVariantId,
+                productWithDiscount.Discount);
 
             return new CartResponse.CartItemResponse(
                 cartItem.Id.Value,
                 cartItem.ProductId.Value,
-                productVariantId,
+                cartItem.ProductVariantId?.Value,
                 productWithDiscount.Product.Name,
                 productAttributesSb.ToString(),
-                cartItem.UnitPrice,
-                specialPrice,
-                discount,
+                price,
+                discountResponse,
                 cartItem.Quantity,
-                subTotal,
-                discountSubTotal);
+                price * cartItem.Quantity);
         }).ToList();
 
         return itemResponses;
     }
 
 
-    public async Task<ErrorOr<Success>> ValidatePurchasedItemsAsync(CustomerId customerId)
+    public async Task<ErrorOr<Success>> ValidatePurchasedItemsAsync(CustomerId customerId, decimal cartTotalAmount)
     {
         var cart = await _dbContext.Carts
             .AsNoTracking()
@@ -183,33 +151,42 @@ internal sealed class CartReadService : ICartReadService
             return Errors.Cart.NotFound;
         }
 
+        var productIds = cart.Items.Select(item => item.ProductId);
+
+        var productsWithDiscountQuery =
+            from product in _dbContext.Products.AsNoTracking()
+            join discount in _dbContext.Discounts.AsNoTracking()
+            on product.DiscountId equals discount.Id
+            where productIds.Contains(product.Id)
+            select new
+            {
+                Product = product,
+                Discount = discount
+            };
+            
+        decimal totalAmount = 0;
+        var productsWithDiscount = await productsWithDiscountQuery.ToListAsync();
+
         foreach (var cartItem in cart.Items)
         {
-            var product = await _dbContext.Products
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x =>
-                    x.Id == cartItem.ProductId);
+            var productWithDiscount = productsWithDiscount.FirstOrDefault(
+                x => x.Product.Id == cartItem.ProductId);
 
-            if (product is null)
+            if (productWithDiscount is null)
             {
                 return Errors.Cart.ProductNotFound(cartItem.ProductId);
             }
 
             if (cartItem.ProductVariantId is null)
             {
-                if (product.StockQuantity < cartItem.Quantity)
+                if (productWithDiscount.Product.StockQuantity < cartItem.Quantity)
                 {
-                    return Errors.Cart.ProductOutOfStock(product.Id);
-                }
-
-                if (product.Price != cartItem.UnitPrice)
-                {
-                    return Errors.Cart.CartItemPriceChanged(cartItem.Id);
+                    return Errors.Cart.ProductOutOfStock(productWithDiscount.Product.Id);
                 }
             }
             else
             {
-                var productVariant = product.ProductVariants
+                var productVariant = productWithDiscount.Product.ProductVariants
                     .FirstOrDefault(v => v.Id == cartItem.ProductVariantId);
 
                 if (productVariant is null)
@@ -221,13 +198,19 @@ internal sealed class CartReadService : ICartReadService
                 {
                     return Errors.Cart.ProductVariantOutOfStock(productVariant.Id);
                 }
-
-                if (productVariant.Price + product.Price != cartItem.UnitPrice)
-                {
-                    return Errors.Cart.CartItemPriceChanged(cartItem.Id);
-                }
             }
 
+            var price = _priceCalculationService.CalculatePrice(
+                productWithDiscount.Product,
+                cartItem.ProductVariantId,
+                productWithDiscount.Discount);
+
+            totalAmount += price * cartItem.Quantity;
+        }
+
+        if (totalAmount != cartTotalAmount)
+        {
+            return Errors.Cart.InvalidTotalAmount;
         }
 
         return Result.Success;

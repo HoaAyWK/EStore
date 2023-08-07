@@ -49,6 +49,15 @@ public class CreateCheckoutSessionCommandHandler
             return Errors.Order.CartIsEmpty;
         }
 
+        var validateCartItemResult = await _cartReadService.ValidatePurchasedItemsAsync(
+            request.CustomerId,
+            request.CartTotalAmount);
+
+        if (validateCartItemResult.IsError)
+        {
+            return validateCartItemResult.Errors;
+        }
+
         var shippingAddress = ShippingAddress.Create(
             street: "",
             city: "",
@@ -69,7 +78,7 @@ public class CreateCheckoutSessionCommandHandler
                 productImage: "",
                 productAttributes: cartItem.ProductAttributes);
 
-            var orderItem = OrderItem.Create(itemOrdered, cartItem.ProductPrice, cartItem.Quantity);
+            var orderItem = OrderItem.Create(itemOrdered, cartItem.Price, cartItem.Quantity);
 
             orderItems.Add(orderItem);
         }

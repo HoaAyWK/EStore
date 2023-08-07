@@ -7,5 +7,5 @@ namespace EStore.Application.Carts.Services;
 public interface ICartReadService
 {
     Task<CartResponse?> GetByCustomerIdAsync(CustomerId customerId);
-    Task<ErrorOr<Success>> ValidatePurchasedItemsAsync(CustomerId customerId);
+    Task<ErrorOr<Success>> ValidatePurchasedItemsAsync(CustomerId customerId, decimal cartTotalAmount);
 }

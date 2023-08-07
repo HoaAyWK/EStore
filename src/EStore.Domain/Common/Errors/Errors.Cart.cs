@@ -71,5 +71,9 @@ public static partial class Errors
             => Error.Validation(
                 code: "Order.ProductVariantUnavailable",
                 description: $"The product variant with id = {productVariantId.Value} currently unavailable.");
+
+        public static Error InvalidTotalAmount = Error.Validation(
+            code: "Cart.InvalidTotalAmount",
+            description: "The amount has been changed. Please refresh to get the latest state of your cart.");
     }
 }

@@ -109,7 +109,7 @@ internal sealed class ProductReadService : IProductReadService
         int pageSize)
     {
         var productDtos = await _dbContext.Products.AsNoTracking()
-            .Where(p => (string.IsNullOrWhiteSpace(searchTerm) || p.Name.Contains(searchTerm)))
+            .Where(p => string.IsNullOrWhiteSpace(searchTerm) || p.Name.Contains(searchTerm))
             .OrderBy(p => p.DisplayOrder)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
