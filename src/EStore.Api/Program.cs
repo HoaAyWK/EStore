@@ -19,6 +19,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 {
+    app.UseSwagger();
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    });
+
     app.UseExceptionHandler("/error");
     app.UseHttpsRedirection();
     app.UseAuthentication();
