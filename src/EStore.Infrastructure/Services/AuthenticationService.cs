@@ -16,20 +16,17 @@ namespace EStore.Infrastructure.Services;
 internal sealed class AuthenticationService : IAuthenticationService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly ICustomerRepository _customerRepository;
     private readonly IEmailService _emailService;
 
     public AuthenticationService(
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
         IJwtTokenGenerator jwtTokenGenerator,
         ICustomerRepository customerRepository,
         IEmailService emailService)
     {
         _userManager = userManager;
-        _signInManager = signInManager;
         _jwtTokenGenerator = jwtTokenGenerator;
         _customerRepository = customerRepository;
         _emailService = emailService;

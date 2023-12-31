@@ -58,7 +58,7 @@ public class EStoreIdentityDbContextSeed
     
             if (admin is not null)
             {
-                ApplicationUser appAdmin = new ApplicationUser()
+                ApplicationUser? appAdmin = new()
                 {
                     Id = admin.Id.Value.ToString(),
                     UserName = adminSettings.Email,

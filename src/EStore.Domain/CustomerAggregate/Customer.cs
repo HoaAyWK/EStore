@@ -17,8 +17,6 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
 
     public const int MaxLastNameLength = 100;
 
-    public const int MinEmailLength = 3;
-
     public string Email { get; private set; } = null!;
     
     public string FirstName { get; private set; } = null!;
@@ -53,11 +51,6 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
         string lastName)
     {
         List<Error> errors = ValidateNames(firstName, lastName);
-
-        if (email.Length < MinEmailLength)
-        {
-            errors.Add(Errors.Customer.InvalidEmailLength);
-        }
 
         if (errors.Count > 0)
         {

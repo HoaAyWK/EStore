@@ -16,7 +16,6 @@ var builder = WebApplication.CreateBuilder(args);
         .AddInfrastructure(builder.Configuration);
 }
 
-
 var app = builder.Build();
 {
     app.UseSwagger();

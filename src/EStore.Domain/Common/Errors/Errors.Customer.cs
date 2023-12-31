@@ -16,17 +16,12 @@ public static partial class Errors
 
         public static Error InvalidFirstNameLength = Error.Validation(
             code: "Customer.InvalidFirstNameLength",
-            description: $"Customer first name must be between {Domain.CustomerAggregate.Customer.MinFirstNameLength} " +
-                $"and {Domain.CustomerAggregate.Customer.MaxFirstNameLength} characters.");
+            description: $"Customer first name must be between {CustomerAggregate.Customer.MinFirstNameLength} " +
+                $"and {CustomerAggregate.Customer.MaxFirstNameLength} characters.");
 
         public static Error InvalidLastNameLength = Error.Validation(
             code: "Customer.InvalidLastNameLength",
-            description: $"Customer last name must be between {Domain.CustomerAggregate.Customer.MinLastNameLength} " +
-                $"and {Domain.CustomerAggregate.Customer.MaxLastNameLength} characters.");
-
-        public static Error InvalidEmailLength = Error.Validation(
-            code: "Customer.InvalidEmailLength",
-            description: "Customer's email must be at least " +
-                $"{Domain.CustomerAggregate.Customer.MinEmailLength} characters.");
+            description: $"Customer last name must be between {CustomerAggregate.Customer.MinLastNameLength} " +
+                $"and {CustomerAggregate.Customer.MaxLastNameLength} characters.");
     }
 }
