@@ -1,3 +1,4 @@
+using EStore.Api.Common.ApiRoutes;
 using Microsoft.AspNetCore.Mvc;
 using EStore.Domain.Common.Errors;
 using ErrorOr;
@@ -54,7 +55,7 @@ public class StripeController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPost("webhook")]
+    [HttpPost(ApiRoutes.Stripe.Webhook)]
     public async Task<IActionResult> Webhook()
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();

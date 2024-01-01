@@ -1,3 +1,4 @@
+using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Customers.Command.UpdateCustomer;
 using EStore.Contracts.Customers;
 using EStore.Domain.CustomerAggregate.ValueObjects;
@@ -10,15 +11,13 @@ namespace EStore.Api.Controllers;
 public class CustomersController : ApiController
 {
     private readonly ISender _mediator;
-    private readonly IMapper _mapper;
 
-    public CustomersController(ISender mediator, IMapper mapper)
+    public CustomersController(ISender mediator)
     {
         _mediator = mediator;
-        _mapper = mapper;
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut(ApiRoutes.Customer.Update)]
     public async Task<IActionResult> UpdateCustomer(
         Guid id,
         [FromBody] UpdateCustomerRequest request)

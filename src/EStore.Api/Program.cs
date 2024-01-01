@@ -1,4 +1,5 @@
 using EStore.Api;
+using EStore.Api.Common.ApiRoutes;
 using EStore.Application;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Infrastructure;
@@ -25,7 +26,7 @@ var app = builder.Build();
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
     });
 
-    app.UseExceptionHandler("/error");
+    app.UseExceptionHandler(ApiRoutes.Error);
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();

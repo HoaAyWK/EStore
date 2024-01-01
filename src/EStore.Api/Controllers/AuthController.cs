@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using EStore.Contracts.Authentication;
 using MediatR;
 using MapsterMapper;
+using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Customers.Commands.CreateCustomer;
 using EStore.Application.Carts.Services;
@@ -27,7 +28,7 @@ public class AuthController : ApiController
         _cartService = cartService;
     }
 
-    [HttpPost("register")]
+    [HttpPost(ApiRoutes.Auth.Register)]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
         var command = _mapper.Map<CreateCustomerCommand>(request);
@@ -46,7 +47,7 @@ public class AuthController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPost("login")]
+    [HttpPost(ApiRoutes.Auth.Login)]
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var authResult = await _authenticationService.LoginAsync(request.Email, request.Password);
@@ -62,7 +63,7 @@ public class AuthController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPost("send-confirmation-email")]
+    [HttpPost(ApiRoutes.Auth.SendConfirmationEmail)]
     public async Task<IActionResult> SendConfirmationEmail(SendConfirmationEmailRequest request)
     {
         var sendEmailResult = await _authenticationService.SendConfirmationEmailAddressEmailAsync(request.Email);

@@ -1,3 +1,4 @@
+using EStore.Api.Common.ApiRoutes;
 using EStore.Api.Common.Contexts;
 using EStore.Application.Carts.Commands.AddItemToCart;
 using EStore.Application.Carts.Commands.CreateCart;
@@ -23,7 +24,7 @@ public class CartsController : ApiController
         _workContext = workContext;
     }
 
-    [HttpGet("my")]
+    [HttpGet(ApiRoutes.Cart.GetMyCart)]
     public async Task<IActionResult> GetCustomerCart()
     {
         var customerId = _workContext.CustomerId;
@@ -39,8 +40,8 @@ public class CartsController : ApiController
         }
 
         return getCustomerCartResult.Match(
-            cart => Ok(cart),
-            errors => Problem(errors));
+            Ok,
+            Problem);
     }
 
     [HttpPut]
@@ -59,11 +60,11 @@ public class CartsController : ApiController
         var getCustomerCartResult = await _mediator.Send(query);
 
         return getCustomerCartResult.Match(
-            cart => Ok(cart),
+            Ok,
             errors => Problem(errors));
     }
 
-    [HttpDelete("{id:guid}/items/{itemId:guid}")]
+    [HttpDelete(ApiRoutes.Cart.RemoveItem)]
     public async Task<IActionResult> RemoveItemFromCart([FromRoute] RemoveCartItemRequest request)
     {
         var command = _mapper.Map<RemoveItemFromCartCommand>(request);
@@ -72,43 +73,5 @@ public class CartsController : ApiController
         return removeItemFromCartResult.Match(
             deleted => NoContent(),
             errors => Problem(errors));
-    }
-
-    private Guid GetOrSetCartCookieAndCustomerId()
-    {
-        if (Request.HttpContext.User.Identity is not null)
-        {
-            if (Request.HttpContext.User.Identity.IsAuthenticated)
-            {
-                var id = Request.HttpContext.User.Identity.Name;
-
-                if (Guid.TryParse(id, out Guid customerFromCtxId))
-                {
-                    return customerFromCtxId;
-                }
-            }
-        }
-
-        if (Request.Cookies.ContainsKey("Cart"))
-        {
-            var id = Request.Cookies["Cart"];
-
-            if (Guid.TryParse(id, out Guid customerFromCookieId))
-            {
-                return customerFromCookieId;
-            }
-        }
-
-        var customerId = Guid.NewGuid();
-        var cookieOptions = new CookieOptions
-        {
-            IsEssential = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTime.UtcNow.AddYears(1)
-        };
-        
-        Response.Cookies.Append("Cart", customerId.ToString(), cookieOptions);
-
-        return customerId;
     }
 }

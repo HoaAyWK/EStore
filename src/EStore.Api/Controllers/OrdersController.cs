@@ -1,3 +1,4 @@
+using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Orders.Commands.RefundOrder;
 using EStore.Application.Orders.Queries.GetOrderById;
 using EStore.Application.Orders.Queries.GetOrderListPaged;
@@ -29,7 +30,7 @@ public class OrdersController : ApiController
         return Ok(_mapper.Map<PagedList<OrderResponse>>(listPaged));
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet(ApiRoutes.Order.Get)]
     public async Task<IActionResult> GetOrder(Guid id)
     {
         var query = _mapper.Map<GetOrderByIdQuery>(id);
@@ -40,7 +41,7 @@ public class OrdersController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPost("{id:guid}/refund")]
+    [HttpPost(ApiRoutes.Order.Refund)]
     public async Task<IActionResult> RefundOrder([FromRoute] Guid id)
     {
         var command = _mapper.Map<RefundOrderCommand>(id);

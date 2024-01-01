@@ -1,4 +1,5 @@
 using ErrorOr;
+using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Categories.Commands.CreateCategory;
 using EStore.Application.Categories.Commands.DeleteCategory;
 using EStore.Application.Categories.Commands.UpdateCategory;
@@ -7,7 +8,6 @@ using EStore.Application.Categories.Queries.GetAllParentsWithChildren;
 using EStore.Application.Categories.Queries.GetCategoryById;
 using EStore.Application.Categories.Queries.GetCategoryListPaged;
 using EStore.Application.Categories.Queries.GetCategoryTree;
-// using EStore.Application.Categories.Queries.GetParentCategoryWithChildren;
 using EStore.Contracts.Categories;
 using EStore.Domain.CategoryAggregate.ValueObjects;
 using EStore.Domain.Common.Errors;
@@ -44,7 +44,7 @@ public class CategoriesController : ApiController
     }
 
     [AllowAnonymous]
-    [HttpGet("parents")]
+    [HttpGet(ApiRoutes.Category.GetFromParents)]
     public async Task<IActionResult> GetParentCategory()
     {
         var query = new GetAllParentsWithChildrenQuery();
@@ -56,7 +56,7 @@ public class CategoriesController : ApiController
     }
 
     [AllowAnonymous]
-    [HttpGet("tree")]
+    [HttpGet(ApiRoutes.Category.GetTree)]
     public async Task<IActionResult> GetCategoryTree()
     {
         var query = new GetCategoryTreeQuery();
@@ -66,7 +66,7 @@ public class CategoriesController : ApiController
     }
 
     [AllowAnonymous]
-    [HttpGet("all")]
+    [HttpGet(ApiRoutes.Category.GetAll)]
     public async Task<IActionResult> GetAllCategories()
     {
         var query = new GetAllCategoriesQuery();
@@ -76,7 +76,7 @@ public class CategoriesController : ApiController
     }
 
     [AllowAnonymous]
-    [HttpGet("{id:guid}")]
+    [HttpGet(ApiRoutes.Category.Get)]
     public async Task<IActionResult> GetCategory(Guid id)
     {
         var query = new GetCategoryByIdQuery(CategoryId.Create(id));
@@ -103,7 +103,7 @@ public class CategoriesController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut(ApiRoutes.Category.Update)]
     public async Task<IActionResult> UpdateCategory(Guid id, UpdateCategoryRequest request)
     {
         if (request.ParentId != null && !Guid.TryParse(request.ParentId, out _))
@@ -120,7 +120,7 @@ public class CategoriesController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete(ApiRoutes.Category.Delete)]
     public async Task<IActionResult> DeleteCategory(Guid id)
     {
         var command = _mapper.Map<DeleteCategoryCommand>(id);

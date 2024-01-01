@@ -3,7 +3,7 @@ namespace EStore.Api.Common.Contexts;
 public class WorkContext : IWorkContext
 {
     private readonly IWorkContextSource _workContextSource;
-    private readonly Guid? _customerId;
+    private Guid? _customerId;
 
     public WorkContext(IWorkContextSource workContextSource)
     {
@@ -25,6 +25,8 @@ public class WorkContext : IWorkContext
 
                     return guestId;
                 }
+
+                _customerId = customerId;
 
                 return customerId.Value;
             }

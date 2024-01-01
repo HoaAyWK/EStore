@@ -1,3 +1,4 @@
+using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Brands.Commands.CreateBrand;
 using EStore.Application.Brands.Commands.DeleteBrand;
 using EStore.Application.Brands.Commands.UpdateBrand;
@@ -37,7 +38,7 @@ public class BrandsController : ApiController
     }
 
     [AllowAnonymous]
-    [HttpGet("{id:guid}")]
+    [HttpGet(ApiRoutes.Brand.Get)]
     public async Task<IActionResult> GetBrand(Guid id)
     {
         var query = new GetBrandByIdQuery(BrandId.Create(id));
@@ -59,7 +60,7 @@ public class BrandsController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut(ApiRoutes.Brand.Update)]
     public async Task<IActionResult> UpdateBrand(Guid id, [FromBody] UpdateBrandRequest request)
     {
         var command = _mapper.Map<UpdateBrandCommand>((id, request));
@@ -70,7 +71,7 @@ public class BrandsController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete(ApiRoutes.Brand.Delete)]
 
     public async Task<IActionResult> DeleteBrand(Guid id)
     {

@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using EStore.Contracts.Common;
 using EStore.Application.Products.Commands.AddProductVariant;
 using EStore.Application.Products.Commands.UpdateProductVariant;
+using EStore.Api.Common.ApiRoutes;
 
 namespace EStore.Api.Controllers;
 
@@ -54,7 +55,7 @@ public class ProductsController : ApiController
     }
 
     [AllowAnonymous]
-    [HttpGet("{id:guid}")]
+    [HttpGet(ApiRoutes.Product.Get)]
     public async Task<IActionResult> GetProduct(Guid id)
     {
         var query = new GetProductByIdQuery(ProductId.Create(id));
@@ -77,7 +78,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPost]
-    [Route("{id:guid}/images")]
+    [Route(ApiRoutes.Product.AddImages)]
     public async Task<IActionResult> AddProductImage(
         Guid id,
         [FromBody] AddProductImageRequest request)
@@ -95,7 +96,7 @@ public class ProductsController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut(ApiRoutes.Product.Update)]
     public async Task<IActionResult> UpdateProduct(
         Guid id,
         [FromBody] UpdateProductRequest request)
@@ -109,7 +110,7 @@ public class ProductsController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPost("{id:guid}/attributes")]
+    [HttpPost(ApiRoutes.Product.AddAttribute)]
     public async Task<IActionResult> AddAttribute(
         Guid id,
         [FromBody] AddProductAttributeRequest request)
@@ -129,7 +130,7 @@ public class ProductsController : ApiController
 
 
     [HttpPut]
-    [Route("{id:guid}/attributes/{attributeId:guid}")]
+    [Route(ApiRoutes.Product.UpdateAttribute)]
     public async Task<IActionResult> UpdateAttribute(
         Guid id,
         Guid attributeId,
@@ -149,7 +150,7 @@ public class ProductsController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPost("{id:guid}/attributes/{attributeId:guid}/values")]
+    [HttpPost(ApiRoutes.Product.AddAttributeValue)]
     public async Task<IActionResult> AddAttributeValue(
         Guid id,
         Guid attributeId,
@@ -169,7 +170,7 @@ public class ProductsController : ApiController
             errors => Problem(errors));
     }
 
-    [HttpPut("{id:guid}/attributes/{attributeId:guid}/values/{attributeValueId:guid}")]
+    [HttpPut(ApiRoutes.Product.UpdateAttributeValue)]
     public async Task<IActionResult> UpdateAttributeValue(
         Guid id,
         Guid attributeId,
@@ -192,7 +193,7 @@ public class ProductsController : ApiController
     }
 
     [HttpDelete]
-    [Route("{id:guid}/attributes/{attributeId:guid}/values/{attributeValueId:guid}")]
+    [Route(ApiRoutes.Product.DeleteAttributeValue)]
     public async Task<IActionResult> DeleteVarianAttributeValue(
         [FromRoute] DeleteAttributeValueRequest request)
     {
@@ -205,7 +206,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPost]
-    [Route("{id:guid}/variants")]
+    [Route(ApiRoutes.Product.AddVariant)]
     public async Task<IActionResult> AddProductVariant(Guid id, [FromBody] CreateProductVariantRequest request)
     {
         var command = _mapper.Map<AddProductVariantCommand>((id, request));
@@ -217,7 +218,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPut]
-    [Route("{id:guid}/variants/{productVariantId:guid}")]
+    [Route(ApiRoutes.Product.UpdateVariant)]
     public async Task<IActionResult> UpdateProductVariant(
         Guid id,
         Guid productVariantId,

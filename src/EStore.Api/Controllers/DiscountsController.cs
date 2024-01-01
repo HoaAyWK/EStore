@@ -1,3 +1,4 @@
+using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Discounts.Commands.CreateDiscount;
 using EStore.Application.Discounts.Commands.UpdateDiscount;
 using EStore.Application.Discounts.Queries.GetDiscountByIdQuery;
@@ -24,7 +25,7 @@ public sealed class DiscountsController : ApiController
         _mapper = mapper;
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet(ApiRoutes.Discount.Get)]
     public async Task<IActionResult> GetDiscount(Guid id)
     {
         var query = _mapper.Map<GetDiscountByIdQuery>(id);
@@ -47,7 +48,7 @@ public sealed class DiscountsController : ApiController
     }
 
 
-    [HttpPut("{id:guid}")]
+    [HttpPut(ApiRoutes.Discount.Update)]
     public async Task<IActionResult> UpdateDiscount(Guid id, [FromBody] UpdateDiscountRequest request)
     {
         var command = _mapper.Map<UpdateDiscountCommand>((id, request));

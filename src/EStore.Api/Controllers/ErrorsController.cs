@@ -1,3 +1,4 @@
+using EStore.Api.Common.ApiRoutes;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -5,7 +6,7 @@ namespace EStore.Api.Controllers;
 
 public class ErrorsController : ControllerBase
 {
-    [Route("/error")]
+    [Route(ApiRoutes.Error)]
     [ApiExplorerSettings(IgnoreApi = true)]
     public IActionResult Error()
     {
