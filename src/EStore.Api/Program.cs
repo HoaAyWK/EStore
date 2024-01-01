@@ -26,7 +26,7 @@ var app = builder.Build();
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
     });
 
-    app.UseExceptionHandler(ApiRoutes.Error);
+    app.UseExceptionHandler($"/{ApiRoutes.Error}");
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();

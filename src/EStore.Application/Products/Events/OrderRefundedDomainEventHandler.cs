@@ -46,7 +46,7 @@ public class OrderRefundedDomainEventHandler : INotificationHandler<OrderRefunde
                     var productVariant =  product.ProductVariants
                         .FirstOrDefault(v => v.Id == orderItem.ItemOrdered.ProductVariantId);
                     
-                    productVariant.UpdateStockQuantity(productVariant.StockQuantity + orderItem.Quantity);
+                    productVariant!.UpdateStockQuantity(productVariant.StockQuantity + orderItem.Quantity);
                 }
             }
         }
