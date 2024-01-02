@@ -83,7 +83,7 @@ public class CategoriesController : ApiController
         var getCategoryResult = await _mediator.Send(query);
 
         return getCategoryResult.Match(
-            category => Ok(_mapper.Map<CategoryWithChildrenResponse>(category)),
+            category => Ok(category),
             errors => Problem(errors));
     }
 

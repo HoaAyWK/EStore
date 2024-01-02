@@ -14,6 +14,11 @@ public static class SpecificationEvaluator<TId>
     {
         IQueryable<TEntity> queryable = inputQueryable;
 
+        if (specification.IsAsNoTrackingEnabled)
+        {
+            queryable = queryable.AsNoTracking();
+        }
+
         if (specification.Criteria is not null)
         {
             queryable = queryable.Where(specification.Criteria);
@@ -24,6 +29,11 @@ public static class SpecificationEvaluator<TId>
             (current, includeExpression)
                 => current.Include(includeExpression));
 
+        queryable = specification.IncludeStrings.Aggregate(
+            queryable,
+            (current, includeString)
+                => current.Include(includeString));
+
         if (specification.OrderByExpression is not null)
         {
             queryable = queryable.OrderBy(specification.OrderByExpression);
@@ -31,6 +41,12 @@ public static class SpecificationEvaluator<TId>
         else if (specification.OrderByDescendingExpression is not null)
         {
             queryable = queryable.OrderByDescending(specification.OrderByDescendingExpression);
+        }
+
+        if (specification.IsPagingEnabled)
+        {
+            queryable = queryable.Skip(specification.Skip)
+                .Take(specification.Take);
         }
 
         return queryable;

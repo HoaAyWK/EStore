@@ -105,7 +105,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             return errors;
         }
 
-        return new Product(
+        var product = new Product(
             ProductId.CreateUnique(),
             name,
             description,
@@ -115,6 +115,11 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             brandId,
             categoryId,
             AverageRating.Create());
+
+        product.RaiseDomainEvent(
+            new ProductCreatedDomainEvent(product.Id));
+
+        return product;
     }
 
     public void AddProductImage(ProductImage productImage)
@@ -122,19 +127,42 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         _images.Add(productImage);
     }
 
-    public void UpdatePublished(bool published)
-    {
-        Published = published;
-    }
-
     public ErrorOr<Updated> UpdateDetails(
         string name,
         string description,
         decimal price,
-        int displayOrder)
+        int displayOrder,
+        bool published,
+        decimal? specialPrice,
+        DateTime? specialPriceStartDate,
+        DateTime? specialPriceEndDate)
     {
         var errors = ValidateName(name);
+
         errors.AddRange(ValidatePrice(price));
+
+        if (specialPrice is not null)
+        {
+            errors.AddRange(ValidatePrice(specialPrice.Value));
+
+            if (specialPriceStartDate is null)
+            {
+                errors.Add(Errors.Product.UnprovidedSpecialPriceStartDate);
+            }
+            else if (specialPriceStartDate < DateTime.UtcNow)
+            {
+                errors.Add(Errors.Product.InvalidSpecialPriceStartDate);
+            }
+
+            if (specialPriceEndDate is null)
+            {
+                errors.Add(Errors.Product.UnprovidedSpecialPriceEndDate);
+            }
+            else if (specialPriceEndDate <= specialPriceStartDate)
+            {
+                errors.Add(Errors.Product.InvalidSpecialPriceEndDate);
+            }
+        }
 
         if (errors.Count > 0)
         {
@@ -145,6 +173,12 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         Description = description;
         Price = price;
         DisplayOrder = displayOrder;
+        Published = published;
+        SpecialPrice = specialPrice;
+        SpecialPriceStartDateTime = specialPriceStartDate;
+        SpecialPriceEndDateTime = specialPriceEndDate;
+
+        RaiseDomainEvent(new ProductUpdatedDomainEvent(Id));
 
         return Result.Updated;
     }

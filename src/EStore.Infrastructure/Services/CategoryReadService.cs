@@ -39,7 +39,7 @@ internal sealed class CategoryReadService : ICategoryReadService
                 0);
         }
 
-        var totalItems = (await _dbContext.Categories.CountAsync());
+        var totalItems = await _dbContext.Categories.CountAsync();
 
         var categories = await _dbContext.Categories.AsNoTracking()
             .Include(c => c.Children)

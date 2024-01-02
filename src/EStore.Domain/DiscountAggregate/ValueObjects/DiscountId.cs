@@ -1,4 +1,5 @@
 using EStore.Domain.Common.Models;
+using Newtonsoft.Json;
 
 namespace EStore.Domain.DiscountAggregate.ValueObjects;
 
@@ -9,6 +10,12 @@ public sealed class DiscountId : ValueObject
     private DiscountId(Guid value)
     {
         Value = value;
+    }
+
+    [JsonConstructor]
+    private DiscountId(string value)
+    {
+        Value = new Guid(value);
     }
 
     public static DiscountId Create(Guid value)

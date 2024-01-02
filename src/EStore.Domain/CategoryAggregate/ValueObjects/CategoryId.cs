@@ -1,4 +1,5 @@
 using EStore.Domain.Common.Models;
+using Newtonsoft.Json;
 
 namespace EStore.Domain.CategoryAggregate.ValueObjects;
 
@@ -9,6 +10,12 @@ public sealed class CategoryId : ValueObject
     private CategoryId(Guid value)
     {
         Value = value;
+    }
+
+    [JsonConstructor]
+    private CategoryId(string value)
+    {
+        Value = new Guid(value);
     }
 
     public static CategoryId CreateUnique()

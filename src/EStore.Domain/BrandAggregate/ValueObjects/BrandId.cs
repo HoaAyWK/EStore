@@ -1,4 +1,5 @@
 using EStore.Domain.Common.Models;
+using Newtonsoft.Json;
 
 namespace EStore.Domain.BrandAggregate.ValueObjects;
 
@@ -9,6 +10,12 @@ public sealed class BrandId : ValueObject
     private BrandId(Guid value)
     {
         Value = value;
+    }
+
+    [JsonConstructor]
+    private BrandId(string value)
+    {
+        Value = new Guid(value);
     }
 
     public static BrandId CreateUnique()

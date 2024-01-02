@@ -67,7 +67,11 @@ public class UpdateProductCommandHandler
             name: request.Name,
             description: request.Description,
             price: request.Price,
-            displayOrder: request.DisplayOrder);
+            displayOrder: request.DisplayOrder,
+            published: request.Published,
+            specialPrice: request.SpecialPrice,
+            specialPriceStartDate: request.SpecialPriceStartDate,
+            specialPriceEndDate: request.SpecialPriceEndDate);
         
         if (updateDetailsResult.IsError)
         {
@@ -81,31 +85,6 @@ public class UpdateProductCommandHandler
             if (updateStockQuantityResult.IsError)
             {
                 errors.Add(updateDetailsResult.FirstError);
-            }
-        }
-
-        product.UpdatePublished(request.Published);
-
-        if (request.SpecialPrice is not null)
-        {
-            if (request.SpecialPriceStartDate is null)
-            {
-                errors.Add(Errors.Product.UnprovidedSpecialPriceStartDate);
-            }
-
-            if (request.SpecialPriceEndDate is null)
-            {
-                errors.Add(Errors.Product.UnprovidedSpecialPriceEndDate);
-            }
-
-            var updateSpecialPriceResult =  product.UpdateSpecialPrice(
-                specialPrice: request.SpecialPrice.Value,
-                startDate: request.SpecialPriceStartDate!.Value,
-                endDate: request.SpecialPriceEndDate!.Value);
-
-            if (updateDetailsResult.IsError)
-            {
-                errors.AddRange(updateDetailsResult.Errors);
             }
         }
 

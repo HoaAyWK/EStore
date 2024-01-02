@@ -23,6 +23,7 @@ using EStore.Infrastructure.Persistence.Interceptors;
 using EStore.Infrastructure.Persistence.Repositories;
 using EStore.Infrastructure.Persistence.Seeds;
 using EStore.Infrastructure.Services;
+using EStore.Infrastructure.Services.AlgoliaSearch;
 using EStore.Infrastructure.Services.OptionsSetup;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -115,6 +116,8 @@ public static class DependencyInjection
         });
 
         services.AddQuartzHostedService();
+
+        services.AddAlgoliaSearch(configuration);
 
         return services;
     }   

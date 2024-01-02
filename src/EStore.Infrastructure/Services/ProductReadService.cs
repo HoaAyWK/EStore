@@ -19,10 +19,12 @@ internal sealed class ProductReadService : IProductReadService
     public async Task<ProductDto?> GetByIdAsync(ProductId id)
     {
         var productDto = await _dbContext.Products.AsNoTracking()
+            .AsSplitQuery()
             .Where(p => p.Id == id)
             .Select(p => new ProductDto
             {
                 Id = p.Id.Value,
+                ObjectID = p.Id.Value.ToString(),
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
@@ -32,6 +34,8 @@ internal sealed class ProductReadService : IProductReadService
                 Published = p.Published,
                 StockQuantity = p.StockQuantity,
                 DisplayOrder = p.DisplayOrder,
+                CreatedDateTime = p.CreatedDateTime,
+                UpdatedDateTime = p.UpdatedDateTime,
                 AverageRating = new AverageRatingDto
                 {
                     Value = p.AverageRating.Value,
@@ -116,6 +120,7 @@ internal sealed class ProductReadService : IProductReadService
             .Select(p => new ProductDto
             {
                 Id = p.Id.Value,
+                ObjectID = p.Id.Value.ToString(),
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
@@ -125,6 +130,8 @@ internal sealed class ProductReadService : IProductReadService
                 Published = p.Published,
                 StockQuantity = p.StockQuantity,
                 DisplayOrder = p.DisplayOrder,
+                CreatedDateTime = p.CreatedDateTime,
+                UpdatedDateTime = p.UpdatedDateTime,
                 AverageRating = new AverageRatingDto
                 {
                     Value = p.AverageRating.Value,

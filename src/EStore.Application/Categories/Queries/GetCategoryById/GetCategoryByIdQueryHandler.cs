@@ -1,4 +1,5 @@
 using ErrorOr;
+using EStore.Application.Common.Interfaces.Services;
 using EStore.Domain.CategoryAggregate;
 using EStore.Domain.CategoryAggregate.Repositories;
 using MediatR;
@@ -8,17 +9,17 @@ namespace EStore.Application.Categories.Queries.GetCategoryById;
 public class GetCategoryByIdQueryHandler
     : IRequestHandler<GetCategoryByIdQuery, ErrorOr<Category?>>
 {
-    private readonly ICategoryRepository _categoryRepository;
+    private readonly ICategoryReadService _categoryReadService;
 
-    public GetCategoryByIdQueryHandler(ICategoryRepository categoryRepository)
+    public GetCategoryByIdQueryHandler(ICategoryReadService categoryReadService)
     {
-        _categoryRepository = categoryRepository;
+        _categoryReadService = categoryReadService;
     }
 
     public async Task<ErrorOr<Category?>> Handle(
         GetCategoryByIdQuery request,
         CancellationToken cancellationToken)
     {
-        return await _categoryRepository.GetByIdAsync(request.Id);
+        return await _categoryReadService.GetByIdAsync(request.Id);
     }
 }
