@@ -20,6 +20,7 @@ using EStore.Contracts.Common;
 using EStore.Application.Products.Commands.AddProductVariant;
 using EStore.Application.Products.Commands.UpdateProductVariant;
 using EStore.Api.Common.ApiRoutes;
+using EStore.Contracts.Searching;
 
 namespace EStore.Api.Controllers;
 

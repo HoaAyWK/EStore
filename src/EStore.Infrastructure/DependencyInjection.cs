@@ -2,6 +2,7 @@ using EStore.Application.Carts.Services;
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
+using EStore.Application.Common.Searching;
 using EStore.Application.Discounts.Services;
 using EStore.Application.Orders.Services;
 using EStore.Application.Products.Services;
@@ -22,6 +23,7 @@ using EStore.Infrastructure.Persistence;
 using EStore.Infrastructure.Persistence.Interceptors;
 using EStore.Infrastructure.Persistence.Repositories;
 using EStore.Infrastructure.Persistence.Seeds;
+using EStore.Infrastructure.Searching;
 using EStore.Infrastructure.Services;
 using EStore.Infrastructure.Services.AlgoliaSearch;
 using EStore.Infrastructure.Services.OptionsSetup;
@@ -88,6 +90,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IPriceCalculationService, PriceCalculationService>();
         services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
+        services.AddScoped<ISearchProductsService, SearchProductsService>();
 
         services.AddTransient<IEmailService, EmailService>();
 

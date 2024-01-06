@@ -4,6 +4,8 @@ public static partial class ApiRoutes
 {
     public static class Product
     {
+        public const string Search = "search";
+
         public const string Get = "{id:guid}";
 
         public const string AddImages = "{id:guid}/images";
