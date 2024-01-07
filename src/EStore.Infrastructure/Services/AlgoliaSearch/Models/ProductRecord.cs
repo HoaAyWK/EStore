@@ -1,8 +1,14 @@
+using System.Reflection;
+
 namespace EStore.Infrastructure.Services.AlgoliaSearch.Models;
 
 public class ProductRecord
 {
     public string ObjectID { get; set; } = string.Empty;
+
+    public Guid ProductVariantId { get; set; }
+
+    public Guid ProductId { get; set; }
 
     public string Name { get; set; } = string.Empty;
 
@@ -28,11 +34,19 @@ public class ProductRecord
 
     public string? Brand { get; set; }
 
+    public bool IsActive { get; set; }
+
     public List<string> Categories { get; set; } = new();
 
     public DiscountRecord? Discount { get; set; }
 
     public string Image { get; set; } = null!;
+
+    public string? Color { get; set; }
+
+    public string? Storage { get; set; }
+
+    public string? Memory { get; set; }
 }
 
 public class DiscountRecord

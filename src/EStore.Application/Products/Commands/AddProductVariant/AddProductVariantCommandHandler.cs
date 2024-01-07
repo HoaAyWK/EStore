@@ -49,6 +49,7 @@ public class AddProductVariantCommandHandler : IRequestHandler<AddProductVariant
         }
 
         decimal variantPrice = 0;
+        
         // Check if product attribute value already existed, if not add error to errors list
         foreach (var selection in request.SelectedAttributes)
         {   
