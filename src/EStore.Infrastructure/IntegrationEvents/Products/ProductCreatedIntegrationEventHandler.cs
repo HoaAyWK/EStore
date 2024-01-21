@@ -1,9 +1,9 @@
 using Algolia.Search.Clients;
-using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Events;
-using EStore.Application.Products.Services;
-using EStore.Domain.CategoryAggregate.ValueObjects;
-using EStore.Infrastructure.Services.AlgoliaSearch.Models;
+using EStore.Contracts.Searching;
+using EStore.Domain.BrandAggregate.Repositories;
+using EStore.Domain.CategoryAggregate.Repositories;
+using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -13,19 +13,22 @@ namespace EStore.Infrastructure.IntegrationEvents.Products;
 public class ProductCreatedIntegrationEventHandler
     : INotificationHandler<ProductCreatedIntegrationEvent>
 {
-    private readonly IProductReadService _productReadService;
-    private readonly ICategoryReadService _categoryReadService;
+    private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
+    private readonly IBrandRepository _brandRepository;
     private readonly ISearchClient _searchClient;
     private readonly AlgoliaSearchOptions _algoliaSearchOptions;
 
     public ProductCreatedIntegrationEventHandler(
-        IProductReadService productReadService,
-        ICategoryReadService categoryReadService,
+        IProductRepository productRepository,
+        ICategoryRepository categoryRepository,
+        IBrandRepository brandRepository,
         ISearchClient searchClient,
         IOptions<AlgoliaSearchOptions> options)
     {
-        _productReadService = productReadService;
-        _categoryReadService = categoryReadService;
+        _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
+        _brandRepository = brandRepository;
         _searchClient = searchClient;
         _algoliaSearchOptions = options.Value;
     }
@@ -34,62 +37,65 @@ public class ProductCreatedIntegrationEventHandler
         ProductCreatedIntegrationEvent notification,
         CancellationToken cancellationToken)
     {
-        var product = await _productReadService.GetByIdAsync(notification.ProductId);
+        var product = await _productRepository.GetByIdAsync(notification.ProductId);
 
-        if (product is not null)
+        if (product is null)
         {
-            var category = await _categoryReadService.GetByIdAsync(
-                CategoryId.Create(product!.Category!.Id));
+            // TODO: log
 
-            var hierarchyCategories = new LinkedList<string>();
-
-            if (category is not null)
-            {
-                var current = category;
-
-                while (current is not null)
-                {
-                    hierarchyCategories.AddFirst(current.Name);
-                    current = current.Parent;
-                }
-            }
-
-            var productRecord = new ProductRecord
-            {
-                ObjectID = product.Id.ToString(),
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Categories = hierarchyCategories.ToList(),
-                Brand = product.Brand!.Name,
-                SpecialPrice = product.SpecialPrice,
-                SpecialPriceStartDateTime = product.SpecialPriceStartDate,
-                SpecialPriceEndDateTime = product.SpecialPriceEndDate,
-                AverageRating = product.AverageRating.Value,
-                DisplayOrder = product.DisplayOrder,
-                CreatedDateTime = product.CreatedDateTime,
-                UpdatedDateTime = product.UpdatedDateTime,
-                Image = product.Images
-                    .Where(image => image.IsMain)
-                    .Select(image => image.ImageUrl)
-                    .FirstOrDefault() ?? string.Empty
-            };
-
-            if (product.Discount is not null)
-            {
-                productRecord.Discount = new DiscountRecord
-                {
-                    UsePercentage = product.Discount.UsePercentage,
-                    Percentage = product.Discount.Percentage,
-                    Amount = product.Discount.Amount,
-                    StartDate = product.Discount.StartDate,
-                    EndDate = product.Discount.EndDate
-                };
-            }
-
-            var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
-
-            await index.SaveObjectAsync(productRecord);
+            return;
         }
+
+        if (product.HasVariant)
+        {
+            return;
+        }
+
+        if (!product.Published)
+        {
+            return;
+        }
+
+        var brand = await _brandRepository.GetByIdAsync(product.BrandId);
+        var category = await _categoryRepository.GetByIdAsync(product.CategoryId);
+        var hierarchyCategories = new LinkedList<string>();
+
+        if (category is not null)
+        {
+            var current = category;
+
+            while (current is not null)
+            {
+                hierarchyCategories.AddFirst(current.Name);
+                current = current.Parent;
+            }
+        }
+
+        var productSearchModel = new ProductSearchModel
+        {
+            ObjectID = product.Id.Value.ToString(),
+            ProductId = product.Id.Value,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Categories = hierarchyCategories.ToList(),
+            Brand = brand?.Name,
+            SpecialPrice = product.SpecialPrice,
+            SpecialPriceStartDateTime = product.SpecialPriceStartDateTime,
+            SpecialPriceEndDateTime = product.SpecialPriceEndDateTime,
+            AverageRating = product.AverageRating.Value,
+            DisplayOrder = product.DisplayOrder,
+            CreatedDateTime = product.CreatedDateTime,
+            UpdatedDateTime = product.UpdatedDateTime,
+            HasVariant = product.HasVariant,            
+            Image = product.Images
+                .Where(image => image.IsMain)
+                .Select(image => image.ImageUrl)
+                .FirstOrDefault() ?? string.Empty
+        };
+
+        var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
+
+        await index.SaveObjectAsync(productSearchModel);
     }
 }

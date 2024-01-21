@@ -77,7 +77,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         int displayOrder,
         BrandId brandId,
         CategoryId categoryId,
-        AverageRating averageRating)
+        AverageRating averageRating,
+        bool hasVariant)
         : base(productId)
     {
         Name = name;
@@ -88,17 +89,22 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         DisplayOrder = displayOrder;
         BrandId = brandId;
         CategoryId = categoryId;
+        HasVariant = hasVariant;
     }
 
     public static ErrorOr<Product> Create(
         string name,
         string description,
         bool published,
+        decimal price,
         int displayOrder,
         BrandId brandId,
-        CategoryId categoryId)
+        CategoryId categoryId,
+        bool hasVariant)
     {
         var errors = ValidateName(name);
+
+        errors.AddRange(ValidatePrice(price));
 
         if (errors.Count > 0)
         {
@@ -110,11 +116,12 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             name,
             description,
             published,
-            0,
+            price,
             displayOrder,
             brandId,
             categoryId,
-            AverageRating.Create());
+            AverageRating.Create(),
+            hasVariant);
 
         product.RaiseDomainEvent(
             new ProductCreatedDomainEvent(product.Id));
@@ -230,6 +237,11 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             return Errors.Product.ProductAttributeNotFound;
         }
 
+        if (productAttribute.ProductAttributeValues.Count > 0)
+        {
+            return Errors.Product.ProductAttributeAlreadyHadValues;
+        }
+
         productAttribute.Update(name, alias, canCombine);
 
         return Result.Updated;
@@ -241,11 +253,18 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         decimal? priceAdjustment,
         string? alias)
     {
-        var productAttribute = ProductAttributes.FirstOrDefault(x => x.Id == productAttributeId);
+        var productAttribute = ProductAttributes.FirstOrDefault(x =>
+            x.Id == productAttributeId);
 
         if (productAttribute is null)
         {
             return Errors.Product.ProductAttributeNotFound;
+        }
+
+        if (!productAttribute.CanCombine &&
+            productAttribute.ProductAttributeValues.Count > 0)
+        {
+            return Errors.Product.NonCombineProductAttributeCannotHaveMoreThanTwoValues;
         }
 
         var productAttributeValue = ProductAttributeValue.Create(
@@ -254,6 +273,10 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             alias);   
 
         productAttribute.AddAttributeValue(productAttributeValue);
+        RaiseDomainEvent(new ProductAttributeValueAddedDomainEvent(
+            Id,
+            productAttributeId,
+            productAttributeValue.Id));
 
         return Result.Created;
     }
@@ -377,6 +400,41 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         return Result.Updated;
     }
 
+    public ErrorOr<Deleted> RemoveAttributeValue(
+        ProductAttributeId attributeId,
+        ProductAttributeValueId attributeValueId)
+    {
+        var attribute = _productAttributes.FirstOrDefault(
+            x => x.Id == attributeId);
+
+        if (attribute is null)
+        {
+            return Errors.Product.ProductAttributeNotFound;
+        }
+
+        var attributeValue = attribute.ProductAttributeValues.FirstOrDefault(
+            x => x.Id == attributeValueId);
+
+        if (attributeValue is null)
+        {
+            return Errors.Product.ProductAttributeValueNotFound;
+        }
+
+        if (HasVariant && _productVariants.Count > 0)
+        {
+            return Errors.Product.ProductAlreadyHadVariants;
+        }
+
+        attribute.RemoveAttributeValue(attributeValue);
+
+        RaiseDomainEvent(new ProductAttributeValueRemovedDomainEvent(
+            Id,
+            attributeId,
+            attributeValueId));
+
+        return Result.Deleted;
+    }
+
     private static List<Error> ValidateName(string name)
     {
         List<Error> errors = new();
@@ -389,7 +447,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         return errors;
     }
 
-    private List<Error> ValidatePrice(decimal price)
+    private static List<Error> ValidatePrice(decimal price)
     {
         List<Error> errors = new();
 

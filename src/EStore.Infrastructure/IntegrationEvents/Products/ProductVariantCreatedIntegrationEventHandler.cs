@@ -2,10 +2,10 @@ using Algolia.Search.Clients;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Events;
 using EStore.Application.Products.Services;
+using EStore.Contracts.Searching;
 using EStore.Domain.CategoryAggregate.ValueObjects;
 using EStore.Domain.Common.Utilities;
 using EStore.Domain.ProductAggregate.ValueObjects;
-using EStore.Infrastructure.Services.AlgoliaSearch.Models;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -56,7 +56,7 @@ public class ProductVariantCreatedIntegrationEventHandler
     
         var price = product.Price;
 
-        var productRecord = new ProductRecord
+        var productSearchModel = new ProductSearchModel
         {
             ObjectID = notification.ProductVariantId.Value.ToString(),
             ProductVariantId = notification.ProductVariantId.Value,
@@ -66,11 +66,11 @@ public class ProductVariantCreatedIntegrationEventHandler
             SpecialPrice = product.SpecialPrice,
             SpecialPriceStartDateTime = product.SpecialPriceStartDate,
             SpecialPriceEndDateTime = product.SpecialPriceEndDate,
-            StockQuantity = productVariant.StockQuantity,
             AverageRating = product.AverageRating.Value,
             DisplayOrder = product.DisplayOrder,
             CreatedDateTime = product.CreatedDateTime,
             UpdatedDateTime = product.UpdatedDateTime,
+            HasVariant = product.HasVariant,
             IsActive = productVariant.IsActive,
             Brand = product.Brand?.Name,
             Image = product.Images
@@ -78,6 +78,8 @@ public class ProductVariantCreatedIntegrationEventHandler
                 .Select(image => image.ImageUrl)
                 .FirstOrDefault() ?? string.Empty
         };
+
+        var productAttributes = new Dictionary<string, string>();
 
         foreach (var selection in attributeSelection.AttributesMap)
         {
@@ -99,21 +101,8 @@ public class ProductVariantCreatedIntegrationEventHandler
 
             price += attributeValue.PriceAdjustment;
             
-            if (attribute.Name == nameof(ProductRecord.Color))
-            {
-                productRecord.Color = attributeValue.Name;
-            }
-            else if (attribute.Name == nameof(ProductRecord.Storage))
-            {
-                productRecord.Storage = attributeValue.Name;
-            }
-            else if (attribute.Name == nameof(ProductRecord.Memory))
-            {
-                productRecord.Memory = attributeValue.Name;
-            }
+            productAttributes.Add(attribute.Name, attributeValue.Name);
         }
-
-        productRecord.Price = price;
 
         var category = await _categoryReadService.GetByIdAsync(
                 CategoryId.Create(product!.Category!.Id));
@@ -131,22 +120,12 @@ public class ProductVariantCreatedIntegrationEventHandler
             }
         }
 
-        productRecord.Categories = hierarchyCategories.ToList();
-
-        if (product.Discount is not null)
-        {
-            productRecord.Discount = new DiscountRecord
-            {
-                UsePercentage = product.Discount.UsePercentage,
-                Percentage = product.Discount.Percentage,
-                Amount = product.Discount.Amount,
-                StartDate = product.Discount.StartDate,
-                EndDate = product.Discount.EndDate
-            };
-        }
+        productSearchModel.Price = price;
+        productSearchModel.Attributes = productAttributes;
+        productSearchModel.Categories = hierarchyCategories.ToList();
 
         var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
 
-        await index.SaveObjectAsync(productRecord);
+        await index.SaveObjectAsync(productSearchModel);
     }
 }

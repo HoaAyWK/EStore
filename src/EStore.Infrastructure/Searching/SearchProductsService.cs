@@ -33,7 +33,7 @@ public class SearchProductsService : ISearchProductsService
             HitsPerPage = pageSize
         };
 
-        var result = await index.SearchAsync<SearchProductResponse>(query);
+        var result = await index.SearchAsync<ProductSearchModel>(query);
 
         return new SearchProductListPagedResponse
         {

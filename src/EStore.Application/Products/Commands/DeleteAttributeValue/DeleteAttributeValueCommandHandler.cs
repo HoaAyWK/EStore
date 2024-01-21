@@ -28,23 +28,14 @@ public class DeleteAttributeValueCommandHandler
             return Errors.Product.NotFound;
         }
 
-        var attribute = product.ProductAttributes.FirstOrDefault(
-            x => x.Id == request.ProductAttributeId);
+        var removedAttributeValueResult = product.RemoveAttributeValue(
+            request.ProductAttributeId,
+            request.ProductAttributeValueId);
 
-        if (attribute is null)
+        if (removedAttributeValueResult.IsError)
         {
-            return Errors.Product.ProductAttributeNotFound;
+            return removedAttributeValueResult.Errors;
         }
-
-        var attributeValue = attribute.ProductAttributeValues.FirstOrDefault(
-            x => x.Id == request.ProductAttributeValueId);
-
-        if (attributeValue is null)
-        {
-            return Errors.Product.ProductAttributeValueNotFound;
-        }
-
-        attribute.RemoveAttributeValue(attributeValue);
 
         return product;
     }

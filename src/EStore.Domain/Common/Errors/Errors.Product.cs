@@ -1,7 +1,6 @@
 using ErrorOr;
 using EStore.Domain.BrandAggregate.ValueObjects;
 using EStore.Domain.CategoryAggregate.ValueObjects;
-using EStore.Domain.ProductAggregate.ValueObjects;
 
 namespace EStore.Domain.Common.Errors;
 
@@ -109,5 +108,25 @@ public static partial class Errors
         public static Error DuplicateVariant = Error.Validation(
             code: "Product.DuplicateVariant",
             description: "Product variant already exists.");
+
+        public static Error ProductCanNotHaveVariant = Error.Validation(
+            code: "Product.ProductCanNotHaveVariant",
+            description: "Product can not have variant.");
+
+        public static Error NonVariantProductCannotHaveCombineAttributes = Error.Validation(
+            code: "Product.NonVariantProduct",
+            description: "Non variant product can not have combine attributes.");
+
+        public static Error NonCombineProductAttributeCannotHaveMoreThanTwoValues = Error.Validation(
+            code: "Product.NonCombineProductAttributeCannotHaveMoreThanTwoValues",
+            description: "Non combine product attribute can not have more than two values.");
+
+        public static Error ProductAttributeAlreadyHadValues = Error.Validation(
+            code: "Product.ProductAttributeAlreadyHasValues",
+            description: "Product attribute already had values.");
+
+        public static Error ProductAlreadyHadVariants = Error.Validation(
+            code: "Product.ProductAlreadyHadVariants",
+            description: "Product already had variants.");
     }
 }

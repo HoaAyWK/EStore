@@ -3,10 +3,8 @@ using EStore.Domain.ProductAggregate.ValueObjects;
 
 namespace EStore.Domain.ProductAggregate.Events;
 
-public record ProductAttributeValueUpdatedDomainEvent(
+public record ProductAttributeValueRemovedDomainEvent(
     ProductId ProductId,
     ProductAttributeId ProductAttributeId,
-    ProductAttributeValueId ProductAttributeValueId,
-    decimal OldPrice,
-    decimal NewPrice)
+    ProductAttributeValueId ProductAttributeValueId)
     : IDomainEvent;

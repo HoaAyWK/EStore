@@ -10,7 +10,9 @@ public record CreateProductCommand(
     string Name,
     string Description,
     bool Published,
+    decimal Price,
     int DisplayOrder,
     BrandId BrandId,
-    CategoryId CategoryId)
+    CategoryId CategoryId,
+    bool HasVariant)
     : IRequest<ErrorOr<Product>>;

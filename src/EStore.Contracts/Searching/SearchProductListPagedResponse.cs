@@ -2,7 +2,7 @@ namespace EStore.Contracts.Searching;
 
 public class SearchProductListPagedResponse
 {
-    public List<SearchProductResponse> Hits { get; set; } = new();
+    public List<ProductSearchModel> Hits { get; set; } = new();
 
     public int Page { get; set; }
 

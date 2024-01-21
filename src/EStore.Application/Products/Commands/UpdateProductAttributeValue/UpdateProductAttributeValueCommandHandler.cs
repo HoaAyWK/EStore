@@ -43,6 +43,11 @@ public class UpdateProductAttributeValueCommandHandler
             return Errors.Product.ProductAttributeValueNotFound;
         }
 
+        if (product.HasVariant && product.ProductVariants.Count > 0)
+        {
+            return Errors.Product.ProductAlreadyHadVariants;
+        }
+
         attributeValue.UpdateDetails(
             request.Name,
             request.Alias,

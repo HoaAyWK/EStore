@@ -26,6 +26,11 @@ public class AddProductVariantCommandHandler : IRequestHandler<AddProductVariant
             return Errors.Product.NotFound;
         }
 
+        if (!product.HasVariant)
+        {
+            return Errors.Product.ProductCanNotHaveVariant;
+        }
+
         var errors = new List<Error>();
         var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(null);
 

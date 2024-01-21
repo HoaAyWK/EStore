@@ -36,6 +36,8 @@ public class ProductDto
 
     public DiscountDto? Discount { get; set; }
 
+    public bool HasVariant { get; set; }
+
     public IEnumerable<ProductImageDto> Images { get; set; } = null!;
 
     public IEnumerable<ProductAttributeDto> Attributes { get; set; } = null!;

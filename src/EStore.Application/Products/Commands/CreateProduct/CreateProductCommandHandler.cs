@@ -49,9 +49,11 @@ public class CreateProductCommandHandler
             name: request.Name,
             description: request.Description,
             published: request.Published,
+            price: request.Price,
             displayOrder: request.DisplayOrder,
             brandId: request.BrandId,
-            categoryId: request.CategoryId);
+            categoryId: request.CategoryId,
+            hasVariant: request.HasVariant);
 
         if (createProductResult.IsError)
         {

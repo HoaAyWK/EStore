@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace EStore.Infrastructure.Services.AlgoliaSearch.Models;
 
 public class ProductRecord
@@ -41,12 +39,6 @@ public class ProductRecord
     public DiscountRecord? Discount { get; set; }
 
     public string Image { get; set; } = null!;
-
-    public string? Color { get; set; }
-
-    public string? Storage { get; set; }
-
-    public string? Memory { get; set; }
 }
 
 public class DiscountRecord

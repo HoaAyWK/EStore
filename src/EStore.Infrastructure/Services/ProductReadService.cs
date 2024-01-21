@@ -36,6 +36,7 @@ internal sealed class ProductReadService : IProductReadService
                 DisplayOrder = p.DisplayOrder,
                 CreatedDateTime = p.CreatedDateTime,
                 UpdatedDateTime = p.UpdatedDateTime,
+                HasVariant = p.HasVariant,
                 AverageRating = new AverageRatingDto
                 {
                     Value = p.AverageRating.Value,
@@ -132,6 +133,7 @@ internal sealed class ProductReadService : IProductReadService
                 DisplayOrder = p.DisplayOrder,
                 CreatedDateTime = p.CreatedDateTime,
                 UpdatedDateTime = p.UpdatedDateTime,
+                HasVariant = p.HasVariant,
                 AverageRating = new AverageRatingDto
                 {
                     Value = p.AverageRating.Value,

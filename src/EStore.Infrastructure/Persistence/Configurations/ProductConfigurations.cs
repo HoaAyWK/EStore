@@ -63,8 +63,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
                 value => DiscountId.Create(value));
 
         builder.OwnsOne(p => p.AverageRating);
-
-        builder.Ignore(p => p.HasVariant);
     }
 
     private void ConfigureProductImagesTable(EntityTypeBuilder<Product> builder)
@@ -167,7 +165,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
                     value => ProductVariantId.Create(value));
 
             builder.Property(v => v.Price)
-                .HasColumnType("decimal(18,2)");
+                .HasColumnType("decimal(18, 2)");
         });
 
         builder.Metadata.FindNavigation(nameof(Product.ProductVariants))!
