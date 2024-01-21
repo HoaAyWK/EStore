@@ -3,8 +3,13 @@ using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Events;
 using EStore.Application.Products.Services;
 using EStore.Contracts.Searching;
+using EStore.Domain.BrandAggregate.Repositories;
+using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.ValueObjects;
 using EStore.Domain.Common.Utilities;
+using EStore.Domain.DiscountAggregate;
+using EStore.Domain.DiscountAggregate.Repositories;
+using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
 using MediatR;
@@ -15,19 +20,28 @@ namespace EStore.Infrastructure.IntegrationEvents.Products;
 public class ProductVariantCreatedIntegrationEventHandler
     : INotificationHandler<ProductVariantCreatedIntegrationEvent>
 {
-    private readonly IProductReadService _productReadService;
-    private readonly ICategoryReadService _categoryReadService;
+    private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
+    private readonly IBrandRepository _brandRepository;
+    private readonly IDiscountRepository _discountRepository;
+    private readonly IPriceCalculationService _priceCalculationService;
     private readonly ISearchClient _searchClient;
     private readonly AlgoliaSearchOptions _algoliaSearchOptions;
 
     public ProductVariantCreatedIntegrationEventHandler(
-        IProductReadService productReadService,
-        ICategoryReadService categoryReadService,
+        IProductRepository productRepository,
+        ICategoryRepository categoryRepository,
+        IBrandRepository brandRepository,
+        IDiscountRepository discountRepository,
+        IPriceCalculationService priceCalculationService,
         ISearchClient searchClient,
         IOptions<AlgoliaSearchOptions> options)
     {
-        _productReadService = productReadService;
-        _categoryReadService = categoryReadService;
+        _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
+        _brandRepository = brandRepository;
+        _discountRepository = discountRepository;
+        _priceCalculationService = priceCalculationService;
         _searchClient = searchClient;
         _algoliaSearchOptions = options.Value;
     }
@@ -36,19 +50,43 @@ public class ProductVariantCreatedIntegrationEventHandler
         ProductVariantCreatedIntegrationEvent notification,
         CancellationToken cancellationToken)
     {
-        var product = await _productReadService.GetByIdAsync(notification.ProductId);
+        var product = await _productRepository.GetByIdAsync(notification.ProductId);
 
         if (product is null)
         {
+            // TODO: log error
+
             return;
         }
 
-        var productVariant = product.Variants.FirstOrDefault(
-            v => v.Id == notification.ProductVariantId.Value);
+        var productVariant = product.ProductVariants.FirstOrDefault(
+            v => v.Id == notification.ProductVariantId);
 
         if (productVariant is null)
         {
+            // TODO: log error
             return;
+        }
+
+        var category = await _categoryRepository.GetWithParentsByIdAsync(product.CategoryId);
+        var brand = await _brandRepository.GetByIdAsync(product.BrandId);
+        Discount? discount = null;
+        var hierarchyCategories = new LinkedList<string>();
+
+        if (product.DiscountId is not null)
+        {
+            discount = await _discountRepository.GetByIdAsync(product.DiscountId);
+        }
+
+        if (category is not null)
+        {
+            var current = category;
+
+            while (current is not null)
+            {
+                hierarchyCategories.AddFirst(current.Name);
+                current = current.Parent;
+            }
         }
 
         var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
@@ -63,16 +101,14 @@ public class ProductVariantCreatedIntegrationEventHandler
             ProductId = notification.ProductId.Value,
             Name = product.Name,
             Description = product.Description,
-            SpecialPrice = product.SpecialPrice,
-            SpecialPriceStartDateTime = product.SpecialPriceStartDate,
-            SpecialPriceEndDateTime = product.SpecialPriceEndDate,
+            Price = _priceCalculationService.CalculatePrice(product, productVariant),
             AverageRating = product.AverageRating.Value,
             DisplayOrder = product.DisplayOrder,
             CreatedDateTime = product.CreatedDateTime,
             UpdatedDateTime = product.UpdatedDateTime,
             HasVariant = product.HasVariant,
             IsActive = productVariant.IsActive,
-            Brand = product.Brand?.Name,
+            Brand = brand?.Name,
             Image = product.Images
                 .Where(image => image.IsMain)
                 .Select(image => image.ImageUrl)
@@ -83,44 +119,41 @@ public class ProductVariantCreatedIntegrationEventHandler
 
         foreach (var selection in attributeSelection.AttributesMap)
         {
-            var attribute = product.Attributes.FirstOrDefault(
-                x => x.Id == selection.Key.Value);
+            var attribute = product.ProductAttributes.FirstOrDefault(
+                x => x.Id == selection.Key);
 
             if (attribute is null)
             {
                 return;
             }
 
-            var attributeValue = attribute.AttributeValues.FirstOrDefault(
-                x => x.Id == selection.Value.First().Value);
+            var attributeValue = attribute.ProductAttributeValues.FirstOrDefault(
+                x => x.Id == selection.Value.First());
 
             if (attributeValue is null)
             {
                 return;
             }
 
-            price += attributeValue.PriceAdjustment;
-            
             productAttributes.Add(attribute.Name, attributeValue.Name);
         }
 
-        var category = await _categoryReadService.GetByIdAsync(
-                CategoryId.Create(product!.Category!.Id));
-
-        var hierarchyCategories = new LinkedList<string>();
-
-        if (category is not null)
+        if (discount is not null)
         {
-            var current = category;
-
-            while (current is not null)
+            productSearchModel.Discount = new ProductSearchDiscount
             {
-                hierarchyCategories.AddFirst(current.Name);
-                current = current.Parent;
-            }
+                UsePercentage = discount.UsePercentage,
+                DiscountPercentage = discount.DiscountPercentage,
+                DiscountAmount = discount.DiscountAmount,
+                StartDateTime = discount.StartDateTime,
+                EndDateTime = discount.EndDateTime
+            };
+
+            productSearchModel.FinalPrice = _priceCalculationService.ApplyDiscount(
+                productSearchModel.Price,
+                discount);
         }
 
-        productSearchModel.Price = price;
         productSearchModel.Attributes = productAttributes;
         productSearchModel.Categories = hierarchyCategories.ToList();
 

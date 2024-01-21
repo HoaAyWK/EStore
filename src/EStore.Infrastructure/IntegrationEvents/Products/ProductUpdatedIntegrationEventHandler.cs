@@ -1,4 +1,5 @@
 using Algolia.Search.Clients;
+using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Events;
 using EStore.Contracts.Searching;
 using EStore.Domain.BrandAggregate.Repositories;
@@ -18,6 +19,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
     private readonly ICategoryRepository _categoryRepository;
     private readonly IBrandRepository _brandRepository;
     private readonly IDiscountRepository _discountRepository;
+    private readonly IPriceCalculationService _priceCalculationService;
     private readonly ISearchClient _searchClient;
     private readonly AlgoliaSearchOptions _algoliaSearchOptions;
 
@@ -26,6 +28,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
         ICategoryRepository categoryRepository,
         IBrandRepository brandRepository,
         IDiscountRepository discountRepository,
+        IPriceCalculationService priceCalculationService,
         ISearchClient searchClient,
         IOptions<AlgoliaSearchOptions> options)
     {
@@ -33,6 +36,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
         _categoryRepository = categoryRepository;
         _brandRepository = brandRepository;
         _discountRepository = discountRepository;
+        _priceCalculationService = priceCalculationService;
         _searchClient = searchClient;
         _algoliaSearchOptions = options.Value;
     }
@@ -68,15 +72,16 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
             }
         }
 
+        Discount? discount = null;
+
+        if (product.DiscountId is not null)
+        {
+            discount = await _discountRepository.GetByIdAsync(product.DiscountId);
+        }
+
         if (product.HasVariant)
         {
-            Discount? discount = null;
             var productSearchModels = new List<ProductSearchModel>();
-
-            if (product.DiscountId is not null)
-            {
-                discount = await _discountRepository.GetByIdAsync(product.DiscountId);
-            }
 
             foreach (var variant in product.ProductVariants)
             {
@@ -87,12 +92,8 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                     ProductVariantId = variant.Id.Value,
                     Name = product.Name,
                     Description = product.Description,
-                    Price = product.Price,
                     Categories = hierarchyCategories.ToList(),
                     Brand = brand?.Name,
-                    SpecialPrice = product.SpecialPrice,
-                    SpecialPriceStartDateTime = product.SpecialPriceStartDateTime,
-                    SpecialPriceEndDateTime = product.SpecialPriceEndDateTime,
                     AverageRating = product.AverageRating.Value,
                     DisplayOrder = product.DisplayOrder,
                     CreatedDateTime = product.CreatedDateTime,
@@ -100,8 +101,25 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                     Image = product.Images
                         .Where(image => image.IsMain)
                         .Select(image => image.ImageUrl)
-                        .FirstOrDefault() ?? string.Empty
+                        .FirstOrDefault() ?? string.Empty,
+                    Price = _priceCalculationService.CalculatePrice(product, variant)
                 };
+                
+                if (discount is not null)
+                {
+                    model.Discount = new ProductSearchDiscount
+                    {
+                        UsePercentage = discount.UsePercentage,
+                        DiscountPercentage = discount.DiscountPercentage,
+                        DiscountAmount = discount.DiscountAmount,
+                        StartDateTime = discount.StartDateTime,
+                        EndDateTime = discount.EndDateTime
+                    };
+
+                    model.FinalPrice = _priceCalculationService.ApplyDiscount(
+                        model.Price,
+                        discount);
+                }
 
                 productSearchModels.Add(model);
             }
@@ -120,9 +138,6 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
             Price = product.Price,
             Categories = hierarchyCategories.ToList(),
             Brand = brand?.Name,
-            SpecialPrice = product.SpecialPrice,
-            SpecialPriceStartDateTime = product.SpecialPriceStartDateTime,
-            SpecialPriceEndDateTime = product.SpecialPriceEndDateTime,
             AverageRating = product.AverageRating.Value,
             DisplayOrder = product.DisplayOrder,
             CreatedDateTime = product.CreatedDateTime,
@@ -132,6 +147,22 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                 .Select(image => image.ImageUrl)
                 .FirstOrDefault() ?? string.Empty
         };
+
+        if (discount is not null)
+        {
+            productSearchModel.Discount = new ProductSearchDiscount
+            {
+                UsePercentage = discount.UsePercentage,
+                DiscountPercentage = discount.DiscountPercentage,
+                DiscountAmount = discount.DiscountAmount,
+                StartDateTime = discount.StartDateTime,
+                EndDateTime = discount.EndDateTime
+            };
+
+            productSearchModel.FinalPrice = _priceCalculationService.ApplyDiscount(
+                productSearchModel.Price,
+                discount);
+        }
 
         await index.PartialUpdateObjectAsync(productSearchModel);
     }
