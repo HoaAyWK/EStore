@@ -55,81 +55,53 @@ public class ProductAttributeValueAddedIntegrationEventHandler
             return;
         }
 
-        var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
-        var attributesOfProductSearchModel = new Dictionary<string, string>();
+        var productAttributeValue = productAttribute.ProductAttributeValues.SingleOrDefault(
+            x => x.Id == notification.ProductAttributeValueId);
 
-        foreach (var attribute in product.ProductAttributes)
+        if (productAttributeValue is null)
         {
-            if (attribute.CanCombine)
-            {
-                continue;
-            }
-
-            var attributeValue = attribute.ProductAttributeValues.FirstOrDefault();
-
-            if (attributeValue is not null)
-            {
-                attributesOfProductSearchModel.Add(attribute.Name, attributeValue.Name);
-            }
-        }
-
-        if (product.HasVariant)
-        {
-            var productSearchModels = new List<ProductSearchModel>();
-
-            foreach (var variant in product.ProductVariants)
-            {
-                var productSearchModel = new ProductSearchModel
-                {
-                    ObjectID = variant.Id.Value.ToString()
-                };
-
-                var productSearchModelAttributes = attributesOfProductSearchModel.ToDictionary(
-                    x => x.Key,
-                    x => x.Value);
-
-                var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
-                    .Create(variant.RawAttributeSelection);
-
-                foreach (var selection in attributeSelection.AttributesMap)
-                {
-                    var attribute = product.ProductAttributes.FirstOrDefault(
-                        x => x.Id == selection.Key);
-
-                    if (attribute is null)
-                    {
-                        // TODO: log error
-
-                        return;
-                    }
-
-                    var attributeValue = attribute.ProductAttributeValues.FirstOrDefault(
-                        x => x.Id == selection.Value.First());
-
-                    if (attributeValue is null)
-                    {
-                        // TODO: log error
-
-                        return;
-                    }
-                    
-                    productSearchModelAttributes.Add(attribute.Name, attributeValue.Name);
-                }
-
-                productSearchModel.Attributes = productSearchModelAttributes;
-                productSearchModels.Add(productSearchModel);
-            }
-
-            await index.PartialUpdateObjectsAsync(productSearchModels);
+            // TODO: log error
 
             return;
         }
 
-        await index.PartialUpdateObjectAsync(
-            new ProductSearchModel
+        var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
+
+        if (product.HasVariant)
+        {
+            var variantIds = product.ProductVariants
+                .Select(x => x.Id.Value.ToString())
+                .ToList();
+
+            var models = await index.GetObjectsAsync<ProductSearchModel>(
+                variantIds,
+                attributesToRetrieve: new[] { "attributes" });
+
+            foreach (var model in models)
             {
-                ObjectID = product.Id.Value.ToString(),
-                Attributes = attributesOfProductSearchModel
-            });
+                model?.Attributes
+                    .Add(productAttribute.Name, productAttributeValue.Name);
+            }
+
+            await index.PartialUpdateObjectsAsync(models);
+
+            return;
+        }
+
+        var productSearchModel = await index.GetObjectAsync<ProductSearchModel>(
+            product.Id.Value.ToString(),
+            attributesToRetrieve: new[] { "attributes" });
+
+        if (productSearchModel is null)
+        {
+            // TODO: log error
+
+            return;
+        }
+
+        productSearchModel.Attributes
+            .Add(productAttribute.Name, productAttributeValue.Name);
+
+        await index.PartialUpdateObjectAsync(productSearchModel);
     }
 }

@@ -117,6 +117,7 @@ public class ProductVariantCreatedIntegrationEventHandler
 
         var productAttributes = new Dictionary<string, string>();
 
+        // Add combined attributes
         foreach (var selection in attributeSelection.AttributesMap)
         {
             var attribute = product.ProductAttributes.FirstOrDefault(
@@ -136,6 +137,24 @@ public class ProductVariantCreatedIntegrationEventHandler
             }
 
             productAttributes.Add(attribute.Name, attributeValue.Name);
+        }
+
+        // Add non-combined attributes
+        foreach (var attribute in product.ProductAttributes)
+        {
+            if (attribute.CanCombine)
+            {
+                continue;
+            }
+
+            var attributeValue = attribute.ProductAttributeValues
+                .ToList()
+                .FirstOrDefault();
+
+            if (attributeValue is not null)
+            {
+                productAttributes.Add(attribute.Name, attributeValue.Name);
+            }
         }
 
         if (discount is not null)

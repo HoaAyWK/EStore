@@ -4,9 +4,11 @@ using EStore.Application.Products.Events;
 using EStore.Contracts.Searching;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
+using EStore.Domain.Common.Utilities;
 using EStore.Domain.DiscountAggregate;
 using EStore.Domain.DiscountAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -104,6 +106,53 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                         .FirstOrDefault() ?? string.Empty,
                     Price = _priceCalculationService.CalculatePrice(product, variant)
                 };
+
+                var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
+                    .Create(variant.RawAttributeSelection);
+
+                var modelAttributes = new Dictionary<string, string>();
+
+                // Add combined attributes
+                foreach (var selection in attributeSelection.AttributesMap)
+                {
+                    var attribute = product.ProductAttributes.FirstOrDefault(
+                        x => x.Id == selection.Key);
+
+                    if (attribute is null)
+                    {
+                        return;
+                    }
+
+                    var attributeValue = attribute.ProductAttributeValues.FirstOrDefault(
+                        x => x.Id == selection.Value.First());
+
+                    if (attributeValue is null)
+                    {
+                        return;
+                    }
+
+                    modelAttributes.Add(attribute.Name, attributeValue.Name);
+                }
+
+                // Add non-combined attributes
+                foreach (var attribute in product.ProductAttributes)
+                {
+                    if (attribute.CanCombine)
+                    {
+                        continue;
+                    }
+
+                    var attributeValue = attribute.ProductAttributeValues
+                        .ToList()
+                        .FirstOrDefault();
+
+                    if (attributeValue is not null)
+                    {
+                        modelAttributes.Add(attribute.Name, attributeValue.Name);
+                    }
+                }
+
+                model.Attributes = modelAttributes;
                 
                 if (discount is not null)
                 {
@@ -147,6 +196,22 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                 .Select(image => image.ImageUrl)
                 .FirstOrDefault() ?? string.Empty
         };
+
+        var productAttributes = new Dictionary<string, string>();
+
+        foreach (var attribute in product.ProductAttributes)
+        {
+            var attributeValue = attribute.ProductAttributeValues
+                .ToList()
+                .FirstOrDefault();
+
+            if (attributeValue is not null)
+            {
+                productAttributes.Add(attribute.Name, attributeValue.Name);
+            }
+        }
+
+        productSearchModel.Attributes = productAttributes;
 
         if (discount is not null)
         {
