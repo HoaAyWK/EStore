@@ -1,9 +1,7 @@
 using Algolia.Search.Clients;
 using EStore.Contracts.Searching;
-using EStore.Domain.Common.Utilities;
 using EStore.Domain.ProductAggregate.Events;
 using EStore.Domain.ProductAggregate.Repositories;
-using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -74,8 +72,7 @@ public class ProductAttributeValueAddedIntegrationEventHandler
                 .ToList();
 
             var models = await index.GetObjectsAsync<ProductSearchModel>(
-                variantIds,
-                attributesToRetrieve: new[] { "attributes" });
+                variantIds);
 
             foreach (var model in models)
             {
@@ -89,8 +86,7 @@ public class ProductAttributeValueAddedIntegrationEventHandler
         }
 
         var productSearchModel = await index.GetObjectAsync<ProductSearchModel>(
-            product.Id.Value.ToString(),
-            attributesToRetrieve: new[] { "attributes" });
+            product.Id.Value.ToString());
 
         if (productSearchModel is null)
         {

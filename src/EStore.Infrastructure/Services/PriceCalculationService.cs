@@ -31,7 +31,7 @@ public class PriceCalculationService : IPriceCalculationService
             else
             {
                 var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
-                .Create(productVariant.RawAttributeSelection);
+                    .Create(productVariant.RawAttributeSelection);
 
                 foreach (var selection in attributeSelection.AttributesMap)
                 {

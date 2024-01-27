@@ -10,6 +10,7 @@ using EStore.Domain.Common.Errors;
 using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using EStore.Application.Common.Interfaces.Services;
+using EStore.Domain.ProductAggregate.Entities;
 
 namespace EStore.Infrastructure.Services;
 
@@ -119,10 +120,24 @@ internal sealed class CartReadService : ICartReadService
                 productWithDiscount.Discount.DiscountPercentage,
                 productWithDiscount.Discount.DiscountAmount);
 
+            ProductVariant? productVariant = null;
+
+            if (cartItem.ProductVariantId is not null)
+            {
+                productVariant = productWithDiscount.Product.ProductVariants
+                    .FirstOrDefault(v => v.Id == cartItem.ProductVariantId);
+            }
+
             var price = _priceCalculationService.CalculatePrice(
                 productWithDiscount.Product,
-                cartItem.ProductVariantId,
-                productWithDiscount.Discount);
+                productVariant);
+
+            if (productWithDiscount.Discount is not null)
+            {
+                price = _priceCalculationService.ApplyDiscount(
+                    price,
+                    productWithDiscount.Discount);
+            }
 
             return new CartResponse.CartItemResponse(
                 cartItem.Id.Value,
@@ -200,10 +215,24 @@ internal sealed class CartReadService : ICartReadService
                 }
             }
 
+            ProductVariant? variant = null;
+
+            if (cartItem.ProductVariantId is not null)
+            {
+                variant = productWithDiscount.Product.ProductVariants
+                    .FirstOrDefault(v => v.Id == cartItem.ProductVariantId);
+            }
+
             var price = _priceCalculationService.CalculatePrice(
                 productWithDiscount.Product,
-                cartItem.ProductVariantId,
-                productWithDiscount.Discount);
+                variant);
+
+            if (productWithDiscount.Discount is not null)
+            {
+                price = _priceCalculationService.ApplyDiscount(
+                    price,
+                    productWithDiscount.Discount);
+            }
 
             totalAmount += price * cartItem.Quantity;
         }
