@@ -11,16 +11,20 @@ public static class CreateProductCommandUtils
         string? name = null,
         string? description = null,
         bool published = true,
+        decimal price = 0,
         int displayOrder = 0,
         BrandId? brandId = null,
-        CategoryId? categoryId = null)
+        CategoryId? categoryId = null,
+        bool hasVariant = false)
     {
         return new CreateProductCommand(
             name ?? Constants.Product.Name,
             description ?? Constants.Product.Description,
             published,
+            price,
             displayOrder,
             brandId ?? Constants.Product.BrandId,
-            categoryId ?? Constants.Product.CategoryId);
+            categoryId ?? Constants.Product.CategoryId,
+            hasVariant);
     }
 }

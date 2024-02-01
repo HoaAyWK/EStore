@@ -1,5 +1,6 @@
 using EStore.Api;
 using EStore.Api.Common.ApiRoutes;
+using EStore.Api.Common.Options;
 using EStore.Application;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Infrastructure;
@@ -9,13 +10,19 @@ using EStore.Infrastructure.Persistence.Seeds;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services
-        .AddPresentation()
+        .AddPresentation(builder.Configuration)
         .AddApplication()
         .AddInfrastructure(builder.Configuration);
 }
+
+var corsPolicyName = builder.Configuration
+    .GetSection(CorsOptions.SectionName)
+    .Get<CorsOptions>()?.PolicyName ?? "DefaultPolicy";
 
 var app = builder.Build();
 {
@@ -28,6 +35,7 @@ var app = builder.Build();
 
     app.UseExceptionHandler($"/{ApiRoutes.Error}");
     app.UseHttpsRedirection();
+    app.UseCors(corsPolicyName);
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
