@@ -38,7 +38,8 @@ public static class DependencyInjection
                     {
                         builder.WithOrigins(corsOptions.AllowedOrigins.Split(","))
                             .WithMethods(corsOptions.AllowedMethods.Split(","))
-                            .WithHeaders(corsOptions.AllowedHeaders.Split(","));
+                            .WithHeaders(corsOptions.AllowedHeaders.Split(","))
+                            .AllowCredentials();
                     });
             });
         }
