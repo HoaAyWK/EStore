@@ -1,3 +1,4 @@
+using System.Dynamic;
 using Algolia.Search.Clients;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Events;
@@ -25,6 +26,7 @@ public class ProductVariantCreatedIntegrationEventHandler
     private readonly IBrandRepository _brandRepository;
     private readonly IDiscountRepository _discountRepository;
     private readonly IPriceCalculationService _priceCalculationService;
+    private readonly IHierarchicalCategoryService _hierarchicalCategoryService;
     private readonly ISearchClient _searchClient;
     private readonly AlgoliaSearchOptions _algoliaSearchOptions;
 
@@ -34,6 +36,7 @@ public class ProductVariantCreatedIntegrationEventHandler
         IBrandRepository brandRepository,
         IDiscountRepository discountRepository,
         IPriceCalculationService priceCalculationService,
+        IHierarchicalCategoryService hierarchicalCategoryService,
         ISearchClient searchClient,
         IOptions<AlgoliaSearchOptions> options)
     {
@@ -42,6 +45,7 @@ public class ProductVariantCreatedIntegrationEventHandler
         _brandRepository = brandRepository;
         _discountRepository = discountRepository;
         _priceCalculationService = priceCalculationService;
+        _hierarchicalCategoryService = hierarchicalCategoryService;
         _searchClient = searchClient;
         _algoliaSearchOptions = options.Value;
     }
@@ -71,28 +75,22 @@ public class ProductVariantCreatedIntegrationEventHandler
         var category = await _categoryRepository.GetWithParentsByIdAsync(product.CategoryId);
         var brand = await _brandRepository.GetByIdAsync(product.BrandId);
         Discount? discount = null;
-        var hierarchyCategories = new LinkedList<string>();
+        var hierarchyCategories = new ExpandoObject();
 
         if (product.DiscountId is not null)
         {
             discount = await _discountRepository.GetByIdAsync(product.DiscountId);
         }
 
-        if (category is not null)
-        {
-            var current = category;
-
-            while (current is not null)
-            {
-                hierarchyCategories.AddFirst(current.Name);
-                current = current.Parent;
-            }
-        }
-
         var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
             .Create(productVariant.RawAttributeSelection);
     
         var price = product.Price;
+
+        if (category is not null)
+        {
+            hierarchyCategories = _hierarchicalCategoryService.GetHierarchy(category);
+        }
 
         var productSearchModel = new ProductSearchModel
         {
@@ -174,7 +172,7 @@ public class ProductVariantCreatedIntegrationEventHandler
         }
 
         productSearchModel.Attributes = productAttributes;
-        productSearchModel.Categories = hierarchyCategories.ToList();
+        productSearchModel.Categories = hierarchyCategories;
 
         var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
 

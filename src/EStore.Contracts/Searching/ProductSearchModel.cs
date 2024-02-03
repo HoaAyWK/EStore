@@ -1,3 +1,5 @@
+using System.Dynamic;
+
 namespace EStore.Contracts.Searching;
 
 public class ProductSearchModel
@@ -12,7 +14,7 @@ public class ProductSearchModel
 
     public string? Description { get; set; }
 
-    public List<string> Categories { get; set; } = new();
+    public dynamic Categories { get; set; } = new ExpandoObject();
 
     public bool HasVariant { get; set; }
 

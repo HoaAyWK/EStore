@@ -1,3 +1,4 @@
+using System.Dynamic;
 using Algolia.Search.Clients;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Events;
@@ -20,6 +21,7 @@ public class ProductCreatedIntegrationEventHandler
     private readonly IBrandRepository _brandRepository;
     private readonly IDiscountRepository _discountRepository;
     private readonly IPriceCalculationService _priceCalculationService;
+    private readonly IHierarchicalCategoryService _hierarchicalCategoryService;
     private readonly ISearchClient _searchClient;
     private readonly AlgoliaSearchOptions _algoliaSearchOptions;
 
@@ -29,6 +31,7 @@ public class ProductCreatedIntegrationEventHandler
         IBrandRepository brandRepository,
         IDiscountRepository discountRepository,
         IPriceCalculationService priceCalculationService,
+        IHierarchicalCategoryService hierarchicalCategoryService,
         ISearchClient searchClient,
         IOptions<AlgoliaSearchOptions> options)
     {
@@ -37,6 +40,7 @@ public class ProductCreatedIntegrationEventHandler
         _brandRepository = brandRepository;
         _discountRepository = discountRepository;
         _priceCalculationService = priceCalculationService;
+        _hierarchicalCategoryService = hierarchicalCategoryService;
         _searchClient = searchClient;
         _algoliaSearchOptions = options.Value;
     }
@@ -66,17 +70,11 @@ public class ProductCreatedIntegrationEventHandler
 
         var brand = await _brandRepository.GetByIdAsync(product.BrandId);
         var category = await _categoryRepository.GetByIdAsync(product.CategoryId);
-        var hierarchyCategories = new LinkedList<string>();
+        var hierarchyCategories = new ExpandoObject();
 
         if (category is not null)
         {
-            var current = category;
-
-            while (current is not null)
-            {
-                hierarchyCategories.AddFirst(current.Name);
-                current = current.Parent;
-            }
+            hierarchyCategories = _hierarchicalCategoryService.GetHierarchy(category);
         }
 
         var productSearchModel = new ProductSearchModel
