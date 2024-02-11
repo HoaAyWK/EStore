@@ -92,8 +92,10 @@ public static class DependencyInjection
         services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
         services.AddScoped<ISearchProductsService, SearchProductsService>();
         services.AddScoped<IHierarchicalCategoryService, HierarchicalCategoryService>();
+        services.AddScoped<IAccountTokenService, AccountTokenService>();
 
         services.AddTransient<IEmailService, EmailService>();
+        services.AddTransient<IOtpService, OtpService>();
 
         services.AddDbContext<EStoreDbContext>((sp, options) =>
         {

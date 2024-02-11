@@ -8,6 +8,7 @@ using EStore.Domain.CustomerAggregate;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Identity;
+using EStore.Infrastructure.Identity.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -18,18 +19,24 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IAccountTokenService _accountTokenService;
     private readonly IEmailService _emailService;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public AuthenticationService(
         UserManager<ApplicationUser> userManager,
         IJwtTokenGenerator jwtTokenGenerator,
         ICustomerRepository customerRepository,
-        IEmailService emailService)
+        IAccountTokenService accountTokenService,
+        IEmailService emailService,
+        IDateTimeProvider dateTimeProvider)
     {
         _userManager = userManager;
         _jwtTokenGenerator = jwtTokenGenerator;
         _customerRepository = customerRepository;
+        _accountTokenService = accountTokenService;
         _emailService = emailService;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<ErrorOr<AuthenticationResult>> LoginAsync(string email, string password)
@@ -112,7 +119,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         return errors;
     }
 
-    public async Task<ErrorOr<Success>> SendConfirmationEmailAddressEmailAsync(string email)
+    public async Task<ErrorOr<Success>> SendConfirmationEmailAddressEmailAsync(string email, string templatePath)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
@@ -121,14 +128,37 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.Authentication.InvalidCredentials;
         }
 
-        var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(confirmationToken));
+        var otp = GenerateOtp();
+        var accountToken = new AccountToken(
+            email,
+            otp,
+            TokenType.ForgotPasswordOtp,
+            _dateTimeProvider.UtcNow.AddMinutes(10));
 
-        await _emailService.SendEmailAsync(
-            subject: "Confirm Your Email Address",
+        await _accountTokenService.AddAccountTokenAsync(accountToken);
+
+        var htmlBody = await File.ReadAllTextAsync(templatePath);
+
+        htmlBody = htmlBody.Replace("{0}", otp);
+
+        _ = Task.Run(() => _emailService.SendEmailWithTemplateAsync(
+            subject: "[EStore] OTP for Email Confirmation",
             mailTo: email,
-            body: encodedToken);
+            htmlBody: htmlBody));
         
         return Result.Success;
+    }
+
+    private static string GenerateOtp(int length = 6)
+    {
+        var random = new Random();
+        var opt = new StringBuilder();
+
+        for (int i = 0; i < length; i++)
+        {
+            opt.Append(random.Next(0, 9));
+        }
+
+        return opt.ToString();
     }
 }

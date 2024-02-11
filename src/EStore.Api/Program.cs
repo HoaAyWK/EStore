@@ -38,6 +38,7 @@ var app = builder.Build();
     app.UseCors(corsPolicyName);
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseStaticFiles();
     app.MapControllers();
 
     await SeedDataAsync(app);

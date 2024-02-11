@@ -3,7 +3,9 @@ using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Customers.Events.CustomerCreated;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Infrastructure.Identity;
+using EStore.Infrastructure.Identity.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -13,15 +15,30 @@ public sealed class CustomerCreatedIntegrationEventHandler : INotificationHandle
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IAuthenticationService _authenticationService;
+    private readonly IAccountTokenService _accountTokenService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly IOtpService _otpService;
+    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IEmailService _emailService;
 
     public CustomerCreatedIntegrationEventHandler(
         ICustomerRepository customerRepository,
         UserManager<ApplicationUser> userManager,
+        IAuthenticationService authenticationService,
+        IAccountTokenService accountTokenService,
+        IWebHostEnvironment webHostEnvironment,
+        IOtpService otpService,
+        IDateTimeProvider dateTimeProvider,
         IEmailService emailService)
     {
         _customerRepository = customerRepository;
         _userManager = userManager;
+        _authenticationService = authenticationService;
+        _accountTokenService = accountTokenService;
+        _webHostEnvironment = webHostEnvironment;
+        _otpService = otpService;
+        _dateTimeProvider = dateTimeProvider;
         _emailService = emailService;
     }
 
@@ -41,9 +58,35 @@ public sealed class CustomerCreatedIntegrationEventHandler : INotificationHandle
             return;
         }
 
-        string emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
-        string token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(emailConfirmationToken));
+        var templatePath = GetTemplatePath();
+        var otp = _otpService.GenerateOtp();
 
-        await _emailService.SendEmailAsync("Confirm your email", user.Email, token);
+        var accountToken = new AccountToken(
+            user.Email,
+            otp,
+            TokenType.ForgotPasswordOtp,
+            _dateTimeProvider.UtcNow.AddMinutes(10));
+
+        await _accountTokenService.AddAccountTokenAsync(accountToken);
+
+        var htmlBody = await File.ReadAllTextAsync(templatePath, cancellationToken);
+
+        htmlBody = htmlBody.Replace("{0}", otp);
+
+        await _emailService.SendEmailWithTemplateAsync(
+            subject: "[EStore] OTP for Email Confirmation",
+            mailTo: user.Email,
+            htmlBody: htmlBody);
+    }
+
+    private string GetTemplatePath()
+    {
+        var separator = Path.DirectorySeparatorChar.ToString();
+
+        return _webHostEnvironment.WebRootPath
+            + separator
+            + "Templates"
+            + separator
+            + "otp-email.html";
     }
 }

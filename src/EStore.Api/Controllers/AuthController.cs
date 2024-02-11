@@ -15,17 +15,20 @@ public class AuthController : ApiController
     private readonly IMapper _mapper;
     private readonly IAuthenticationService _authenticationService;
     private readonly ICartService _cartService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
     public AuthController(
         ISender mediator,
         IMapper mapper,
         IAuthenticationService authenticationService,
-        ICartService cartService)
+        ICartService cartService,
+        IWebHostEnvironment webHostEnvironment)
     {
         _mediator = mediator;
         _mapper = mapper;
         _authenticationService = authenticationService;
         _cartService = cartService;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     [HttpPost(ApiRoutes.Auth.Register)]
@@ -54,7 +57,6 @@ public class AuthController : ApiController
 
         if (!authResult.IsError)
         {
-
             await TransferAnonymousCartToCustomerCartAsync(authResult.Value.Customer.Id.Value);
         }
 
@@ -66,7 +68,9 @@ public class AuthController : ApiController
     [HttpPost(ApiRoutes.Auth.SendConfirmationEmail)]
     public async Task<IActionResult> SendConfirmationEmail(SendConfirmationEmailRequest request)
     {
-        var sendEmailResult = await _authenticationService.SendConfirmationEmailAddressEmailAsync(request.Email);
+        var templatePath = GetTemplatePath();
+        var sendEmailResult = await _authenticationService
+            .SendConfirmationEmailAddressEmailAsync(request.Email, templatePath);
 
         return sendEmailResult.Match(
             success => NoContent(),
@@ -87,5 +91,16 @@ public class AuthController : ApiController
 
             Response.Cookies.Delete("Cart");
         }
+    }
+
+    private string GetTemplatePath()
+    {
+        var separator = Path.DirectorySeparatorChar.ToString();
+
+        return _webHostEnvironment.WebRootPath
+            + separator
+            + "Templates"
+            + separator
+            + "otp-email.html";
     }
 }

@@ -42,4 +42,41 @@ internal sealed class EmailService : IEmailService
 
         await smtpClient.DisconnectAsync(true);
     }
+
+    public async Task SendEmailWithTemplateAsync(string subject, string mailTo, string htmlBody)
+    {
+        var email = new MimeMessage
+        {
+            From =
+            {
+                new MailboxAddress(
+                    name: _mailSettings.SenderDisplayName,
+                    address: _mailSettings.SenderEmail)
+            },
+            To = { MailboxAddress.Parse(mailTo) },
+            Subject = subject
+        };
+
+        var bodyBuilder = new BodyBuilder
+        {
+            HtmlBody = htmlBody
+        };
+
+        email.Body = bodyBuilder.ToMessageBody();
+
+        using var smtpClient = new SmtpClient();
+
+        await smtpClient.ConnectAsync(
+            _mailSettings.SmtpServer,
+            _mailSettings.SmtpPort,
+            SecureSocketOptions.StartTls);
+
+        await smtpClient.AuthenticateAsync(
+            _mailSettings.SenderEmail,
+            _mailSettings.SmtpPassword);
+
+        await smtpClient.SendAsync(email);
+        
+        await smtpClient.DisconnectAsync(true);
+    }
 }
