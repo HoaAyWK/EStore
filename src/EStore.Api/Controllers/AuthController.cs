@@ -6,6 +6,7 @@ using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Customers.Commands.CreateCustomer;
 using EStore.Application.Carts.Services;
+using ErrorOr;
 
 namespace EStore.Api.Controllers;
 
@@ -77,6 +78,16 @@ public class AuthController : ApiController
             errors => Problem(errors));
     }
 
+    [HttpPost(ApiRoutes.Auth.VerifyEmail)]
+    public async Task<IActionResult> VerifyEmail(VerifyEmailRequest request)
+    {
+        var verifyEmailResult = await _authenticationService
+            .VerifyEmailAsync(request.Email, request.Token);
+
+        return verifyEmailResult.Match(
+            Success => NoContent(),
+            errors => Problem(errors));
+    }
 
     private async Task TransferAnonymousCartToCustomerCartAsync(Guid customerId)
     {

@@ -7,10 +7,10 @@ using EStore.Domain.Common.Errors;
 using EStore.Domain.CustomerAggregate;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
+using EStore.Infrastructure.Common.Errors;
 using EStore.Infrastructure.Identity;
 using EStore.Infrastructure.Identity.Enums;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace EStore.Infrastructure.Services;
 
@@ -59,6 +59,11 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         if (validPassword)
         {
+            if (!appUser.EmailConfirmed)
+            {
+                return Errors.Authentication.NotConfirmedEmail;
+            }
+
             var generateTokenResult = await _jwtTokenGenerator.GenerateTokenAsync(customer.Id.Value.ToString());
 
             if (generateTokenResult.IsError)
@@ -146,6 +151,33 @@ internal sealed class AuthenticationService : IAuthenticationService
             mailTo: email,
             htmlBody: htmlBody));
         
+        return Result.Success;
+    }
+
+    public async Task<ErrorOr<Success>> VerifyEmailAsync(string email, string token)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+        {
+            return Errors.User.NotFound;
+        }
+
+        var accountToken = await _accountTokenService.GetAccountTokenAsync(token, email);
+
+        if (accountToken is null || !accountToken.Email.Equals(email))
+        {
+            return AccountTokenErrors.InvalidAccountToken;
+        }
+
+        if (accountToken.ExpireDate <= _dateTimeProvider.UtcNow)
+        {
+            return AccountTokenErrors.TokenExpired;
+        }
+
+        user.EmailConfirmed = true;
+        await _userManager.UpdateAsync(user);
+
         return Result.Success;
     }
 
