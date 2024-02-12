@@ -3,13 +3,16 @@ using ErrorOr;
 using EStore.Application.Common.Dtos;
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Services;
+using EStore.Contracts.Authentication;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.CustomerAggregate;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
+using EStore.Infrastructure.Common.EmailContents;
 using EStore.Infrastructure.Common.Errors;
 using EStore.Infrastructure.Identity;
 using EStore.Infrastructure.Identity.Enums;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 
 namespace EStore.Infrastructure.Services;
@@ -21,6 +24,8 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly ICustomerRepository _customerRepository;
     private readonly IAccountTokenService _accountTokenService;
     private readonly IEmailService _emailService;
+    private readonly IOtpService _otpService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IDateTimeProvider _dateTimeProvider;
 
     public AuthenticationService(
@@ -29,6 +34,8 @@ internal sealed class AuthenticationService : IAuthenticationService
         ICustomerRepository customerRepository,
         IAccountTokenService accountTokenService,
         IEmailService emailService,
+        IOtpService otpService,
+        IWebHostEnvironment webHostEnvironment,
         IDateTimeProvider dateTimeProvider)
     {
         _userManager = userManager;
@@ -36,6 +43,8 @@ internal sealed class AuthenticationService : IAuthenticationService
         _customerRepository = customerRepository;
         _accountTokenService = accountTokenService;
         _emailService = emailService;
+        _otpService = otpService;
+        _webHostEnvironment = webHostEnvironment;
         _dateTimeProvider = dateTimeProvider;
     }
 
@@ -133,11 +142,11 @@ internal sealed class AuthenticationService : IAuthenticationService
             return Errors.Authentication.InvalidCredentials;
         }
 
-        var otp = GenerateOtp();
+        var otp = _otpService.GenerateOtp();
         var accountToken = new AccountToken(
             email,
             otp,
-            TokenType.ForgotPasswordOtp,
+            TokenType.ConfirmEmailOTP,
             _dateTimeProvider.UtcNow.AddMinutes(10));
 
         await _accountTokenService.AddAccountTokenAsync(accountToken);
@@ -165,7 +174,7 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         var accountToken = await _accountTokenService.GetAccountTokenAsync(token, email);
 
-        if (accountToken is null || !accountToken.Email.Equals(email))
+        if (accountToken is null)
         {
             return AccountTokenErrors.InvalidAccountToken;
         }
@@ -177,20 +186,89 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         user.EmailConfirmed = true;
         await _userManager.UpdateAsync(user);
+        await _accountTokenService.DeleteTokenAsync(accountToken);
+
+        return Result.Success;
+    }
+    
+    public async Task<ErrorOr<Success>> ForgetPasswordAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+        {
+            return Errors.User.NotFound;
+        }
+
+        var otp = _otpService.GenerateOtp();
+        var accountToken = new AccountToken(
+            email,
+            otp,
+            TokenType.ForgotPasswordOtp,
+            _dateTimeProvider.UtcNow.AddMinutes(10));
+
+        await _accountTokenService.AddAccountTokenAsync(accountToken);
+
+        var templatePath = GetTemplatePath();
+        var htmlBody = await File.ReadAllTextAsync(templatePath);
+
+        htmlBody = htmlBody
+            .Replace("{0}", EmailContents.Auth.ForgetPasswordOTP)
+            .Replace("{1}", otp);
+
+        _ = Task.Run(() => _emailService.SendEmailWithTemplateAsync(
+            subject: "[EStore] OTP for Email Confirmation",
+            mailTo: email,
+            htmlBody: htmlBody));
 
         return Result.Success;
     }
 
-    private static string GenerateOtp(int length = 6)
+    public async Task<ErrorOr<Success>> ResetPasswordAsync(
+        string email,
+        string token,
+        string password)
     {
-        var random = new Random();
-        var opt = new StringBuilder();
+        var user = await _userManager.FindByEmailAsync(email);
 
-        for (int i = 0; i < length; i++)
+        if (user is null)
         {
-            opt.Append(random.Next(0, 9));
+            return Errors.User.NotFound;
         }
 
-        return opt.ToString();
+        var accountToken = await _accountTokenService.GetAccountTokenAsync(token, email);
+
+        if (accountToken is null)
+        {
+            return AccountTokenErrors.InvalidAccountToken;
+        }
+
+        if (accountToken.ExpireDate <= _dateTimeProvider.UtcNow)
+        {
+            return AccountTokenErrors.TokenExpired;
+        }
+
+        var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        if (resetPasswordToken is null)
+        {
+            return Errors.General.UnProcessableRequest;
+        }
+
+        await _userManager.ResetPasswordAsync(user, resetPasswordToken, password);
+        await _accountTokenService.DeleteTokenAsync(accountToken);
+
+        return Result.Success;
+    }
+
+    private string GetTemplatePath()
+    {
+        var separator = Path.DirectorySeparatorChar.ToString();
+
+        return _webHostEnvironment.WebRootPath
+            + separator
+            + "Templates"
+            + separator
+            + "otp-email.html";
     }
 }

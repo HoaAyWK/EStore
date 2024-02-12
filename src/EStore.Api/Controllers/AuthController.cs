@@ -85,8 +85,31 @@ public class AuthController : ApiController
             .VerifyEmailAsync(request.Email, request.Token);
 
         return verifyEmailResult.Match(
-            Success => NoContent(),
-            errors => Problem(errors));
+            success => NoContent(),
+            Problem);
+    }
+
+    [HttpPost(ApiRoutes.Auth.ForgetPassword)]
+    public async Task<IActionResult> ForgetPassword(ForgetPasswordRequest request)
+    {
+        var forgetPasswordResult = await _authenticationService.ForgetPasswordAsync(request.Email);
+
+        return forgetPasswordResult.Match(
+            success => NoContent(),
+            Problem);
+    }
+
+    [HttpPost(ApiRoutes.Auth.ResetPassword)]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    {
+        var resetPasswordResult = await _authenticationService.ResetPasswordAsync(
+            request.Email,
+            request.Token,
+            request.Password);
+
+        return resetPasswordResult.Match(
+            success => NoContent(),
+            Problem);
     }
 
     private async Task TransferAnonymousCartToCustomerCartAsync(Guid customerId)

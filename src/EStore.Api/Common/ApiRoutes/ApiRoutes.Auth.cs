@@ -11,5 +11,9 @@ public static partial class ApiRoutes
         public const string SendConfirmationEmail = "send-confirmation-email";
 
         public const string VerifyEmail = "verify-email";
+
+        public const string ForgetPassword = "forget-password";
+
+        public const string ResetPassword = "reset-password";
     }
 }

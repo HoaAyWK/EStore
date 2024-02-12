@@ -2,6 +2,7 @@ using System.Text;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Customers.Events.CustomerCreated;
 using EStore.Domain.CustomerAggregate.Repositories;
+using EStore.Infrastructure.Common.EmailContents;
 using EStore.Infrastructure.Identity;
 using EStore.Infrastructure.Identity.Enums;
 using MediatR;
@@ -71,7 +72,9 @@ public sealed class CustomerCreatedIntegrationEventHandler : INotificationHandle
 
         var htmlBody = await File.ReadAllTextAsync(templatePath, cancellationToken);
 
-        htmlBody = htmlBody.Replace("{0}", otp);
+        htmlBody = htmlBody
+            .Replace("{0}", EmailContents.Auth.ConfirmEmailOTP)
+            .Replace("{1}", otp);
 
         await _emailService.SendEmailWithTemplateAsync(
             subject: "[EStore] OTP for Email Confirmation",

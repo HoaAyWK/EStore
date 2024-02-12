@@ -3,5 +3,6 @@ namespace EStore.Infrastructure.Identity.Enums;
 public enum TokenType
 {
     ForgetPasswordToken,
-    ForgotPasswordOtp
+    ForgotPasswordOtp,
+    ConfirmEmailOTP
 }
