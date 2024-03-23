@@ -27,11 +27,16 @@ public class AddProductAttributeValueCommandHandler
             return Errors.Product.NotFound;
         }
 
-        product.AddProductAttributeValue(
+        var addAttributeValueResult = product.AddProductAttributeValue(
             request.ProductAttributeId,
             request.Name,
             request.PriceAdjustment,
             request.Alias);
+
+        if (addAttributeValueResult.IsError)
+        {
+            return addAttributeValueResult.Errors;
+        }
         
         return product;
     }

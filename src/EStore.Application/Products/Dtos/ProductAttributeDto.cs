@@ -6,5 +6,7 @@ public class ProductAttributeDto
 
     public string Name { get; set; } = string.Empty;
 
+    public bool CanCombine { get; set; }
+
     public IEnumerable<ProductAttributeValueDto> AttributeValues { get; set; } = null!;
 }

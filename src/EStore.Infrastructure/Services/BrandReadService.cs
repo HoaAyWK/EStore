@@ -43,7 +43,7 @@ internal sealed class BrandReadService : IBrandReadService
         {
             return new ListPagedBrandResponse()
             {
-                Data = await brandResponsesQuery.ToListAsync(),
+                Items = await brandResponsesQuery.ToListAsync(),
                 Page = 1,
                 PageSize = totalItems,
                 TotalItems = totalItems
@@ -57,7 +57,7 @@ internal sealed class BrandReadService : IBrandReadService
 
         return new ListPagedBrandResponse()
         {
-            Data = brandResponsesListPaged,
+            Items = brandResponsesListPaged,
             PageSize = pageSize,
             Page = page,
             TotalItems = totalItems

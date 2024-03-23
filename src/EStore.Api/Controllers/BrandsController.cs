@@ -44,9 +44,7 @@ public class BrandsController : ApiController
         var query = new GetBrandByIdQuery(BrandId.Create(id));
         var getBrandResult = await _mediator.Send(query);
 
-        return getBrandResult.Match(
-            brandResponse => Ok(brandResponse),
-            errors => Problem(errors));
+        return getBrandResult.Match(Ok, Problem);
     }
 
     [HttpPost]
@@ -57,7 +55,7 @@ public class BrandsController : ApiController
 
         return createBrandResult.Match(
             brand => CreatedAtGetBrand(_mapper.Map<BrandResponse>(brand)),
-            errors => Problem(errors));
+            Problem);
     }
 
     [HttpPut(ApiRoutes.Brand.Update)]
@@ -66,13 +64,18 @@ public class BrandsController : ApiController
         var command = _mapper.Map<UpdateBrandCommand>((id, request));
         var updateBrandResult = await _mediator.Send(command);
 
-        return updateBrandResult.Match(
-            updated => NoContent(),
-            errors => Problem(errors));
+        if (updateBrandResult.IsError)
+        {
+            return Problem(updateBrandResult.Errors);
+        }
+
+        var query = new GetBrandByIdQuery(BrandId.Create(id));
+        var getBrandResult = await _mediator.Send(query);
+
+        return getBrandResult.Match(Ok, Problem);
     }
 
     [HttpDelete(ApiRoutes.Brand.Delete)]
-
     public async Task<IActionResult> DeleteBrand(Guid id)
     {
         var command = _mapper.Map<DeleteBrandCommand>(id);
@@ -80,7 +83,7 @@ public class BrandsController : ApiController
 
         return deleteBrandResult.Match(
             deleted => NoContent(),
-            errors => Problem(errors));
+            Problem);
     }
 
     private CreatedAtActionResult CreatedAtGetBrand(BrandResponse brand)

@@ -132,6 +132,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public void AddProductImage(ProductImage productImage)
     {
         _images.Add(productImage);
+        RaiseDomainEvent(new ProductImageAddedDomainEvent(Id, productImage.Id));
     }
 
     public ErrorOr<Updated> UpdateDetails(
@@ -396,6 +397,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         {
             return Errors.Product.InvalidStockQuantity;
         }
+
+        StockQuantity = stockQuantity;
 
         return Result.Updated;
     }

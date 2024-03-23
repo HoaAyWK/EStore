@@ -20,7 +20,6 @@ using EStore.Contracts.Common;
 using EStore.Application.Products.Commands.AddProductVariant;
 using EStore.Application.Products.Commands.UpdateProductVariant;
 using EStore.Api.Common.ApiRoutes;
-using EStore.Contracts.Searching;
 
 namespace EStore.Api.Controllers;
 
@@ -42,12 +41,16 @@ public class ProductsController : ApiController
     public async Task<IActionResult> GetProducts(
         string? searchTerm,
         int page = 1,
-        int pageSize = 5)
+        int pageSize = 5,
+        string? order = null,
+        string? orderBy = null)
     {
         var query = new GetProductListPagedQuery(
             searchTerm,
             page,
-            pageSize);
+            pageSize,
+            order,
+            orderBy);
 
         var listPagedDtos = await _mediator.Send(query);
         var listPagedResponse = _mapper.Map<PagedList<ProductResponse>>(listPagedDtos);
@@ -64,7 +67,7 @@ public class ProductsController : ApiController
 
         return getProductResult.Match(
             product => Ok(_mapper.Map<ProductResponse>(product)),
-            errors => Problem(errors));
+            Problem);
     }
 
     [HttpPost]
@@ -75,7 +78,7 @@ public class ProductsController : ApiController
 
         return createProductResult.Match(
             product => Ok(_mapper.Map<ProductResponse>(product)),
-            errors => Problem(errors));
+            Problem);
     }
 
     [HttpPost]
@@ -94,7 +97,7 @@ public class ProductsController : ApiController
 
         return addProductImageResult.Match(
             updated => NoContent(),
-            errors => Problem(errors));
+            Problem);
     }
 
     [HttpPut(ApiRoutes.Product.Update)]
@@ -103,12 +106,19 @@ public class ProductsController : ApiController
         [FromBody] UpdateProductRequest request)
     {
         var command = _mapper.Map<UpdateProductCommand>((id, request));
-
         var updateProductResult = await _mediator.Send(command);
 
-        return updateProductResult.Match(
+        if (updateProductResult.IsError)
+        {
+            return Problem(updateProductResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
             product => Ok(_mapper.Map<ProductResponse>(product)),
-            errors => Problem(errors));
+            Problem);
     }
 
     [HttpPost(ApiRoutes.Product.AddAttribute)]
@@ -124,9 +134,17 @@ public class ProductsController : ApiController
 
         var addAttributeResult = await _mediator.Send(command);
 
-        return addAttributeResult.Match(
-            result => Ok(result),
-            errors => Problem(errors));
+        if (addAttributeResult.IsError)
+        {
+            return Problem(addAttributeResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
     }
 
 
@@ -146,9 +164,17 @@ public class ProductsController : ApiController
 
         var updateAttributeResult = await _mediator.Send(command);
 
-        return updateAttributeResult.Match(
-            result => Ok(result),
-            errors => Problem(errors));
+        if (updateAttributeResult.IsError)
+        {
+            return Problem(updateAttributeResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
     }
 
     [HttpPost(ApiRoutes.Product.AddAttributeValue)]
@@ -166,9 +192,17 @@ public class ProductsController : ApiController
 
         var addAttributeValueResult = await _mediator.Send(command);
 
-        return addAttributeValueResult.Match(
-            addResult => Ok(addResult),
-            errors => Problem(errors));
+        if (addAttributeValueResult.IsError)
+        {
+            return Problem(addAttributeValueResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
     }
 
     [HttpPut(ApiRoutes.Product.UpdateAttributeValue)]
@@ -188,9 +222,17 @@ public class ProductsController : ApiController
 
         var updateAttributeValueResult = await _mediator.Send(command);
 
-        return updateAttributeValueResult.Match(
-            updated => NoContent(),
-            errors => Problem(errors));
+        if (updateAttributeValueResult.IsError)
+        {
+            return Problem(updateAttributeValueResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
     }
 
     [HttpDelete]
@@ -201,9 +243,17 @@ public class ProductsController : ApiController
         var command = _mapper.Map<DeleteAttributeValueCommand>(request);
         var deleteResult = await _mediator.Send(command);
 
-        return deleteResult.Match(
-            deleteResult => Ok(deleteResult),
-            errors => Problem(errors));
+        if (deleteResult.IsError)
+        {
+            return Problem(deleteResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(request.Id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
     }
 
     [HttpPost]
@@ -213,9 +263,17 @@ public class ProductsController : ApiController
         var command = _mapper.Map<AddProductVariantCommand>((id, request));
         var addProductVariantResult = await _mediator.Send(command);
 
-        return addProductVariantResult.Match(
-            productVariant => Ok(productVariant),
-            errors => Problem(errors));
+        if (addProductVariantResult.IsError)
+        {
+            return Problem(addProductVariantResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
     }
 
     [HttpPut]
@@ -228,8 +286,16 @@ public class ProductsController : ApiController
         var command = _mapper.Map<UpdateProductVariantCommand>((id, productVariantId, request));
         var updateProductVariantResult = await _mediator.Send(command);
 
-        return updateProductVariantResult.Match(
-            updated => NoContent(),
-            errors => Problem(errors));
+        if (updateProductVariantResult.IsError)
+        {
+            return Problem(updateProductVariantResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
     }
 }

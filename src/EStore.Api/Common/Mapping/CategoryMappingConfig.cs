@@ -41,7 +41,7 @@ public class CategoryMappingConfig : IRegister
             .Map(dest => dest.ParentId, src => src.Parent!.Id.Value);
 
         config.NewConfig<ListPagedCategoryResult, ListPagedCategoryResponse>()
-            .Map(dest => dest.Data, src => src.Categories);
+            .Map(dest => dest.Items, src => src.Categories);
 
         config.NewConfig<TreeNode<CategoryWithPathResponse>, CategoryNodeResponse>()
             .Map(dest => dest.Children, src => src.Children)

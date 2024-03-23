@@ -5,6 +5,7 @@ using EStore.Domain.ProductAggregate.Entities;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductAggregate.ValueObjects;
 using MediatR;
+using Newtonsoft.Json;
 
 namespace EStore.Application.Products.Commands.AddProductVariant;
 
@@ -54,6 +55,7 @@ public class AddProductVariantCommandHandler : IRequestHandler<AddProductVariant
         }
 
         decimal variantPrice = product.Price;
+        var attributes = new Dictionary<string, string>();
         
         // Check if product attribute value already existed, if not add error to errors list
         foreach (var selection in request.SelectedAttributes)
@@ -81,6 +83,7 @@ public class AddProductVariantCommandHandler : IRequestHandler<AddProductVariant
                 }
                 else
                 {
+                    attributes.Add(attribute.Name, attributeValue.Name);
                     variantPrice += attributeValue.PriceAdjustment;
                 }
             }
@@ -91,6 +94,7 @@ public class AddProductVariantCommandHandler : IRequestHandler<AddProductVariant
             variantPrice,
             request.AssignedProductImageIds ?? "",
             attributeSelection.AsJson(),
+            JsonConvert.SerializeObject(attributes),
             request.IsActive);
 
         if (createProductVariantResult.IsError)

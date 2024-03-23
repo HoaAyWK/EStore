@@ -25,7 +25,9 @@ internal sealed class OrderReadService : IOrderReadService
             .Take(pageSize)
             .ToListAsync();
 
-        return new PagedList<Order>(orders, page, pageSize, totalItems);
+        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        return new PagedList<Order>(orders, page, pageSize, totalItems, totalPages);
     }
 
     public async Task<Order?> GetByIdAsync(OrderId orderId)
@@ -47,6 +49,8 @@ internal sealed class OrderReadService : IOrderReadService
             .Take(pageSize)
             .ToListAsync();
 
-        return new PagedList<Order>(orders, page, pageSize, totalItems);
+        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        return new PagedList<Order>(orders, page, pageSize, totalItems, totalPages);
     }
 }

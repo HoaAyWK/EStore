@@ -82,9 +82,7 @@ public class CategoriesController : ApiController
         var query = new GetCategoryByIdQuery(CategoryId.Create(id));
         var getCategoryResult = await _mediator.Send(query);
 
-        return getCategoryResult.Match(
-            category => Ok(category),
-            errors => Problem(errors));
+        return getCategoryResult.Match(Ok, Problem);
     }
 
     [HttpPost]
@@ -100,7 +98,7 @@ public class CategoriesController : ApiController
 
         return createCategoryResult.Match(
             category => CreatedAtGetCategory(_mapper.Map<CategoryResponse>(category)),
-            errors => Problem(errors));
+            Problem);
     }
 
     [HttpPut(ApiRoutes.Category.Update)]
@@ -112,12 +110,17 @@ public class CategoriesController : ApiController
         }
 
         var command = _mapper.Map<UpdateCategoryCommand>((id, request));
-        
         var updateCategoryResult = await _mediator.Send(command);
 
-        return updateCategoryResult.Match(
-            updated => NoContent(),
-            errors => Problem(errors));
+        if (updateCategoryResult.IsError)
+        {
+            return Problem(updateCategoryResult.Errors);
+        }
+
+        var query = new GetCategoryByIdQuery(CategoryId.Create(id));
+        var getCategoryResult = await _mediator.Send(query);
+
+        return getCategoryResult.Match(Ok, Problem);
     }
 
     [HttpDelete(ApiRoutes.Category.Delete)]
@@ -128,7 +131,7 @@ public class CategoriesController : ApiController
 
         return deleteCategoryResult.Match(
             deleted => NoContent(),
-            errors => Problem(errors));
+            Problem);
     }
 
     private CreatedAtActionResult CreatedAtGetCategory(CategoryResponse category)

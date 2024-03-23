@@ -1,8 +1,8 @@
 using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Customers.Command.UpdateCustomer;
+using EStore.Application.Customers.Queries;
 using EStore.Contracts.Customers;
 using EStore.Domain.CustomerAggregate.ValueObjects;
-using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,6 +32,15 @@ public class CustomersController : ApiController
 
         return updateCustomerResult.Match(
             updated => NoContent(),
-            errors => Problem(errors));
+            Problem);
+    }
+
+    [HttpGet(ApiRoutes.Customer.Get)]
+    public async Task<IActionResult> GetCustomer(Guid id)
+    {
+        var getCustomerResult = await _mediator.Send(
+            new GetCustomerByIdQuery(CustomerId.Create(id)));
+
+        return getCustomerResult.Match(Ok, Problem);
     }
 }

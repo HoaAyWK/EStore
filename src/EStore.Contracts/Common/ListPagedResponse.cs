@@ -2,7 +2,7 @@ namespace EStore.Contracts.Common;
 
 public abstract class ListPagedResponse<T>
 {
-    public List<T> Data { get; set; } = new();
+    public List<T> Items { get; set; } = new();
 
     public int PageSize { get; set; }
 

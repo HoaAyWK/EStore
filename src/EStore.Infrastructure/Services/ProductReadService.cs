@@ -28,9 +28,6 @@ internal sealed class ProductReadService : IProductReadService
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
-                SpecialPrice = p.SpecialPrice,
-                SpecialPriceStartDate = p.SpecialPriceEndDateTime,
-                SpecialPriceEndDate = p.SpecialPriceEndDateTime,
                 Published = p.Published,
                 StockQuantity = p.StockQuantity,
                 DisplayOrder = p.DisplayOrder,
@@ -83,6 +80,7 @@ internal sealed class ProductReadService : IProductReadService
                         {
                             Id = attribute.Id.Value,
                             Name = attribute.Name,
+                            CanCombine = attribute.CanCombine,
                             AttributeValues = attribute.ProductAttributeValues.Select(attributeValue =>
                             new ProductAttributeValueDto
                             {
@@ -100,7 +98,8 @@ internal sealed class ProductReadService : IProductReadService
                         Price = variant.Price,
                         IsActive = variant.IsActive,
                         AssignedProductImageIds = variant.AssignedProductImageIds,
-                        RawAttributeSelection = variant.RawAttributeSelection
+                        RawAttributeSelection = variant.RawAttributeSelection,
+                        RawAttributes = variant.RawAttributes
                     })
             })
             .FirstOrDefaultAsync();
@@ -111,13 +110,12 @@ internal sealed class ProductReadService : IProductReadService
     public async Task<PagedList<ProductDto>> GetProductListPagedAsync(
         string? searchTerm,
         int page,
-        int pageSize)
+        int pageSize,
+        string? order,
+        string? orderBy)
     {
-        var productDtos = await _dbContext.Products.AsNoTracking()
+        var productDtosQuery = _dbContext.Products.AsNoTracking()
             .Where(p => string.IsNullOrWhiteSpace(searchTerm) || p.Name.Contains(searchTerm))
-            .OrderBy(p => p.DisplayOrder)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
             .Select(p => new ProductDto
             {
                 Id = p.Id.Value,
@@ -125,9 +123,6 @@ internal sealed class ProductReadService : IProductReadService
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
-                SpecialPrice = p.SpecialPrice,
-                SpecialPriceStartDate = p.SpecialPriceEndDateTime,
-                SpecialPriceEndDate = p.SpecialPriceEndDateTime,
                 Published = p.Published,
                 StockQuantity = p.StockQuantity,
                 DisplayOrder = p.DisplayOrder,
@@ -167,6 +162,7 @@ internal sealed class ProductReadService : IProductReadService
                         {
                             Id = attribute.Id.Value,
                             Name = attribute.Name,
+                            CanCombine = attribute.CanCombine,
                             AttributeValues = attribute.ProductAttributeValues.Select(attributeValue =>
                             new ProductAttributeValueDto
                             {
@@ -184,14 +180,48 @@ internal sealed class ProductReadService : IProductReadService
                         Price = variant.Price,
                         IsActive = variant.IsActive,
                         AssignedProductImageIds = variant.AssignedProductImageIds,
-                        RawAttributeSelection = variant.RawAttributeSelection
+                        RawAttributeSelection = variant.RawAttributeSelection,
+                        RawAttributes = variant.RawAttributes
                     })
-            })
-            .ToListAsync();
-            
-        int totalCount = await CountTotalItems(searchTerm);
+            });
+        
+        if (!string.IsNullOrWhiteSpace(orderBy))
+        {
+            if (!string.IsNullOrWhiteSpace(order) && order.ToLower() == "desc")
+            {
+                productDtosQuery = orderBy switch
+                {
+                    "name" => productDtosQuery.OrderByDescending(p => p.Name),
+                    "price" => productDtosQuery.OrderByDescending(p => p.Price),
+                    "stockQuantity" => productDtosQuery.OrderByDescending(p => p.StockQuantity),
+                    "displayOrder" => productDtosQuery.OrderByDescending(p => p.DisplayOrder),
+                    "updatedDateTime" => productDtosQuery.OrderByDescending(p => p.UpdatedDateTime),
+                    _ => productDtosQuery.OrderByDescending(p => p.CreatedDateTime)
+                };
+            }
+            else
+            {
+                productDtosQuery = orderBy switch
+                {
+                    "name" => productDtosQuery.OrderBy(p => p.Name),
+                    "price" => productDtosQuery.OrderBy(p => p.Price),
+                    "stockQuantity" => productDtosQuery.OrderBy(p => p.StockQuantity),
+                    "displayOrder" => productDtosQuery.OrderBy(p => p.DisplayOrder),
+                    "updatedDateTime" => productDtosQuery.OrderBy(p => p.UpdatedDateTime),
+                    _ => productDtosQuery.OrderBy(p => p.CreatedDateTime),
+                };
+            }
+        }
 
-        return new PagedList<ProductDto>(productDtos, page, pageSize, totalCount);
+        productDtosQuery = productDtosQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+
+        var productDtos = await productDtosQuery.ToListAsync();   
+        int totalCount = await CountTotalItems(searchTerm);
+        int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        return new PagedList<ProductDto>(productDtos, page, pageSize, totalCount, totalPages);
     }
 
     private async Task<int> CountTotalItems(string? searchTerm)

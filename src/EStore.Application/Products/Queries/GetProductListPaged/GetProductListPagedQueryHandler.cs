@@ -22,6 +22,8 @@ public class GetProductListPagedQueryHandler
         return await _productReadService.GetProductListPagedAsync(
             request.SearchTerm,
             request.Page,
-            request.PageSize);
+            request.PageSize,
+            request.Order,
+            request.OrderBy);
     }
 }

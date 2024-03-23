@@ -63,7 +63,8 @@ public static class DependencyInjection
 
         services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<EStoreIdentityDbContext>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddRoles<IdentityRole>();
         
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<ConvertDomainEventsToOutboxMessagesInterceptor>();
@@ -93,6 +94,7 @@ public static class DependencyInjection
         services.AddScoped<ISearchProductsService, SearchProductsService>();
         services.AddScoped<IHierarchicalCategoryService, HierarchicalCategoryService>();
         services.AddScoped<IAccountTokenService, AccountTokenService>();
+        services.AddScoped<IAccountService, AccountService>();
 
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IOtpService, OtpService>();

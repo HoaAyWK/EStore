@@ -6,7 +6,6 @@ using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Customers.Commands.CreateCustomer;
 using EStore.Application.Carts.Services;
-using ErrorOr;
 
 namespace EStore.Api.Controllers;
 
@@ -63,7 +62,7 @@ public class AuthController : ApiController
 
         return authResult.Match(
             authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
-            errors => Problem(errors));
+            Problem);
     }
 
     [HttpPost(ApiRoutes.Auth.SendConfirmationEmail)]

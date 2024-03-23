@@ -8,5 +8,7 @@ namespace EStore.Application.Products.Queries.GetProductListPaged;
 public record GetProductListPagedQuery(
     string? SearchTerm,
     int Page,
-    int PageSize)
+    int PageSize,
+    string? Order,
+    string? OrderBy)
     : IRequest<PagedList<ProductDto>>;

@@ -1,8 +1,6 @@
 using ErrorOr;
+using EStore.Application.Common.Interfaces.Services;
 using EStore.Contracts.Accounts;
-using EStore.Domain.Common.Errors;
-using EStore.Domain.CustomerAggregate.Repositories;
-using EStore.Domain.CustomerAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Accounts.GetUserInfoQuery;
@@ -10,30 +8,17 @@ namespace EStore.Application.Accounts.GetUserInfoQuery;
 public class GetUserInfoQueryHandler
     : IRequestHandler<GetUserInfoQuery, ErrorOr<UserInfoResponse>>
 {
-    private readonly ICustomerRepository _customerRepository;
+    private readonly IAccountService _accountService;
 
-    public GetUserInfoQueryHandler(ICustomerRepository customerRepository)
+    public GetUserInfoQueryHandler(IAccountService accountService)
     {
-        _customerRepository = customerRepository;
+        _accountService = accountService;
     }
 
     public async Task<ErrorOr<UserInfoResponse>> Handle(
         GetUserInfoQuery request,
         CancellationToken cancellationToken)
     {
-        var user = await _customerRepository.GetByIdAsync(
-            CustomerId.Create(request.UserId));
-
-        if (user is null)
-        {
-            return Errors.Account.NotFound;
-        }
-
-        return new UserInfoResponse(
-            user.Id.Value,
-            user.FirstName,
-            user.LastName,
-            user.Email,
-            null);
+        return await _accountService.GetUserInfoAsync(request.UserId);
     }
 }

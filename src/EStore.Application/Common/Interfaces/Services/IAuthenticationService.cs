@@ -1,6 +1,5 @@
 using ErrorOr;
 using EStore.Application.Common.Dtos;
-using EStore.Contracts.Authentication;
 using EStore.Domain.CustomerAggregate;
 
 namespace EStore.Application.Common.Interfaces.Services;

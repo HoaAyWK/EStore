@@ -21,6 +21,8 @@ public sealed class ProductVariant : Entity<ProductVariantId>
 
     public string? RawAttributeSelection { get; private set; }
 
+    public string RawAttributes { get; private set; } = default!;
+
     private ProductVariant()
     {
     }
@@ -31,7 +33,8 @@ public sealed class ProductVariant : Entity<ProductVariantId>
         int stockQuantity,
         bool isActive,
         string? rawAttributeSelection,
-        string assignedProductImageIds)
+        string assignedProductImageIds,
+        string rawAttributes)
         : base(id)
     {
         Price = price;
@@ -39,6 +42,7 @@ public sealed class ProductVariant : Entity<ProductVariantId>
         IsActive = isActive;
         RawAttributeSelection = rawAttributeSelection;
         AssignedProductImageIds = assignedProductImageIds;
+        RawAttributes = rawAttributes;
     }
 
     public static ErrorOr<ProductVariant> Create(
@@ -46,6 +50,7 @@ public sealed class ProductVariant : Entity<ProductVariantId>
         decimal price,
         string assignedProductImageIds,
         string? rawAttributeSelection,
+        string rawAttributes,
         bool isActive = true)
     {
         var errors = new List<Error>();
@@ -74,7 +79,8 @@ public sealed class ProductVariant : Entity<ProductVariantId>
             stockQuantity,
             isActive,
             rawAttributeSelection,
-            assignedProductImageIds);
+            assignedProductImageIds,
+            rawAttributes);
     }
 
     public void UpdateRawAttributes(string? rawAttributes)

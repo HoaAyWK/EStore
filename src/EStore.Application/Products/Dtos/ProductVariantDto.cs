@@ -1,3 +1,7 @@
+using EStore.Domain.Common.Utilities;
+using EStore.Domain.ProductAggregate.ValueObjects;
+using Newtonsoft.Json;
+
 namespace EStore.Application.Products.Dtos;
 
 public class ProductVariantDto
@@ -13,4 +17,12 @@ public class ProductVariantDto
     public string AssignedProductImageIds { get; set; } = string.Empty;
 
     public string? RawAttributeSelection { get; set; }
+
+    public string RawAttributes { get; set; } = string.Empty;
+
+    public Dictionary<string, string> Attributes
+        => JsonConvert.DeserializeObject<Dictionary<string, string>>(RawAttributes) ?? new();
+
+    public AttributeSelection<ProductAttributeId, ProductAttributeValueId> AttributeSelection
+        => AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(RawAttributeSelection);
 }

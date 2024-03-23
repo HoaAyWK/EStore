@@ -83,7 +83,17 @@ public class ProductMappingConfig : IRegister
                 dest => dest.AssignedProductImageIds,
                 src => src.AssignedProductImageIds.Split(
                     " ",
-                    StringSplitOptions.RemoveEmptyEntries));
+                    StringSplitOptions.RemoveEmptyEntries))
+            .Map(
+                dest => dest.AttributeSelection,
+                src => src.AttributeSelection.AttributesMap.ToDictionary(
+                    k => k.Key.Value,
+                    v => v.Value.First().Value))
+            .Map(
+                dest => dest.Attributes,
+                src => src.Attributes.ToDictionary(
+                    k => k.Key,
+                    v => v.Value));
 
         config.NewConfig<Brand, BrandResponse>()
             .Map(src => src.Id, dest => dest.Id.Value);

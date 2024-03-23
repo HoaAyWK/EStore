@@ -10,12 +10,6 @@ public class ProductResponse
 
     public decimal Price { get; set; }
 
-    public decimal? SpecialPrice { get; set; }
-
-    public DateTime? SpecialPriceStartDate { get; set; }
-
-    public DateTime? SpecialPriceEndDate { get; set; }
-
     public bool Published { get; set; }
 
     public int DisplayOrder { get; set; }
@@ -33,6 +27,8 @@ public class ProductResponse
     public DateTime CreatedDateTime { get; set; }
 
     public DateTime UpdatedDateTime { get; set; }
+
+    public bool HasVariant { get; set; }
 
     public List<ProductImageResponse> Images { get; set; } = new();
 
@@ -53,6 +49,7 @@ public record AverageRatingResponse(
 public record ProductAttributeResponse(
     Guid Id,
     string Name,
+    bool CanCombine,
     List<ProductAttributeValueResponse> AttributeValues);
 
 public record ProductImageResponse(
@@ -74,7 +71,9 @@ public record ProductVariantResponse(
     decimal? Price,
     int StockQuantity,
     bool IsActive,
-    List<string>? AssignedProductImageIds);
+    List<string>? AssignedProductImageIds,
+    Dictionary<string, string> Attributes,
+    Dictionary<Guid, Guid> AttributeSelection);
 
 public record DiscountResponse(
     Guid Id,

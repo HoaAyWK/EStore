@@ -2,7 +2,6 @@ using EStore.Api.Common.Contexts;
 using EStore.Api.Common.Mapping;
 using EStore.Api.Common.Options;
 using EStore.Api.Common.OptionsSetup;
-using Microsoft.IdentityModel.Protocols;
 
 namespace EStore.Api;
 
@@ -37,8 +36,8 @@ public static class DependencyInjection
                     builder =>
                     {
                         builder.WithOrigins(corsOptions.AllowedOrigins.Split(","))
-                            .WithMethods(corsOptions.AllowedMethods.Split(","))
-                            .WithHeaders(corsOptions.AllowedHeaders.Split(","))
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
                             .AllowCredentials();
                     });
             });

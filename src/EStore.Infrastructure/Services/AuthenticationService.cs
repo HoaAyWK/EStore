@@ -1,9 +1,7 @@
-using System.Text;
 using ErrorOr;
 using EStore.Application.Common.Dtos;
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Services;
-using EStore.Contracts.Authentication;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.CustomerAggregate;
 using EStore.Domain.CustomerAggregate.Repositories;

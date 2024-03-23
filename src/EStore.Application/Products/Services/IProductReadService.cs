@@ -11,5 +11,7 @@ public interface IProductReadService
     Task<PagedList<ProductDto>> GetProductListPagedAsync(
         string? searchTerm,
         int page,
-        int pageSize);
+        int pageSize,
+        string? order,
+        string? orderBy);
 }
