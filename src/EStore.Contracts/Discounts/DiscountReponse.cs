@@ -7,4 +7,6 @@ public record DiscountResponse(
     decimal DiscountPercentage,
     decimal DiscountAmount,
     DateTime StartDate,
-    DateTime EndDate);
+    DateTime EndDate,
+    DateTime CreatedDateTime,
+    DateTime UpdatedDateTime);

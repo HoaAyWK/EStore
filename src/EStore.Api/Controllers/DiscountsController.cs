@@ -2,6 +2,7 @@ using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Discounts.Commands.CreateDiscount;
 using EStore.Application.Discounts.Commands.UpdateDiscount;
 using EStore.Application.Discounts.Queries.GetDiscountByIdQuery;
+using EStore.Application.Discounts.Queries.GetDiscountListPaged;
 using EStore.Contracts.Discounts;
 using EStore.Infrastructure.Authentication;
 using MapsterMapper;
@@ -25,15 +26,22 @@ public sealed class DiscountsController : ApiController
         _mapper = mapper;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetDiscounts(int pageSize, int page)
+    {
+        var query = new GetDiscountListPagedQuery(pageSize, page);
+        var getDiscountsResult = await _mediator.Send(query);
+
+        return Ok(getDiscountsResult);
+    }
+
     [HttpGet(ApiRoutes.Discount.Get)]
     public async Task<IActionResult> GetDiscount(Guid id)
     {
         var query = _mapper.Map<GetDiscountByIdQuery>(id);
         var getDiscountResult = await _mediator.Send(query);
 
-        return getDiscountResult.Match(
-            discount => Ok(discount),
-            errors => Problem(errors));
+        return getDiscountResult.Match(Ok, Problem);
     }
 
     [HttpPost]
@@ -44,9 +52,8 @@ public sealed class DiscountsController : ApiController
 
         return createDiscountResult.Match(
             discount => CreatedAtGetDiscount(_mapper.Map<DiscountResponse>(discount)),
-            errors => Problem(errors));
+            Problem);
     }
-
 
     [HttpPut(ApiRoutes.Discount.Update)]
     public async Task<IActionResult> UpdateDiscount(Guid id, [FromBody] UpdateDiscountRequest request)
@@ -56,7 +63,7 @@ public sealed class DiscountsController : ApiController
 
         return updateDiscountResult.Match(
             updated => NoContent(),
-            errors => Problem(errors));
+            Problem);
     }
 
     private CreatedAtActionResult CreatedAtGetDiscount(DiscountResponse discount)
