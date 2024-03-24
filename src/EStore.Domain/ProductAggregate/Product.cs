@@ -350,7 +350,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             return updateDetailsResult.Errors;
         }
 
-        StringBuilder assignedImageIds = new StringBuilder();
+        var assignedImageIds = new StringBuilder();
 
         if (imageIds is not null)
         {
@@ -377,6 +377,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
 
             productVariant.UpdateAssignedImageIds(assignedImageIds.ToString());
         }
+
+        RaiseDomainEvent(new ProductVariantUpdatedDomainEvent(Id, productVariantId));
 
         return Result.Updated;
     }

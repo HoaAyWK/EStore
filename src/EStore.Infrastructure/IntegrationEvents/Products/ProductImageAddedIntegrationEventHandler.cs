@@ -44,29 +44,23 @@ public class ProductImageAddedIntegrationEventHandler
             return;
         }
 
-        var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
-
-        if (!product.HasVariant)
+        if (!image.IsMain)
         {
-            await index.PartialUpdateObjectAsync(
-            new ProductSearchModel
-            {
-                ObjectID = product.Id.Value.ToString(),
-                Image = image.ImageUrl
-            });
-
             return;
         }
 
-        if (product.ProductVariants.Count > 0)
+        if (!product.HasVariant)
         {
-            var variants = product.ProductVariants.Select(v => new ProductSearchModel
-            {
-                ObjectID = v.Id.Value.ToString(),
-                Image = image.ImageUrl
-            });
+            var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
 
-            await index.PartialUpdateObjectsAsync(variants);
+            await index.PartialUpdateObjectAsync(
+                new ProductSearchModel
+                {
+                    ObjectID = product.Id.Value.ToString(),
+                    Image = image.ImageUrl
+                });
+
+            return;
         }
     }
 }

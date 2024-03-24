@@ -95,9 +95,15 @@ public class ProductsController : ApiController
 
         var addProductImageResult = await _mediator.Send(command);
 
-        return addProductImageResult.Match(
-            updated => NoContent(),
-            Problem);
+        if (addProductImageResult.IsError)
+        {
+            return Problem(addProductImageResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(Ok, Problem);
     }
 
     [HttpPut(ApiRoutes.Product.Update)]

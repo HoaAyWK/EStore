@@ -131,8 +131,8 @@ public class ProductMappingConfig : IRegister
             .Map(dest => dest, src => src.Item2);
 
         config.NewConfig<(Guid, Guid, UpdateProductVariantRequest), UpdateProductVariantCommand>()
-            .Map(dest => dest.ProductVariantId, src => ProductVariantId.Create(src.Item1))
-            .Map(dest => dest.ProductVariantId, src => src.Item2)
+            .Map(dest => dest.ProductId, src => ProductId.Create(src.Item1))
+            .Map(dest => dest.ProductVariantId, src => ProductVariantId.Create(src.Item2))
             .Map(
                 dest => dest.ImageIds,
                 src => src.Item3.AssignedImageIds)

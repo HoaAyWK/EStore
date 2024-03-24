@@ -68,13 +68,15 @@ internal sealed class ProductReadService : IProductReadService
                         EndDate = discount.EndDateTime
                     })
                     .FirstOrDefault(),
-                Images = p.Images.Select(image => new ProductImageDto
-                {
-                    Id = image.Id.Value,
-                    ImageUrl = image.ImageUrl,
-                    IsMain = image.IsMain,
-                    DisplayOrder = image.DisplayOrder
-                }),
+                Images = p.Images
+                    .OrderBy(image => image.DisplayOrder)
+                    .Select(image => new ProductImageDto
+                    {
+                        Id = image.Id.Value,
+                        ImageUrl = image.ImageUrl,
+                        IsMain = image.IsMain,
+                        DisplayOrder = image.DisplayOrder
+                    }),
                 Attributes = p.ProductAttributes.Select(attribute =>
                         new ProductAttributeDto
                         {
@@ -150,13 +152,15 @@ internal sealed class ProductReadService : IProductReadService
                         Name = category.Name
                     })
                     .FirstOrDefault(),
-                Images = p.Images.Select(image => new ProductImageDto
-                {
-                    Id = image.Id.Value,
-                    ImageUrl = image.ImageUrl,
-                    IsMain = image.IsMain,
-                    DisplayOrder = image.DisplayOrder
-                }),
+                Images = p.Images
+                    .OrderBy(image => image.DisplayOrder)
+                    .Select(image => new ProductImageDto
+                    {
+                        Id = image.Id.Value,
+                        ImageUrl = image.ImageUrl,
+                        IsMain = image.IsMain,
+                        DisplayOrder = image.DisplayOrder
+                    }),
                 Attributes = p.ProductAttributes.Select(attribute =>
                         new ProductAttributeDto
                         {
