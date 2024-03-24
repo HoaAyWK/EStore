@@ -1,3 +1,4 @@
+using System.Text;
 using EStore.Application.Products.Commands.AddProductAttribute;
 using EStore.Application.Products.Commands.AddProductAttributeValue;
 using EStore.Application.Products.Commands.AddProductImage;

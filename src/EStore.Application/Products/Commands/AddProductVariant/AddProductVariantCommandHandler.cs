@@ -1,3 +1,4 @@
+using System.Text;
 using ErrorOr;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Utilities;
@@ -89,10 +90,33 @@ public class AddProductVariantCommandHandler : IRequestHandler<AddProductVariant
             }
         }
 
+        var assignedImageIds = new StringBuilder();
+        
+        for (int i = 0; i < request.AssignedProductImageIds.Count; i++)
+        {
+            var assignedId = request.AssignedProductImageIds.ElementAt(i);
+            var productImageId = product.Images.FirstOrDefault(
+                image => image.Id == ProductImageId.Create(assignedId));
+
+            if (productImageId is null)
+            {
+                return Errors.Product.ProductImageNotFound;
+            }
+
+            if (i is 0)
+            {
+                assignedImageIds.Append(assignedId.ToString().ToLower());
+            }
+            else
+            {
+                assignedImageIds.Append($" {assignedId.ToString().ToLower()}");
+            }
+        }   
+
         var createProductVariantResult = ProductVariant.Create(
             request.StockQuantity,
             variantPrice,
-            request.AssignedProductImageIds ?? "",
+            assignedImageIds.ToString(),
             attributeSelection.AsJson(),
             JsonConvert.SerializeObject(attributes),
             request.IsActive);

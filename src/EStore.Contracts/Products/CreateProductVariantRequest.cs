@@ -5,7 +5,7 @@ public record CreateProductVariantRequest(
     int StockQuantity,
     bool IsActive,
     List<CreateProductVariantRequest.SelectedAttribute> SelectedAttributes,
-    List<Guid>? AssignedImageIds)
+    List<Guid> AssignedImageIds)
 {
     public record SelectedAttribute(
         Guid ProductAttributeId,

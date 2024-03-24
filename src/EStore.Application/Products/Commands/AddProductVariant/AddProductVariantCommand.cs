@@ -10,7 +10,7 @@ public record AddProductVariantCommand(
     int StockQuantity,
     List<SelectedAttribute> SelectedAttributes,
     bool IsActive,
-    string? AssignedProductImageIds)
+    List<Guid> AssignedProductImageIds)
     : IRequest<ErrorOr<ProductVariant>>;
 
 public record SelectedAttribute(
