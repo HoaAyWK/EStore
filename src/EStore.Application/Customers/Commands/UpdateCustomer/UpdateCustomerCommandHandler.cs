@@ -26,7 +26,15 @@ public class UpdateCustomerCommandHandler
             return Errors.Customer.NotFound;
         }
 
-        var updateCustomerDetailResult = customer.UpdateDetails(request.FirstName, request.LastName);
+        var updateCustomerDetailResult = customer.UpdateDetails(
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.AvatarUrl,
+            request.Street,
+            request.City,
+            request.State,
+            request.Country);
 
         if (updateCustomerDetailResult.IsError)
         {

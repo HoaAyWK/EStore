@@ -25,6 +25,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     private readonly List<ProductImage> _images = new();
     private readonly List<ProductAttribute> _productAttributes = new();
     private readonly List<ProductVariant> _productVariants = new();
+    private readonly List<ProductReview> _productReviews = new();
 
     public string Name { get; private set; } = null!;
 
@@ -63,6 +64,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public IReadOnlyList<ProductAttribute> ProductAttributes => _productAttributes.AsReadOnly();
 
     public IReadOnlyList<ProductVariant> ProductVariants => _productVariants.AsReadOnly();
+
+    public IReadOnlyList<ProductReview> ProductReviews => _productReviews.AsReadOnly();
 
     private Product()
     {

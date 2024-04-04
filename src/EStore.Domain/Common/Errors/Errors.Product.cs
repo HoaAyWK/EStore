@@ -79,13 +79,13 @@ public static partial class Errors
         public static Error InvalidNameLength = Error.Validation(
             code: "Product.InvalidNameLength",
             description: "Product name must be between " +
-                $"{Domain.ProductAggregate.Product.MinNameLength} and " +
-                $"{Domain.ProductAggregate.Product.MaxNameLength} characters.");
+                $"{ProductAggregate.Product.MinNameLength} and " +
+                $"{ProductAggregate.Product.MaxNameLength} characters.");
 
         public static Error InvalidPrice = Error.Validation(
             code: "Product.InvalidPrice",
             description: "Product price must be larger than " +
-                $"{Domain.ProductAggregate.Product.MinPrice}.");
+                $"{ProductAggregate.Product.MinPrice}.");
 
         public static Error InvalidSpecialPriceStartDate = Error.Validation(
             code: "Product.InvalidSpecialPriceStartDate",
@@ -98,12 +98,12 @@ public static partial class Errors
         public static Error InvalidProductVariantPrice = Error.Validation(
             code: "Product.InvalidProductVariantPrice",
             description: "Price must be greater than or equal " +
-                $"{Domain.ProductAggregate.Entities.ProductVariant.MinPrice}");
+                $"{ProductAggregate.Entities.ProductVariant.MinPrice}");
 
         public static Error InvalidProductVariantStockQuantity = Error.Validation(
             code: "Product.InvalidProductVariantStockQuantity",
             description: "Stock quantity must be greater than or equal " +
-                $"{Domain.ProductAggregate.Entities.ProductVariant.MinStockQuantity}");
+                $"{ProductAggregate.Entities.ProductVariant.MinStockQuantity}");
 
         public static Error DuplicateVariant = Error.Validation(
             code: "Product.DuplicateVariant",
@@ -128,5 +128,28 @@ public static partial class Errors
         public static Error ProductAlreadyHadVariants = Error.Validation(
             code: "Product.ProductAlreadyHadVariants",
             description: "Product already had variants.");
+
+        public static Error InvalidProductReviewCommentContentLength = Error.Validation(
+            code: "Product.InvalidProductReviewCommentContentLength",
+            description: "Product review comment content must be at least " +
+                $"{ProductAggregate.Entities.ProductReviewComment.MinContentLength} characters.");
+
+        public static Error InvalidRatingValue = Error.Validation(
+            code: "Product.InvalidRatingValue",
+            description: "Rating value must be between " +
+                $"{ProductAggregate.Entities.ProductReview.MinRatingValue} and " +
+                $"{ProductAggregate.Entities.ProductReview.MaxRatingValue}.");
+
+        public static Error InvalidReviewTitleLength = Error.Validation(
+            code: "Product.InvalidReviewTitleLength",
+            description: "Review title must be between " +
+                $"{ProductAggregate.Entities.ProductReview.MinTitleLength} and " +
+                $"{ProductAggregate.Entities.ProductReview.MaxTitleLength} characters.");
+
+        public static Error InvalidReviewContentLength = Error.Validation(
+            code: "Product.InvalidReviewContentLength",
+            description: "Review content must be between " +
+                $"{ProductAggregate.Entities.ProductReview.MinContentLength} and " +
+                $"{ProductAggregate.Entities.ProductReview.MaxContentLength} characters.");
     }
 }

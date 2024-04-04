@@ -1,5 +1,6 @@
 using EStore.Domain.BrandAggregate.ValueObjects;
 using EStore.Domain.CategoryAggregate.ValueObjects;
+using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.DiscountAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductAggregate.Entities;
@@ -17,6 +18,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         ConfigureProductImagesTable(builder);
         ConfigureProductAttributesTable(builder);
         ConfigureProductVariantsTable(builder);
+        ConfigureProductReviewsTable(builder);
     }
 
     private void ConfigureProductsTable(EntityTypeBuilder<Product> builder)
@@ -169,6 +171,80 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         });
 
         builder.Metadata.FindNavigation(nameof(Product.ProductVariants))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
+    }
+
+    private void ConfigureProductReviewsTable(EntityTypeBuilder<Product> builder)
+    {
+        builder.OwnsMany(p => p.ProductReviews, rb =>
+        {
+            rb.ToTable("ProductReviews");
+
+            rb.WithOwner().HasForeignKey("ProductId");
+
+            rb.HasKey(nameof(ProductReview.Id), "ProductId");
+
+            rb.Property(r => r.Id)
+                .HasColumnName("ProductReviewId")
+                .ValueGeneratedNever()
+                .HasConversion(
+                    id => id.Value,
+                    value => ProductReviewId.Create(value));
+
+            rb.Property(r => r.Title)
+                .HasMaxLength(ProductReview.MinTitleLength);
+
+            rb.Property(r => r.Content)
+                .HasMaxLength(ProductReview.MaxContentLength);
+
+            rb.Property(r => r.OwnerId)
+                .HasColumnName("ProductReviewOwnerId")
+                .ValueGeneratedNever()
+                .HasConversion(
+                    id => id.Value,
+                    value => CustomerId.Create(value));
+
+            rb.OwnsMany(r => r.ReviewComments, rcb =>
+            {
+                rcb.ToTable("ProductReviewComments");
+
+                rcb.WithOwner().HasForeignKey("ProductReviewId", "ProductId");
+
+                rcb.HasKey(nameof(ProductReviewComment.Id), "ProductReviewId", "ProductId");
+
+                rcb.Property(rc => rc.Id)
+                    .HasColumnName("ProductReviewCommentId")
+                    .ValueGeneratedNever()
+                    .HasConversion(
+                        id => id.Value,
+                        value => ProductReviewCommentId.Create(value));
+
+                rcb.Property(rc => rc.OwnerId)
+                    .HasColumnName("ProductReviewCommentOwnerId")
+                    .ValueGeneratedNever()
+                    .HasConversion(
+                        id => id.Value,
+                        value => CustomerId.Create(value));
+
+                rcb.Property(rc => rc.Content)
+                    .HasMaxLength(ProductReviewComment.MinContentLength);
+
+                rcb.Property(c => c.ParentId)
+                    .HasColumnName("ProductReviewCommentParentId")
+                    .ValueGeneratedNever()
+                    .HasConversion(
+                        parentId => parentId!.Value,
+                        value =>  ProductReviewCommentId.Create(value));             
+            });
+
+            rb.Navigation(rc => rc.ReviewComments)
+                    .Metadata.SetField("_reviewComments");
+
+            rb.Navigation(pva => pva.ReviewComments)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Metadata.FindNavigation(nameof(Product.ProductReviews))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }

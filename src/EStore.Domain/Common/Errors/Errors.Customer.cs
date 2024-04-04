@@ -23,5 +23,9 @@ public static partial class Errors
             code: "Customer.InvalidLastNameLength",
             description: $"Customer last name must be between {CustomerAggregate.Customer.MinLastNameLength} " +
                 $"and {CustomerAggregate.Customer.MaxLastNameLength} characters.");
+
+        public static Error InvalidPhoneNumberLength = Error.Validation(
+            code: "Customer.InvalidPhoneLength",
+            description: $"Phone number must be {CustomerAggregate.Customer.PhoneNumberLength} characters long.");
     }
 }

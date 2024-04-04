@@ -26,7 +26,13 @@ public class CustomersController : ApiController
         var command = new UpdateCustomerCommand(
             CustomerId.Create(id),
             request.FirstName,
-            request.LastName);
+            request.LastName,
+            request.PhoneNumber,
+            request.AvatarUrl,
+            request.Street,
+            request.City,
+            request.State,
+            request.Country);
 
         var updateCustomerResult = await _mediator.Send(command);
 

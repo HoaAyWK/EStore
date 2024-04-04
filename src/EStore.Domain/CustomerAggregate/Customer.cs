@@ -2,6 +2,7 @@ using ErrorOr;
 using EStore.Domain.Common.Abstractions;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Models;
+using EStore.Domain.Common.ValueObjects;
 using EStore.Domain.CustomerAggregate.Events;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 
@@ -17,6 +18,8 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
 
     public const int MaxLastNameLength = 100;
 
+    public const int PhoneNumberLength = 10;
+
     public string Email { get; private set; } = null!;
     
     public string FirstName { get; private set; } = null!;
@@ -24,6 +27,12 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
     public string LastName { get; private set; } = null!;
 
     public string FullName => $"{FirstName} {LastName}";
+
+    public Address? Address { get; private set; }
+
+    public string? AvatarUrl { get; private set; }
+
+    public string? PhoneNumber { get; private set; }
 
     public DateTime CreatedDateTime { get; private set; }
 
@@ -68,10 +77,25 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
         return customer;
     }
 
-
-    public ErrorOr<Updated> UpdateDetails(string firstName, string lastName)
+    public ErrorOr<Updated> UpdateDetails(
+        string firstName,
+        string lastName,
+        string phoneNumber,
+        string avatarUrl,
+        string street,
+        string city,
+        string state,
+        string country)
     {
         List<Error> errors = ValidateNames(firstName, lastName);
+        var createAddressResult = Address.Create(street, city, state, country);
+
+        errors.AddRange(ValidatePhone(phoneNumber));
+
+        if (createAddressResult.IsError)
+        {
+            errors.AddRange(createAddressResult.Errors);
+        }
 
         if (errors.Count > 0)
         {
@@ -80,10 +104,29 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
 
         FirstName = firstName;
         LastName = lastName;
+        PhoneNumber = phoneNumber;
+        AvatarUrl = avatarUrl;
 
         return Result.Updated;
     }
 
+    public ErrorOr<Updated> UpdateAddress(
+        string street,
+        string city,
+        string state,
+        string country)
+    {
+        var createAddressResult = Address.Create(street, city, state, country);
+
+        if (createAddressResult.IsError)
+        {
+            return createAddressResult.Errors;
+        }
+
+        Address = createAddressResult.Value;
+
+        return Result.Updated;
+    }
 
     private static List<Error> ValidateNames(string firstName, string lastName)
     {
@@ -97,6 +140,18 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
         if (lastName.Length is < MinLastNameLength or > MaxLastNameLength)
         {
             errors.Add(Errors.Customer.InvalidLastNameLength);
+        }
+
+        return errors;
+    }
+
+    private static List<Error> ValidatePhone(string phone)
+    {
+        List<Error> errors = new();
+
+        if (phone.Length != PhoneNumberLength)
+        {
+            errors.Add(Errors.Customer.InvalidPhoneNumberLength);
         }
 
         return errors;
