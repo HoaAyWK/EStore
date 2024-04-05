@@ -64,6 +64,8 @@ async Task SeedDataAsync(WebApplication app)
             userManager,
             roleManager,
             options);
+
+        await EStoreDbContextSeed.SeedAsync(eStoreContext, unitOfWork);
     }
     catch (Exception ex)
     {

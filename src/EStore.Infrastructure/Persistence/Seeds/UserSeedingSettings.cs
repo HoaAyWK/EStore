@@ -11,4 +11,16 @@ public class UserSeedingSettings
     public string FirstName { get; init; } = null!;
 
     public string LastName { get; init; } = null!;
+
+    public string AvatarUrl { get; init; } = null!;
+
+    public string Phone { get; init; } = null!;
+
+    public string Street { get; init; } = null!;
+
+    public string City { get; init; } = null!;
+
+    public string State { get; init; } = null!;
+
+    public string Country { get; init; } = null!;
 }

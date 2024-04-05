@@ -110,24 +110,6 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
         return Result.Updated;
     }
 
-    public ErrorOr<Updated> UpdateAddress(
-        string street,
-        string city,
-        string state,
-        string country)
-    {
-        var createAddressResult = Address.Create(street, city, state, country);
-
-        if (createAddressResult.IsError)
-        {
-            return createAddressResult.Errors;
-        }
-
-        Address = createAddressResult.Value;
-
-        return Result.Updated;
-    }
-
     private static List<Error> ValidateNames(string firstName, string lastName)
     {
         List<Error> errors = new();

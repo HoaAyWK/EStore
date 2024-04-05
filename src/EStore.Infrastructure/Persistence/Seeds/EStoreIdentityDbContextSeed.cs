@@ -45,10 +45,22 @@ public class EStoreIdentityDbContextSeed
 
         if (admin is null)
         {
-            eStoreContext.Customers.Add(Domain.CustomerAggregate.Customer.Create(
+            admin = Domain.CustomerAggregate.Customer.Create(
                 adminSettings.Email,
                 adminSettings.FirstName,
-                adminSettings.LastName).Value);
+                adminSettings.LastName).Value;
+
+            admin.UpdateDetails(
+                adminSettings.FirstName,
+                adminSettings.LastName,
+                adminSettings.Phone,
+                adminSettings.AvatarUrl,
+                adminSettings.Street,
+                adminSettings.City,
+                adminSettings.State,
+                adminSettings.Country);
+            
+            eStoreContext.Customers.Add(admin);
 
             await unitOfWork.SaveChangesAsync();
 
