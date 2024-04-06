@@ -35,8 +35,8 @@ public class AddProductAttributeCommandHandler
 
         product.AddProductAttribute(ProductAttribute.Create(
             request.Name,
-            request.Alias,
-            request.CanCombine));
+            request.CanCombine,
+            request.DisplayOrder));
         
         return product;
     }

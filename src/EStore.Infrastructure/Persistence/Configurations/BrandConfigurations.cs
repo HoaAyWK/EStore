@@ -27,5 +27,7 @@ public class BrandConfigurations : IEntityTypeConfiguration<Brand>
             .HasConversion(
                 id => id.Value,
                 value => BrandId.Create(value));
+
+        builder.HasQueryFilter(b => !b.Deleted);
     }
 }

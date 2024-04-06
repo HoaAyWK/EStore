@@ -135,8 +135,8 @@ public class ProductsController : ApiController
         var command = new AddProductAttributeCommand(
             ProductId.Create(id),
             request.Name,
-            request.Alias,
-            request.CanCombine);
+            request.CanCombine,
+            request.DisplayOrder);
 
         var addAttributeResult = await _mediator.Send(command);
 
@@ -165,7 +165,8 @@ public class ProductsController : ApiController
             ProductAttributeId.Create(attributeId),
             ProductId.Create(id),
             request.Name,
-            request.CanCombine);
+            request.CanCombine,
+            request.DisplayOrder);
 
         var updateAttributeResult = await _mediator.Send(command);
 
@@ -192,8 +193,9 @@ public class ProductsController : ApiController
             ProductId: ProductId.Create(id),
             ProductAttributeId: ProductAttributeId.Create(attributeId),
             Name: request.Name,
-            Alias: request.Alias,
-            PriceAdjustment: request.PriceAdjustment);
+            Color: request.Color,
+            PriceAdjustment: request.PriceAdjustment,
+            DisplayOrder: request.DisplayOrder);
 
         var addAttributeValueResult = await _mediator.Send(command);
 
@@ -222,8 +224,9 @@ public class ProductsController : ApiController
             ProductId: ProductId.Create(id),
             ProductAttributeId: ProductAttributeId.Create(attributeId),
             Name: request.Name,
-            Alias: request.Alias,
-            PriceAdjustment: request.PriceAdjustment);
+            Color: request.Color,
+            PriceAdjustment: request.PriceAdjustment,
+            DisplayOrder: request.DisplayOrder);
 
         var updateAttributeValueResult = await _mediator.Send(command);
 

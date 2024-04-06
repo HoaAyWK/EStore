@@ -39,5 +39,7 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
             .HasConversion(
                 id => id.Value,
                 value => CategoryId.Create(value));
+
+        builder.HasQueryFilter(c => !c.Deleted);
     }
 }

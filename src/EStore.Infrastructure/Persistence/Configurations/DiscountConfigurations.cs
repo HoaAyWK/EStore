@@ -33,5 +33,7 @@ public sealed class DiscountConfigurations : IEntityTypeConfiguration<Discount>
 
         builder.Property(d => d.DiscountAmount)
             .HasColumnType("decimal(18,2)");
+
+        builder.HasQueryFilter(d => !d.Deleted);
     }
 }

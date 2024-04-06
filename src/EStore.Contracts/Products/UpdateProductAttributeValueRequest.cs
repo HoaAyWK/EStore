@@ -2,5 +2,6 @@ namespace EStore.Contracts.Products;
 
 public record UpdateProductAttributeValueRequest(
     string Name,
-    string? Alias,
-    decimal? PriceAdjustment);
+    string? Color,
+    decimal? PriceAdjustment,
+    int DisplayOrder);

@@ -9,6 +9,7 @@ public record AddProductAttributeValueCommand(
     ProductId ProductId,
     ProductAttributeId ProductAttributeId,
     string Name,
-    string? Alias,
-    decimal? PriceAdjustment)
+    string? Color,
+    decimal? PriceAdjustment,
+    int DisplayOrder)
     : IRequest<ErrorOr<Product>>;

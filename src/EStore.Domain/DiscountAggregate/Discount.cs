@@ -6,7 +6,7 @@ using EStore.Domain.DiscountAggregate.ValueObjects;
 
 namespace EStore.Domain.DiscountAggregate;
 
-public sealed class Discount : AggregateRoot<DiscountId>, IAuditableEntity
+public sealed class Discount : AggregateRoot<DiscountId>, IAuditableEntity, ISoftDeletableEntity
 {
     public const int MinNameLength = 2;
     public const int MaxNameLength = 100;
@@ -29,6 +29,10 @@ public sealed class Discount : AggregateRoot<DiscountId>, IAuditableEntity
     public DateTime CreatedDateTime { get; private set; }
 
     public DateTime UpdatedDateTime { get; private set; }
+
+    public DateTime? DeletedOnUtc { get; private set; }
+
+    public bool Deleted { get; private set; }
 
     private Discount()
     {

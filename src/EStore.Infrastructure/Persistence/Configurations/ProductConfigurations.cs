@@ -65,6 +65,8 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
                 value => DiscountId.Create(value));
 
         builder.OwnsOne(p => p.AverageRating);
+
+        builder.HasQueryFilter(p => !p.Deleted);
     }
 
     private void ConfigureProductImagesTable(EntityTypeBuilder<Product> builder)
@@ -128,7 +130,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
                 pavb.Property(av => av.Name)
                     .HasMaxLength(100);
 
-                pavb.Property(av => av.Alias)
+                pavb.Property(av => av.Color)
                     .HasMaxLength(30);
 
                 pavb.Property(av => av.PriceAdjustment)

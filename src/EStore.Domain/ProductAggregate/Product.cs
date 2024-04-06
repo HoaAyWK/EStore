@@ -12,7 +12,7 @@ using System.Text;
 
 namespace EStore.Domain.ProductAggregate;
 
-public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
+public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftDeletableEntity
 {
     public const int MinNameLength = 2;
 
@@ -58,6 +58,10 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public bool HasVariant { get; private set; }
 
     public DiscountId? DiscountId { get; private set; }
+
+    public DateTime? DeletedOnUtc { get; private set; }
+
+    public bool Deleted { get; private set; }
     
     public IReadOnlyList<ProductImage> Images => _images.AsReadOnly();
 
@@ -231,7 +235,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public ErrorOr<Updated> UpdateProductAttribute(
         ProductAttributeId id,
         string name,
-        bool canCombine)
+        bool canCombine,
+        int displayOrder)
     {
         var productAttribute = ProductAttributes.FirstOrDefault(x => x.Id == id);
 
@@ -245,7 +250,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             return Errors.Product.ProductAttributeAlreadyHadValues;
         }
 
-        productAttribute.Update(name, canCombine);
+        productAttribute.Update(name, canCombine, displayOrder);
 
         return Result.Updated;
     }
@@ -254,7 +259,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         ProductAttributeId productAttributeId,
         string name,
         decimal? priceAdjustment,
-        string? alias)
+        string? color,
+        int displayOrder)
     {
         var productAttribute = ProductAttributes.FirstOrDefault(x =>
             x.Id == productAttributeId);
@@ -273,7 +279,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         var productAttributeValue = ProductAttributeValue.Create(
             name,
             priceAdjustment ?? 0,
-            alias);   
+            color,
+            displayOrder);   
 
         productAttribute.AddAttributeValue(productAttributeValue);
         RaiseDomainEvent(new ProductAttributeValueAddedDomainEvent(
@@ -289,7 +296,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
         ProductAttributeValueId attributeValueId,
         string name,
         decimal? priceAdjustment,
-        string? alias)
+        string? color,
+        int displayOrder)
     {
         var productAttribute = ProductAttributes.FirstOrDefault(x => x.Id == attributeId);
 
@@ -311,8 +319,9 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
 
         productAttributeValue.UpdateDetails(
             name,
-            alias,
-            attributeValueNewPrice);
+            color,
+            attributeValueNewPrice,
+            displayOrder);
 
         RaiseDomainEvent(new ProductAttributeValueUpdatedDomainEvent(
             Id,

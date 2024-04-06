@@ -6,7 +6,7 @@ using EStore.Domain.Common.Models;
 
 namespace EStore.Domain.CategoryAggregate;
 
-public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity
+public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISoftDeletableEntity
 {
     public const int MinNameLength = 2;
 
@@ -18,11 +18,15 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity
 
     public CategoryId? ParentId { get; private set; }
 
+    public Category? Parent { get; private set; }
+
     public DateTime CreatedDateTime { get; private set; }
 
     public DateTime UpdatedDateTime { get; private set; }
 
-    public Category? Parent { get; private set; }
+    public DateTime? DeletedOnUtc { get; }
+
+    public bool Deleted { get; }
 
     public IReadOnlyList<Category> Children => _children.AsReadOnly();
 

@@ -8,7 +8,7 @@ using EStore.Domain.OrderAggregate.ValueObjects;
 
 namespace EStore.Domain.OrderAggregate;
 
-public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity
+public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDeletableEntity
 {
     private readonly List<OrderItem> _orderItems = new();
 
@@ -23,6 +23,10 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity
     public DateTime CreatedDateTime { get; private set; }
 
     public DateTime UpdatedDateTime { get; private set; }
+
+    public DateTime? DeletedOnUtc { get; }
+
+    public bool Deleted { get; }
 
     public decimal TotalAmount => _orderItems.Sum(item => item.SubTotal);
 

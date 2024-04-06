@@ -4,4 +4,5 @@ public record UpdateProductAttributeRequest(
     Guid Id,
     Guid ProductId,
     string Name,
-    bool CanCombine);
+    bool CanCombine,
+    int DisplayOrder);

@@ -45,6 +45,8 @@ public sealed class OrderConfigurations : IEntityTypeConfiguration<Order>
                 value => OrderStatus.FromValue(value)!);
 
         builder.Ignore(o => o.TotalAmount);
+
+        builder.HasQueryFilter(o => !o.Deleted);
     }
 
     private void ConfigureOrderItemsTable(EntityTypeBuilder<Order> builder)

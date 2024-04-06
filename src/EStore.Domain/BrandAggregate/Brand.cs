@@ -6,7 +6,7 @@ using EStore.Domain.Common.Models;
 
 namespace EStore.Domain.BrandAggregate;
 
-public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity
+public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity, ISoftDeletableEntity
 {
     public const int MinNameLength = 2;
 
@@ -17,6 +17,10 @@ public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity
     public DateTime CreatedDateTime { get; private set; }
 
     public DateTime UpdatedDateTime { get; private set; }
+
+    public DateTime? DeletedOnUtc { get; private set; }
+
+    public bool Deleted { get; private set; }
 
     private Brand()
     {

@@ -9,7 +9,7 @@ public class ProductAttributeValueDto
 
     public string Name { get; set; } = string.Empty;
 
-    public string? Alias { get; set; }
+    public string? Color { get; set; }
 
     public decimal PriceAdjustment { get; set; }
 

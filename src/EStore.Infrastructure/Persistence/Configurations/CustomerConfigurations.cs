@@ -49,8 +49,12 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
 
         builder.HasIndex(u => u.Email).IsUnique();
 
+        builder.HasIndex(u => u.PhoneNumber);
+
         builder.HasIndex(u => u.Id);
 
         builder.Ignore(u => u.FullName);
+
+        builder.HasQueryFilter(u => !u.Deleted);
     }
 }

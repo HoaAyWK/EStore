@@ -8,7 +8,7 @@ using EStore.Domain.CustomerAggregate.ValueObjects;
 
 namespace EStore.Domain.CustomerAggregate;
 
-public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
+public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISoftDeletableEntity
 {
     public const int MinFirstNameLength = 1;
     
@@ -37,6 +37,10 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity
     public DateTime CreatedDateTime { get; private set; }
 
     public DateTime UpdatedDateTime { get; private set; }
+
+    public DateTime? DeletedOnUtc { get; }
+
+    public bool Deleted { get; }
 
     private Customer()
     {

@@ -31,7 +31,8 @@ public class AddProductAttributeValueCommandHandler
             request.ProductAttributeId,
             request.Name,
             request.PriceAdjustment,
-            request.Alias);
+            request.Color,
+            request.DisplayOrder);
 
         if (addAttributeValueResult.IsError)
         {

@@ -50,8 +50,9 @@ public class UpdateProductAttributeValueCommandHandler
 
         attributeValue.UpdateDetails(
             request.Name,
-            request.Alias,
-            request.PriceAdjustment ?? 0);
+            request.Color,
+            request.PriceAdjustment ?? 0,
+            request.DisplayOrder);
         
         return Result.Updated;
     }

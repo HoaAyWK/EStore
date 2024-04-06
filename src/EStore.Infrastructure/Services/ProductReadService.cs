@@ -77,21 +77,25 @@ internal sealed class ProductReadService : IProductReadService
                         IsMain = image.IsMain,
                         DisplayOrder = image.DisplayOrder
                     }),
-                Attributes = p.ProductAttributes.Select(attribute =>
+                Attributes = p.ProductAttributes
+                    .OrderBy(attribute => attribute.DisplayOrder)
+                    .Select(attribute =>
                         new ProductAttributeDto
                         {
                             Id = attribute.Id.Value,
                             Name = attribute.Name,
                             CanCombine = attribute.CanCombine,
-                            AttributeValues = attribute.ProductAttributeValues.Select(attributeValue =>
-                            new ProductAttributeValueDto
-                            {
-                                Id = attributeValue.Id.Value,
-                                Name = attributeValue.Name,
-                                Alias = attributeValue.Alias,
-                                PriceAdjustment = attributeValue.PriceAdjustment,
-                                RawCombinedAttributes = attributeValue.RawCombinedAttributes
-                            })
+                            AttributeValues = attribute.ProductAttributeValues
+                                .OrderBy(attributeValue => attributeValue.DisplayOrder)
+                                .Select(attributeValue =>
+                                    new ProductAttributeValueDto
+                                    {
+                                        Id = attributeValue.Id.Value,
+                                        Name = attributeValue.Name,
+                                        Color = attributeValue.Color,
+                                        PriceAdjustment = attributeValue.PriceAdjustment,
+                                        RawCombinedAttributes = attributeValue.RawCombinedAttributes
+                                    })
                         }),
                 Variants = p.ProductVariants.Select(variant => new ProductVariantDto
                     {
@@ -172,7 +176,7 @@ internal sealed class ProductReadService : IProductReadService
                             {
                                 Id = attributeValue.Id.Value,
                                 Name = attributeValue.Name,
-                                Alias = attributeValue.Alias,
+                                Color = attributeValue.Color,
                                 PriceAdjustment = attributeValue.PriceAdjustment,
                                 RawCombinedAttributes = attributeValue.RawCombinedAttributes
                             })

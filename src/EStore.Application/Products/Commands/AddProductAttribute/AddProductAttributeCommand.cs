@@ -8,6 +8,6 @@ namespace EStore.Application.Products.Commands.AddProductAttribute;
 public record AddProductAttributeCommand(
     ProductId ProductId,
     string Name,
-    string? Alias,
-    bool CanCombine)
+    bool CanCombine,
+    int DisplayOrder)
     : IRequest<ErrorOr<Product>>;

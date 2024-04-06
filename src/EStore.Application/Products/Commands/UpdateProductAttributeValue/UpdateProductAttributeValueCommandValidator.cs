@@ -10,8 +10,5 @@ public class UpdateProductAttributeValueCommandValidator
         RuleFor(x => x.Name).NotEmpty()
             .MinimumLength(2)
             .MaximumLength(100);
-
-        RuleFor(x => x.Alias).MinimumLength(2)
-            .MaximumLength(30);
     }
 }
