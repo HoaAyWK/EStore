@@ -38,9 +38,9 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
 
     public DateTime UpdatedDateTime { get; private set; }
 
-    public DateTime? DeletedOnUtc { get; }
+    public DateTime? DeletedOnUtc { get; private set; }
 
-    public bool Deleted { get; }
+    public bool Deleted { get; private set; }
 
     private Customer()
     {
@@ -110,6 +110,7 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
         LastName = lastName;
         PhoneNumber = phoneNumber;
         AvatarUrl = avatarUrl;
+        Address = createAddressResult.Value;
 
         return Result.Updated;
     }

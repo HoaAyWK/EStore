@@ -85,6 +85,7 @@ internal sealed class ProductReadService : IProductReadService
                             Id = attribute.Id.Value,
                             Name = attribute.Name,
                             CanCombine = attribute.CanCombine,
+                            DisplayOrder = attribute.DisplayOrder,
                             AttributeValues = attribute.ProductAttributeValues
                                 .OrderBy(attributeValue => attributeValue.DisplayOrder)
                                 .Select(attributeValue =>

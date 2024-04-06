@@ -24,9 +24,9 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISof
 
     public DateTime UpdatedDateTime { get; private set; }
 
-    public DateTime? DeletedOnUtc { get; }
+    public DateTime? DeletedOnUtc { get; private set; }
 
-    public bool Deleted { get; }
+    public bool Deleted { get; private set; }
 
     public IReadOnlyList<Category> Children => _children.AsReadOnly();
 

@@ -8,5 +8,7 @@ public class ProductAttributeDto
 
     public bool CanCombine { get; set; }
 
+    public int DisplayOrder { get; set; }
+
     public IEnumerable<ProductAttributeValueDto> AttributeValues { get; set; } = null!;
 }

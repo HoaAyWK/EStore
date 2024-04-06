@@ -15,6 +15,8 @@ public class ProductAttributeValueDto
 
     public string? RawCombinedAttributes { get; set; }
 
+    public int DisplayOrder { get; set; }
+
     public AttributeSelection<ProductAttributeId, ProductAttributeValueId> AttributeSelection
         => AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(RawCombinedAttributes);
 }

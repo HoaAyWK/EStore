@@ -48,9 +48,9 @@ public class ProductMappingConfig : IRegister
         config.NewConfig<AddProductAttributeValueRequest, AddProductAttributeValueCommand>();
 
         config.NewConfig<DeleteAttributeValueRequest, DeleteAttributeValueCommand>()
-            .Map(dest => dest.ProductId, src => src.Id)
-            .Map(dest => dest.ProductAttributeId, src => src.AttributeId)
-            .Map(dest => dest.ProductAttributeValueId, src => src.AttributeValueId);
+            .Map(dest => dest.ProductId, src => ProductId.Create(src.Id))
+            .Map(dest => dest.ProductAttributeId, src => ProductAttributeId.Create(src.AttributeId))
+            .Map(dest => dest.ProductAttributeValueId, src => ProductAttributeValueId.Create(src.AttributeValueId));
 
         config.NewConfig<AddProductAttributeRequest, AddProductAttributeCommand>();
 

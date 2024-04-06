@@ -50,6 +50,7 @@ public record ProductAttributeResponse(
     Guid Id,
     string Name,
     bool CanCombine,
+    int DisplayOrder,
     List<ProductAttributeValueResponse> AttributeValues);
 
 public record ProductImageResponse(
@@ -61,9 +62,10 @@ public record ProductImageResponse(
 public record ProductAttributeValueResponse(
     Guid Id,
     string Name,
-    string? Alias,
+    string? Color,
     decimal? PriceAdjustment,
     string? RawCombinedAttribute,
+    int DisplayOrder,
     Dictionary<Guid, List<Guid>> CombinedAttributes);
 
 public record ProductVariantResponse(

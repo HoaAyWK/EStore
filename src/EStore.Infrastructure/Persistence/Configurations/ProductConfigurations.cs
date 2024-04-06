@@ -91,7 +91,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 
-
     private void ConfigureProductAttributesTable(EntityTypeBuilder<Product> builder)
     {
         builder.OwnsMany(p => p.ProductAttributes, pab =>
@@ -158,15 +157,15 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
 
             vb.HasKey(nameof(ProductVariant.Id), "ProductId");
 
+            builder.Property(v => v.Price)
+                .HasColumnType("decimal(18, 2)");
+
             vb.Property(v => v.Id)
                 .HasColumnName("ProductVariantId")
                 .ValueGeneratedNever()
                 .HasConversion(
                     id => id.Value,
                     value => ProductVariantId.Create(value));
-
-            builder.Property(v => v.Price)
-                .HasColumnType("decimal(18, 2)");
         });
 
         builder.Metadata.FindNavigation(nameof(Product.ProductVariants))!
