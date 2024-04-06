@@ -9,8 +9,6 @@ public sealed class ProductAttribute : Entity<ProductAttributeId>
 
     public string Name { get; private set; } = null!;
 
-    public string? Alias { get; private set; }
-
     public bool CanCombine { get; private set; }
 
     public IReadOnlyList<ProductAttributeValue> ProductAttributeValues
@@ -23,12 +21,10 @@ public sealed class ProductAttribute : Entity<ProductAttributeId>
     private ProductAttribute(
         ProductAttributeId id,
         string name,
-        string? alias,
         bool canCombine
         ) : base(id)
     {
         Name = name;
-        Alias = alias;
         CanCombine = canCombine;
     }
 
@@ -40,14 +36,12 @@ public sealed class ProductAttribute : Entity<ProductAttributeId>
         return new(
             ProductAttributeId.CreateUnique(),
             name,
-            alias,
             canCombine);
     }
 
-    public void Update(string name, string? alias, bool canCombine)
+    public void Update(string name, bool canCombine)
     {
         Name = name;
-        Alias = alias;
         CanCombine = canCombine;
     }
 

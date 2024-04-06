@@ -9,6 +9,5 @@ public record UpdateProductAttributeCommand(
     ProductAttributeId Id,
     ProductId ProductId,
     string Name,
-    string? Alias,
     bool CanCombine)
     : IRequest<ErrorOr<Product>>;

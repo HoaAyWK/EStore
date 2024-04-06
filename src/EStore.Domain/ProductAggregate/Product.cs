@@ -231,7 +231,6 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
     public ErrorOr<Updated> UpdateProductAttribute(
         ProductAttributeId id,
         string name,
-        string? alias,
         bool canCombine)
     {
         var productAttribute = ProductAttributes.FirstOrDefault(x => x.Id == id);
@@ -246,7 +245,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity
             return Errors.Product.ProductAttributeAlreadyHadValues;
         }
 
-        productAttribute.Update(name, alias, canCombine);
+        productAttribute.Update(name, canCombine);
 
         return Result.Updated;
     }

@@ -31,7 +31,6 @@ public class UpdateProductAttributeCommandHandler
         var updateProductAttributeResult = product.UpdateProductAttribute(
             request.Id,
             request.Name,
-            request.Alias,
             request.CanCombine);
 
         if (updateProductAttributeResult.IsError)

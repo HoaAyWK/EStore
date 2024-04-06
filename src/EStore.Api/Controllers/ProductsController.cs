@@ -165,7 +165,6 @@ public class ProductsController : ApiController
             ProductAttributeId.Create(attributeId),
             ProductId.Create(id),
             request.Name,
-            request.Alias,
             request.CanCombine);
 
         var updateAttributeResult = await _mediator.Send(command);

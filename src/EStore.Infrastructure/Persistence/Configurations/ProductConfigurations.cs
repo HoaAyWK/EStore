@@ -110,9 +110,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             pab.Property(pa => pa.Name)
                 .HasMaxLength(100);
 
-            pab.Property(pa => pa.Alias)
-                .HasMaxLength(30);
-
             pab.OwnsMany(pva => pva.ProductAttributeValues, pavb =>
             {
                 pavb.ToTable("ProductAttributeValues");
