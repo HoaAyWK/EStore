@@ -79,6 +79,55 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
             discount = await _discountRepository.GetByIdAsync(product.DiscountId);
         }
 
+        if (notification.PreviousHasVariant != product.HasVariant)
+        {
+            if (product.HasVariant)
+            {
+                await index.DeleteObjectAsync(product.Id.Value.ToString(), ct: cancellationToken);
+
+                return;
+            }
+
+            var singleProduct = new ProductSearchModel
+            {
+                ObjectID = product.Id.Value.ToString(),
+                ProductId = product.Id.Value,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Categories = hierarchyCategories,
+                Brand = brand?.Name,
+                AverageRating = product.AverageRating.Value,
+                DisplayOrder = product.DisplayOrder,
+                CreatedDateTime = product.CreatedDateTime,
+                UpdatedDateTime = product.UpdatedDateTime,
+                Image = product.Images
+                    .Where(image => image.IsMain)
+                    .Select(image => image.ImageUrl)
+                    .FirstOrDefault() ?? string.Empty
+            };
+
+            if (discount is not null)
+            {
+                singleProduct.Discount = new ProductSearchDiscount
+                {
+                    UsePercentage = discount.UsePercentage,
+                    DiscountPercentage = discount.DiscountPercentage,
+                    DiscountAmount = discount.DiscountAmount,
+                    StartDateTime = discount.StartDateTime,
+                    EndDateTime = discount.EndDateTime
+                };
+
+                singleProduct.FinalPrice = _priceCalculationService.ApplyDiscount(
+                    singleProduct.Price,
+                    discount);
+            }
+
+            await index.SaveObjectAsync(singleProduct, ct: cancellationToken);
+
+            return;
+        }
+
         if (product.HasVariant)
         {
             var productSearchModels = new List<ProductSearchModel>();

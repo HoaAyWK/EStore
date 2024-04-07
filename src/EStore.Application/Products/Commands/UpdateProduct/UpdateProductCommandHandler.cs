@@ -39,7 +39,7 @@ public class UpdateProductCommandHandler
 
         List<Error> errors = new();
 
-        if (request.CategoryId != product.BrandId)
+        if (request.CategoryId != product.CategoryId)
         {
             var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
 
@@ -69,9 +69,7 @@ public class UpdateProductCommandHandler
             price: request.Price,
             displayOrder: request.DisplayOrder,
             published: request.Published,
-            specialPrice: request.SpecialPrice,
-            specialPriceStartDate: request.SpecialPriceStartDate,
-            specialPriceEndDate: request.SpecialPriceEndDate);
+            hasVariant: request.HasVariant);
         
         if (updateDetailsResult.IsError)
         {

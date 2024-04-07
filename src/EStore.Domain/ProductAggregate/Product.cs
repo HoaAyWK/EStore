@@ -35,12 +35,6 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
 
     public int DisplayOrder { get; private set; }
 
-    public decimal? SpecialPrice { get; private set; }
-
-    public DateTime? SpecialPriceStartDateTime { get; private set; }
-
-    public DateTime? SpecialPriceEndDateTime { get; private set; }
-
     public int StockQuantity { get; private set; }
 
     public bool Published { get; private set; }
@@ -148,81 +142,39 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         decimal price,
         int displayOrder,
         bool published,
-        decimal? specialPrice,
-        DateTime? specialPriceStartDate,
-        DateTime? specialPriceEndDate)
+        bool hasVariant)
     {
         var errors = ValidateName(name);
 
         errors.AddRange(ValidatePrice(price));
 
-        if (specialPrice is not null)
-        {
-            errors.AddRange(ValidatePrice(specialPrice.Value));
-
-            if (specialPriceStartDate is null)
-            {
-                errors.Add(Errors.Product.UnprovidedSpecialPriceStartDate);
-            }
-            else if (specialPriceStartDate < DateTime.UtcNow)
-            {
-                errors.Add(Errors.Product.InvalidSpecialPriceStartDate);
-            }
-
-            if (specialPriceEndDate is null)
-            {
-                errors.Add(Errors.Product.UnprovidedSpecialPriceEndDate);
-            }
-            else if (specialPriceEndDate <= specialPriceStartDate)
-            {
-                errors.Add(Errors.Product.InvalidSpecialPriceEndDate);
-            }
-        }
-
         if (errors.Count > 0)
         {
             return errors;
         }
+
+        if (!hasVariant && ProductVariants.Count > 0)
+        {
+            return Errors.Product.ProductHadVariants;
+        }
+
+        if (!hasVariant && ProductAttributes.Any(attribute => attribute.CanCombine))
+        {
+            return Errors.Product.ProductHadCombinableAttributes;
+        }
+
+        var previousHasVariant = HasVariant;
 
         Name = name;
         Description = description;
         Price = price;
         DisplayOrder = displayOrder;
         Published = published;
-        SpecialPrice = specialPrice;
-        SpecialPriceStartDateTime = specialPriceStartDate;
-        SpecialPriceEndDateTime = specialPriceEndDate;
 
-        RaiseDomainEvent(new ProductUpdatedDomainEvent(Id));
+        // TODO: need to check if there is any cart item is this product
+        HasVariant = hasVariant;
 
-        return Result.Updated;
-    }
-
-    public ErrorOr<Updated> UpdateSpecialPrice(
-        decimal specialPrice,
-        DateTime startDate,
-        DateTime endDate)
-    {
-        var errors = ValidatePrice(specialPrice);
-
-        if (startDate < DateTime.UtcNow)
-        {
-            errors.Add(Errors.Product.InvalidSpecialPriceStartDate);
-        }
-
-        if (endDate <= startDate)
-        {
-            errors.Add(Errors.Product.InvalidSpecialPriceEndDate);
-        }
-
-        if (errors.Count > 0)
-        {
-            return errors;
-        }
-
-        SpecialPrice = specialPrice;
-        SpecialPriceStartDateTime = startDate;
-        SpecialPriceEndDateTime = endDate;
+        RaiseDomainEvent(new ProductUpdatedDomainEvent(Id, previousHasVariant));
 
         return Result.Updated;
     }
@@ -238,6 +190,11 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         bool canCombine,
         int displayOrder)
     {
+        if (!HasVariant)
+        {
+            return Errors.Product.NonVariantProductCannotHaveCombineAttributes;
+        }
+
         var productAttribute = ProductAttributes.FirstOrDefault(x => x.Id == id);
 
         if (productAttribute is null)

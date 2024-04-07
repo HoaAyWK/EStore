@@ -10,6 +10,4 @@ public record UpdateProductRequest(
     Guid CategoryId,
     Guid? DiscountId,
     int? StockQuantity,
-    decimal? SpecialPrice,
-    DateTime? SpecialPriceStartDate,
-    DateTime? SpecialPriceEndDate);
+    bool HasVariant);

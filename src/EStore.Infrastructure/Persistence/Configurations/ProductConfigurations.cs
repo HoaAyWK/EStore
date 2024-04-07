@@ -40,9 +40,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Price)
             .HasColumnType("decimal(18, 2)");
 
-        builder.Property(p => p.SpecialPrice)
-            .HasColumnType("decimal(18, 2)");
-
         builder.Property(p => p.BrandId)
             .HasColumnName("ProductBrandId")
             .ValueGeneratedNever()

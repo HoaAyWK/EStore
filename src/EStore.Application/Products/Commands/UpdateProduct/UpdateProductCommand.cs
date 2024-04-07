@@ -19,6 +19,4 @@ public record UpdateProductCommand(
     CategoryId CategoryId,
     DiscountId? DiscountId,
     int? StockQuantity,
-    decimal? SpecialPrice,
-    DateTime? SpecialPriceStartDate,
-    DateTime? SpecialPriceEndDate) : IRequest<ErrorOr<Product>>;
+    bool HasVariant) : IRequest<ErrorOr<Product>>;

@@ -151,5 +151,14 @@ public static partial class Errors
             description: "Review content must be between " +
                 $"{ProductAggregate.Entities.ProductReview.MinContentLength} and " +
                 $"{ProductAggregate.Entities.ProductReview.MaxContentLength} characters.");
+
+        public static Error ProductHadVariants = Error.Validation(
+            code: "Product.ProductHadVariants",
+            description: "Product already had variants, cannot turn to non-variants product.");
+
+        public static Error ProductHadCombinableAttributes = Error.Validation(
+            code: "Product.ProductHadCombinableAttributes",
+            description: "Product already had combinable attributes, "
+                + "cannot turn to non-combinable attributes product.");
     }
 }

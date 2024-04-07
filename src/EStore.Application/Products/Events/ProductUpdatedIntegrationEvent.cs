@@ -9,14 +9,18 @@ public class ProductUpdatedIntegrationEvent : IIntegrationEvent
 {
     public ProductId ProductId { get; }
 
+    public bool PreviousHasVariant { get; set; }
+
     internal ProductUpdatedIntegrationEvent(ProductUpdatedDomainEvent productUpdatedDomainEvent)
     {
         ProductId = productUpdatedDomainEvent.ProductId;
+        PreviousHasVariant = productUpdatedDomainEvent.PreviousHasVariant;
     }
 
     [JsonConstructor]
-    private ProductUpdatedIntegrationEvent(ProductId productId)
+    private ProductUpdatedIntegrationEvent(ProductId productId, bool previousHasVariant)
     {
         ProductId = productId;
+        PreviousHasVariant = previousHasVariant;
     }
 }
