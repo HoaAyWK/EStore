@@ -86,6 +86,7 @@ internal sealed class ProductReadService : IProductReadService
                             Name = attribute.Name,
                             CanCombine = attribute.CanCombine,
                             DisplayOrder = attribute.DisplayOrder,
+                            Colorable = attribute.Colorable,
                             AttributeValues = attribute.ProductAttributeValues
                                 .OrderBy(attributeValue => attributeValue.DisplayOrder)
                                 .Select(attributeValue =>
@@ -107,6 +108,45 @@ internal sealed class ProductReadService : IProductReadService
                         AssignedProductImageIds = variant.AssignedProductImageIds,
                         RawAttributeSelection = variant.RawAttributeSelection,
                         RawAttributes = variant.RawAttributes
+                    }),
+                Reviews = p.ProductReviews.Select(review => new ProductReviewDto
+                    {
+                        Id = review.Id.Value,
+                        Title = review.Title,
+                        Content = review.Content,
+                        Rating = review.Rating,
+                        RawAttributeSelection = review.RawAttributes,
+                        Owner = _dbContext.Customers.AsNoTracking()
+                            .Where(customer => customer.Id == review.OwnerId)
+                            .Select(customer => new ProductReviewOwnerDto
+                            {
+                                Id = customer.Id.Value,
+                                FirstName = customer.FirstName,
+                                LastName = customer.LastName,
+                                Email = customer.Email,
+                                AvatarUrl = customer.AvatarUrl
+                            })
+                            .FirstOrDefault(),
+                        CreatedDateTime = review.CreatedDateTime,
+                        UpdatedDateTime = review.UpdatedDateTime,
+                        ReviewComments = review.ReviewComments.Select(comment => new ProductReviewCommentDto
+                            {
+                                Id = comment.Id.Value,
+                                Content = comment.Content,
+                                CreatedDateTime = comment.CreatedDateTime,
+                                UpdatedDateTime = comment.UpdatedDateTime,
+                                Owner = _dbContext.Customers.AsNoTracking()
+                                    .Where(customer => customer.Id == comment.OwnerId)
+                                    .Select(customer => new ProductReviewOwnerDto
+                                    {
+                                        Id = customer.Id.Value,
+                                        FirstName = customer.FirstName,
+                                        LastName = customer.LastName,
+                                        Email = customer.Email,
+                                        AvatarUrl = customer.AvatarUrl
+                                    })
+                                    .FirstOrDefault()
+                            })
                     })
             })
             .FirstOrDefaultAsync();
@@ -172,6 +212,7 @@ internal sealed class ProductReadService : IProductReadService
                             Id = attribute.Id.Value,
                             Name = attribute.Name,
                             CanCombine = attribute.CanCombine,
+                            Colorable = attribute.Colorable,
                             AttributeValues = attribute.ProductAttributeValues.Select(attributeValue =>
                             new ProductAttributeValueDto
                             {
@@ -191,6 +232,45 @@ internal sealed class ProductReadService : IProductReadService
                         AssignedProductImageIds = variant.AssignedProductImageIds,
                         RawAttributeSelection = variant.RawAttributeSelection,
                         RawAttributes = variant.RawAttributes
+                    }),
+                Reviews = p.ProductReviews.Select(review => new ProductReviewDto
+                    {
+                        Id = review.Id.Value,
+                        Title = review.Title,
+                        Content = review.Content,
+                        Rating = review.Rating,
+                        RawAttributeSelection = review.RawAttributes,
+                        Owner = _dbContext.Customers.AsNoTracking()
+                            .Where(customer => customer.Id == review.OwnerId)
+                            .Select(customer => new ProductReviewOwnerDto
+                            {
+                                Id = customer.Id.Value,
+                                FirstName = customer.FirstName,
+                                LastName = customer.LastName,
+                                Email = customer.Email,
+                                AvatarUrl = customer.AvatarUrl
+                            })
+                            .FirstOrDefault(),
+                        CreatedDateTime = review.CreatedDateTime,
+                        UpdatedDateTime = review.UpdatedDateTime,
+                        ReviewComments = review.ReviewComments.Select(comment => new ProductReviewCommentDto
+                            {
+                                Id = comment.Id.Value,
+                                Content = comment.Content,
+                                CreatedDateTime = comment.CreatedDateTime,
+                                UpdatedDateTime = comment.UpdatedDateTime,
+                                Owner = _dbContext.Customers.AsNoTracking()
+                                    .Where(customer => customer.Id == comment.OwnerId)
+                                    .Select(customer => new ProductReviewOwnerDto
+                                    {
+                                        Id = customer.Id.Value,
+                                        FirstName = customer.FirstName,
+                                        LastName = customer.LastName,
+                                        Email = customer.Email,
+                                        AvatarUrl = customer.AvatarUrl
+                                    })
+                                    .FirstOrDefault()
+                            })
                     })
             });
         

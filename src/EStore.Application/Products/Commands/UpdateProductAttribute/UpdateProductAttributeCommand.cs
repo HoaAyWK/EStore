@@ -10,5 +10,6 @@ public record UpdateProductAttributeCommand(
     ProductId ProductId,
     string Name,
     bool CanCombine,
-    int DisplayOrder)
+    int DisplayOrder,
+    bool Colorable)
     : IRequest<ErrorOr<Product>>;

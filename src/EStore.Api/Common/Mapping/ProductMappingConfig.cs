@@ -64,9 +64,19 @@ public class ProductMappingConfig : IRegister
 
         config.NewConfig<BrandDto, BrandResponse>();
 
-        config.NewConfig<CategoryDto, CategoryDto>();
+        config.NewConfig<CategoryDto, CategoryResponse>();
 
         config.NewConfig<ProductImageDto, ProductImageResponse>();
+
+        config.NewConfig<ProductReviewDto, ProductReviewResponse>()
+            .Map(
+                dest => dest.AttributeSelection,
+                src => src.AttributeSelection.AttributesMap.ToDictionary(
+                    k => k.Key.Value,
+                    v => v.Value.First().Value)
+            );
+
+        config.NewConfig<ProductReviewCommentDto, ProductReviewCommentResponse>();
 
         config.NewConfig<ProductAttributeDto, ProductAttributeResponse>()
             .Map(dest => dest.AttributeValues, src => src.AttributeValues);

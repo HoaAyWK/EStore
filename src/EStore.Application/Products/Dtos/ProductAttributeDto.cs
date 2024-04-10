@@ -10,5 +10,7 @@ public class ProductAttributeDto
 
     public int DisplayOrder { get; set; }
 
+    public bool Colorable { get; set; }
+
     public IEnumerable<ProductAttributeValueDto> AttributeValues { get; set; } = null!;
 }

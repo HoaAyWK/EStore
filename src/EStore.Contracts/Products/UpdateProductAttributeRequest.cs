@@ -5,4 +5,5 @@ public record UpdateProductAttributeRequest(
     Guid ProductId,
     string Name,
     bool CanCombine,
-    int DisplayOrder);
+    int DisplayOrder,
+    bool Colorable);

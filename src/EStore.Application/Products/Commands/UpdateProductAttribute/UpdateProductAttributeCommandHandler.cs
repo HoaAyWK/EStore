@@ -32,7 +32,8 @@ public class UpdateProductAttributeCommandHandler
             request.Id,
             request.Name,
             request.CanCombine,
-            request.DisplayOrder);
+            request.DisplayOrder,
+            request.Colorable);
 
         if (updateProductAttributeResult.IsError)
         {

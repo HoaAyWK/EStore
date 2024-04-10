@@ -37,4 +37,6 @@ public class ProductDto
     public IEnumerable<ProductAttributeDto> Attributes { get; set; } = null!;
 
     public IEnumerable<ProductVariantDto> Variants { get; set; } = null!;
+
+    public IEnumerable<ProductReviewDto> Reviews { get; set; } = null!;
 }

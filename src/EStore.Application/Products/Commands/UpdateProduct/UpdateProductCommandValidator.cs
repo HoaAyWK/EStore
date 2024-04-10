@@ -22,7 +22,5 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
 
         RuleFor(x => x.StockQuantity)
             .GreaterThanOrEqualTo(Product.MinStockQuantity);
-
-        RuleFor(x => x.SpecialPriceEndDate);
     }
 }

@@ -188,7 +188,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         ProductAttributeId id,
         string name,
         bool canCombine,
-        int displayOrder)
+        int displayOrder,
+        bool colorable)
     {
         if (!HasVariant)
         {
@@ -207,7 +208,16 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
             return Errors.Product.ProductAttributeAlreadyHadValues;
         }
 
-        productAttribute.Update(name, canCombine, displayOrder);
+        var updateAttributeResult = productAttribute.Update(
+            name,
+            canCombine,
+            displayOrder,
+            colorable);
+
+        if (updateAttributeResult.IsError)
+        {
+            return updateAttributeResult.Errors;
+        }
 
         return Result.Updated;
     }

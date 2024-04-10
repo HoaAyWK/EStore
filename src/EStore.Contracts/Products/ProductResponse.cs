@@ -36,6 +36,7 @@ public class ProductResponse
 
     public List<ProductVariantResponse> Variants { get; set; } = new();
 
+    public List<ProductReviewResponse> Reviews { get; set; } = new();
 }
 
 public record BrandResponse(Guid Id, string Name);
@@ -51,6 +52,7 @@ public record ProductAttributeResponse(
     string Name,
     bool CanCombine,
     int DisplayOrder,
+    bool Colorable,
     List<ProductAttributeValueResponse> AttributeValues);
 
 public record ProductImageResponse(
@@ -85,3 +87,28 @@ public record DiscountResponse(
     decimal Amount,
     DateTime StartDate,
     DateTime EndDate);
+
+public record ProductReviewResponse(
+    Guid Id,
+    string Title,
+    string Content,
+    int Rating,
+    ProductReviewOwnerResponse? Owner,
+    DateTime CreatedDateTime,
+    DateTime UpdatedDateTime,
+    Dictionary<Guid, Guid> AttributeSelection,
+    List<ProductReviewCommentResponse> ReviewComments);
+
+public record ProductReviewCommentResponse(
+    Guid Id,
+    string Content,
+    ProductReviewOwnerResponse? Owner,
+    DateTime CreatedDateTime,
+    DateTime UpdatedDateTime);
+
+public record ProductReviewOwnerResponse(
+    Guid Id,
+    string FirstName,
+    string LastName,
+    string Email,
+    string? AvatarUrl);
