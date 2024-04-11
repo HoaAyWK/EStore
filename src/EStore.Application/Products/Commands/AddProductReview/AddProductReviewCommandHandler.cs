@@ -37,6 +37,8 @@ public class AddProductReviewCommandHandler
             return Errors.Customer.NotFound;
         }
 
+        // TODO: need to check if the customer has purchased the product
+
         return product.AddReview(
             request.ProductVariantId,
             request.Title,

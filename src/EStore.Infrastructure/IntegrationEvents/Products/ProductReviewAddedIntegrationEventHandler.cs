@@ -1,18 +1,14 @@
-using System.Dynamic;
 using Algolia.Search.Clients;
 using EStore.Application.Products.Events;
 using EStore.Contracts.Searching;
-using EStore.Domain.Common.Utilities;
-using EStore.Domain.DiscountAggregate;
 using EStore.Domain.ProductAggregate.Repositories;
-using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
 using MediatR;
 using Microsoft.Extensions.Options;
 
 namespace EStore.Infrastructure.IntegrationEvents.Products;
 
-public class ProductReviewAddedIntegrationEventHandler : INotificationHandler<ProductUpdatedIntegrationEvent>
+public class ProductReviewAddedIntegrationEventHandler : INotificationHandler<ProductReviewAddedIntegrationEvent>
 {
     private readonly IProductRepository _productRepository;
     private readonly ISearchClient _searchClient;

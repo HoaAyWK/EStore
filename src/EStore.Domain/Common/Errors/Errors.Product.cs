@@ -160,5 +160,9 @@ public static partial class Errors
             code: "Product.ProductHadCombinableAttributes",
             description: "Product already had combinable attributes, "
                 + "cannot turn to non-combinable attributes product.");
+
+        public static Error CustomerAlreadyReviewed = Error.Validation(
+            code: "Product.CustomerAlreadyReviewed",
+            description: "Customer already reviewed the product.");
     }
 }

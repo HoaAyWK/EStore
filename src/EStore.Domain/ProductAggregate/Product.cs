@@ -10,6 +10,7 @@ using EStore.Domain.ProductAggregate.Events;
 using EStore.Domain.DiscountAggregate.ValueObjects;
 using System.Text;
 using EStore.Domain.CustomerAggregate.ValueObjects;
+using EStore.Domain.Common.Utilities;
 
 namespace EStore.Domain.ProductAggregate;
 
@@ -435,7 +436,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
 
         if (productVariantId is not null)
         {
-            productVariant = ProductVariants
+            productVariant = _productVariants
                 .Where(variant => variant.Id == productVariantId)
                 .FirstOrDefault();
 
@@ -444,7 +445,28 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
                 return Errors.Product.ProductVariantNotFound;
             }
 
+            var reviewed = _productReviews.Where(review =>
+                AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(review.RawAttributes).Equals(
+                    AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(productVariant.RawAttributes)))
+                .Any();
+
+            if (reviewed)
+            {
+                return Errors.Product.CustomerAlreadyReviewed;
+            }
+
             rawAttributes = productVariant.RawAttributes;
+        }
+        else
+        {
+            var reviewedProduct = _productReviews
+                .Where(review => review.OwnerId == ownerId)
+                .Any();
+
+            if (reviewedProduct)
+            {
+                return Errors.Product.CustomerAlreadyReviewed;
+            }
         }
 
         var createProductReviewResult = ProductReview.Create(
