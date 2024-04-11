@@ -27,5 +27,7 @@ public static partial class ApiRoutes
         public const string UpdateVariant = "{id:guid}/variants/{productVariantId:guid}";
 
         public const string Delete = "{id:guid}";
+
+        public const string AddReview = "{id:guid}/reviews";
     }
 }

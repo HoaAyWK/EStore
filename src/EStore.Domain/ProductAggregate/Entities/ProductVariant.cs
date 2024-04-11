@@ -17,6 +17,8 @@ public sealed class ProductVariant : Entity<ProductVariantId>
 
     public bool IsActive { get; private set; }
 
+    public AverageRating AverageRating { get; private set; } = null!;
+
     public string AssignedProductImageIds { get; private set; } = null!;
 
     public string? RawAttributeSelection { get; private set; }
@@ -32,6 +34,7 @@ public sealed class ProductVariant : Entity<ProductVariantId>
         decimal? price,
         int stockQuantity,
         bool isActive,
+        AverageRating averageRating,
         string? rawAttributeSelection,
         string assignedProductImageIds,
         string rawAttributes)
@@ -40,6 +43,7 @@ public sealed class ProductVariant : Entity<ProductVariantId>
         Price = price;
         StockQuantity = stockQuantity;
         IsActive = isActive;
+        AverageRating = averageRating;
         RawAttributeSelection = rawAttributeSelection;
         AssignedProductImageIds = assignedProductImageIds;
         RawAttributes = rawAttributes;
@@ -78,6 +82,7 @@ public sealed class ProductVariant : Entity<ProductVariantId>
             price,
             stockQuantity,
             isActive,
+            AverageRating.Create(),
             rawAttributeSelection,
             assignedProductImageIds,
             rawAttributes);

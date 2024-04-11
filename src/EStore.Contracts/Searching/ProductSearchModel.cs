@@ -28,6 +28,8 @@ public class ProductSearchModel
 
     public double AverageRating { get; set; }
 
+    public int NumRatings { get; set; }
+
     public int DisplayOrder { get; set; }
 
     public bool IsActive { get; set; }

@@ -9,6 +9,7 @@ using ErrorOr;
 using EStore.Domain.ProductAggregate.Events;
 using EStore.Domain.DiscountAggregate.ValueObjects;
 using System.Text;
+using EStore.Domain.CustomerAggregate.ValueObjects;
 
 namespace EStore.Domain.ProductAggregate;
 
@@ -21,6 +22,10 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
     public const decimal MinPrice = 0;
 
     public const int MinStockQuantity = 0;
+
+    public const int MinRating = 1;
+
+    public const int MaxRating = 5;
 
     private readonly List<ProductImage> _images = new();
     private readonly List<ProductAttribute> _productAttributes = new();
@@ -416,6 +421,63 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
             attributeValueId));
 
         return Result.Deleted;
+    }
+
+    public ErrorOr<ProductReview> AddReview(
+        ProductVariantId? productVariantId,
+        string title,
+        string content,
+        int rating,
+        CustomerId ownerId)
+    {
+        var rawAttributes = string.Empty;
+        ProductVariant? productVariant = null;
+
+        if (productVariantId is not null)
+        {
+            productVariant = ProductVariants
+                .Where(variant => variant.Id == productVariantId)
+                .FirstOrDefault();
+
+            if (productVariant is null)
+            {
+                return Errors.Product.ProductVariantNotFound;
+            }
+
+            rawAttributes = productVariant.RawAttributes;
+        }
+
+        var createProductReviewResult = ProductReview.Create(
+            title,
+            content,
+            rating,
+            rawAttributes,
+            ownerId);
+
+        if (createProductReviewResult.IsError)
+        {
+            return createProductReviewResult.Errors;
+        }
+        
+        var productReview = createProductReviewResult.Value;
+
+        _productReviews.Add(productReview);
+
+        if (productVariant is not null)
+        {
+            productVariant.AverageRating.AddNewRating(Rating.Create(rating));
+        }
+        else
+        {
+            AverageRating.AddNewRating(Rating.Create(rating));
+        }
+
+        RaiseDomainEvent(new ProductReviewAddedDomainEvent(
+            ProductId: Id,
+            ProductVariantId: productVariantId,
+            ProductReviewId: productReview.Id));
+
+        return productReview;
     }
 
     private static List<Error> ValidateName(string name)

@@ -154,7 +154,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
 
             vb.HasKey(nameof(ProductVariant.Id), "ProductId");
 
-            builder.Property(v => v.Price)
+            vb.Property(v => v.Price)
                 .HasColumnType("decimal(18, 2)");
 
             vb.Property(v => v.Id)
@@ -163,6 +163,8 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
                 .HasConversion(
                     id => id.Value,
                     value => ProductVariantId.Create(value));
+
+            vb.OwnsOne(v => v.AverageRating);
         });
 
         builder.Metadata.FindNavigation(nameof(Product.ProductVariants))!

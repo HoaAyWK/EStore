@@ -11,7 +11,7 @@ public sealed class Rating : ValueObject
         Value = rating;
     }
 
-    public Rating Create(double rating)
+    public static Rating Create(double rating)
     {
         return new(rating);
     }

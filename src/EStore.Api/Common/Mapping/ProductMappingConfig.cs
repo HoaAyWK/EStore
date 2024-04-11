@@ -1,7 +1,7 @@
-using System.Text;
 using EStore.Application.Products.Commands.AddProductAttribute;
 using EStore.Application.Products.Commands.AddProductAttributeValue;
 using EStore.Application.Products.Commands.AddProductImage;
+using EStore.Application.Products.Commands.AddProductReview;
 using EStore.Application.Products.Commands.AddProductVariant;
 using EStore.Application.Products.Commands.CreateProduct;
 using EStore.Application.Products.Commands.DeleteAttributeValue;
@@ -14,6 +14,7 @@ using EStore.Domain.BrandAggregate;
 using EStore.Domain.BrandAggregate.ValueObjects;
 using EStore.Domain.CategoryAggregate;
 using EStore.Domain.CategoryAggregate.ValueObjects;
+using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.DiscountAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate;
 using EStore.Domain.ProductAggregate.Entities;
@@ -53,6 +54,14 @@ public class ProductMappingConfig : IRegister
             .Map(dest => dest.ProductAttributeValueId, src => ProductAttributeValueId.Create(src.AttributeValueId));
 
         config.NewConfig<AddProductAttributeRequest, AddProductAttributeCommand>();
+
+        config.NewConfig<(Guid, AddProductReviewRequest), AddProductReviewCommand>()
+            .Map(dest => dest.ProductId, src => ProductId.Create(src.Item1))
+            .Map(dest => dest.ProductVariantId, src => src.Item2.ProductVariantId == null
+                ? null
+                : ProductVariantId.Create(src.Item2.ProductVariantId.Value))
+            .Map(dest => dest.OwnerId, src => CustomerId.Create(src.Item2.OwnerId))
+            .Map(dest => dest, src => src.Item2);
 
         config.NewConfig<Guid, CategoryId>()
             .MapWith(src => CategoryId.Create(src));

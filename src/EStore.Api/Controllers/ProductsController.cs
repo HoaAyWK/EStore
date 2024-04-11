@@ -20,6 +20,7 @@ using EStore.Contracts.Common;
 using EStore.Application.Products.Commands.AddProductVariant;
 using EStore.Application.Products.Commands.UpdateProductVariant;
 using EStore.Api.Common.ApiRoutes;
+using EStore.Application.Products.Commands.AddProductReview;
 
 namespace EStore.Api.Controllers;
 
@@ -298,6 +299,29 @@ public class ProductsController : ApiController
         if (updateProductVariantResult.IsError)
         {
             return Problem(updateProductVariantResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
+    }
+
+    [HttpPost]
+    [Route(ApiRoutes.Product.AddReview)]
+    public async Task<IActionResult> AddProductReview(
+        Guid id,
+        [FromBody] AddProductReviewRequest request)
+    {
+        var command = _mapper.Map<AddProductReviewCommand>((id, request));
+
+        var addProductReviewResult = await _mediator.Send(command);
+
+        if (addProductReviewResult.IsError)
+        {
+            return Problem(addProductReviewResult.Errors);
         }
 
         var query = new GetProductByIdQuery(ProductId.Create(id));
