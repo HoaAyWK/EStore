@@ -9,5 +9,6 @@ public record AddProductAttributeCommand(
     ProductId ProductId,
     string Name,
     bool CanCombine,
+    bool Colorable,
     int DisplayOrder)
     : IRequest<ErrorOr<Product>>;

@@ -28,15 +28,16 @@ public class AddProductAttributeCommandHandler
             return Errors.Product.NotFound;
         }
 
-        if (!product.HasVariant && request.CanCombine)
-        {
-            return Errors.Product.NonVariantProductCannotHaveCombineAttributes;
-        }
-
-        product.AddProductAttribute(ProductAttribute.Create(
+        var addProductAttributeResult = product.AddProductAttribute(
             request.Name,
             request.CanCombine,
-            request.DisplayOrder));
+            request.Colorable,
+            request.DisplayOrder);
+
+        if (addProductAttributeResult.IsError)
+        {
+            return addProductAttributeResult.Errors;
+        }
         
         return product;
     }

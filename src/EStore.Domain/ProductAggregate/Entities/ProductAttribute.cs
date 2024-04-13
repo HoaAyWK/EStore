@@ -7,6 +7,10 @@ namespace EStore.Domain.ProductAggregate.Entities;
 
 public sealed class ProductAttribute : Entity<ProductAttributeId>
 {
+    public const int MinNameLength = 1;
+
+    public const int MaxNameLength = 100;
+
     private readonly List<ProductAttributeValue> _productAttributeValues = new();
 
     public string Name { get; private set; } = null!;
@@ -38,13 +42,20 @@ public sealed class ProductAttribute : Entity<ProductAttributeId>
         Colorable = colorable;
     }
 
-    public static ProductAttribute Create(
+    public static ErrorOr<ProductAttribute> Create(
         string name,
         bool canCombine,
         int displayOrder,
         bool colorable = false)
     {
-        return new(
+        var errors = ValidateName(name);
+
+        if (errors.Count > 0)
+        {
+            return errors;
+        }
+
+        return new ProductAttribute(
             ProductAttributeId.CreateUnique(),
             name,
             canCombine,
@@ -52,7 +63,11 @@ public sealed class ProductAttribute : Entity<ProductAttributeId>
             colorable);
     }
 
-    public ErrorOr<Updated> Update(string name, bool canCombine, int displayOrder, bool colorable)
+    public ErrorOr<Updated> Update(
+        string name,
+        bool canCombine,
+        int displayOrder,
+        bool colorable)
     {
         if (Colorable != colorable && ProductAttributeValues.Any())
         {
@@ -75,5 +90,17 @@ public sealed class ProductAttribute : Entity<ProductAttributeId>
     public void RemoveAttributeValue(ProductAttributeValue attributeValue)
     {
         _productAttributeValues.Remove(attributeValue);
+    }
+
+    private static List<Error> ValidateName(string name)
+    {
+        var errors = new List<Error>();
+
+        if (name.Length < MinNameLength || name.Length > MaxNameLength)
+        {
+            errors.Add(Errors.Product.InvalidProductAttributeNameLength);
+        }
+
+        return errors;
     }
 }

@@ -158,5 +158,12 @@ public static partial class Errors
         public static Error CustomerAlreadyReviewed = Error.Validation(
             code: "Product.CustomerAlreadyReviewed",
             description: "Customer already reviewed the product.");
+
+
+        public static Error InvalidProductAttributeNameLength = Error.Validation(
+            code: "Product.InvalidProductAttributeNameLength",
+            description: "Product attribute name must be between " +
+                $"{ProductAggregate.Entities.ProductAttribute.MinNameLength} and " +
+                $"{ProductAggregate.Entities.ProductAttribute.MaxNameLength} characters.");
     }
 }

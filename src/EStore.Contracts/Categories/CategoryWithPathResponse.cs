@@ -6,6 +6,10 @@ public class CategoryWithPathResponse
     
     public string Name { get; set; } = null!;
 
+    public string Slug { get; set; } = null!;
+
+    public string? ImageUrl { get; set; }
+
     public string Path { get; set; } = null!;
 
     public Guid? ParentId { get; set; }

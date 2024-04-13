@@ -83,6 +83,8 @@ internal sealed class CategoryReadService : ICategoryReadService
             {
                 Id = c.Id.Value,
                 Name = c.Name,
+                Slug = c.Slug,
+                ImageUrl = c.ImageUrl,
                 Path = "",
                 ParentId = c.ParentId! == null! ? null : c.ParentId.Value,
                 CreatedDateTime = c.CreatedDateTime,

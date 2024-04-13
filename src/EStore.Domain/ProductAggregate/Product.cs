@@ -185,9 +185,38 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         return Result.Updated;
     }
 
-    public void AddProductAttribute(ProductAttribute productAttribute)
+    public ErrorOr<Created> AddProductAttribute(
+        string name,
+        bool canCombine,
+        bool colorable,
+        int displayOrder)
     {
+        if (!HasVariant && canCombine)
+        {
+            return Errors.Product.NonVariantProductCannotHaveCombineAttributes;
+        }
+
+        if (canCombine && _productVariants.Count > 0)
+        {
+            return Errors.Product.ProductAlreadyHadVariants;
+        }
+
+        var createProductAttributeResult = ProductAttribute.Create(
+            name,
+            canCombine,
+            displayOrder,
+            colorable);
+
+        if (createProductAttributeResult.IsError)
+        {
+            return createProductAttributeResult.Errors;
+        }
+
+        var productAttribute = createProductAttributeResult.Value;
+
         _productAttributes.Add(productAttribute);
+
+        return Result.Created;
     }
 
     public ErrorOr<Updated> UpdateProductAttribute(
@@ -197,7 +226,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         int displayOrder,
         bool colorable)
     {
-        if (!HasVariant)
+        if (!HasVariant && canCombine)
         {
             return Errors.Product.NonVariantProductCannotHaveCombineAttributes;
         }
@@ -207,6 +236,11 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         if (productAttribute is null)
         {
             return Errors.Product.ProductAttributeNotFound;
+        }
+
+        if (canCombine && _productVariants.Count > 0)
+        {
+            return Errors.Product.ProductAlreadyHadVariants;
         }
 
         if (productAttribute.ProductAttributeValues.Count > 0)
