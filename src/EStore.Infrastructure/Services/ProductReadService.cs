@@ -105,14 +105,20 @@ internal sealed class ProductReadService : IProductReadService
                         StockQuantity = variant.StockQuantity,
                         Price = variant.Price,
                         IsActive = variant.IsActive,
+                        AverageRating = new AverageRatingDto
+                            {
+                                Value = variant.AverageRating.Value,
+                                NumRatings = variant.AverageRating.NumRatings
+                            },
                         AssignedProductImageIds = variant.AssignedProductImageIds,
                         RawAttributeSelection = variant.RawAttributeSelection,
                         RawAttributes = variant.RawAttributes
                     }),
-                Reviews = p.ProductReviews.Select(review => new ProductReviewDto
+                Reviews = p.ProductReviews
+                    .OrderByDescending(review => review.CreatedDateTime)
+                    .Select(review => new ProductReviewDto
                     {
                         Id = review.Id.Value,
-                        Title = review.Title,
                         Content = review.Content,
                         Rating = review.Rating,
                         RawAttributeSelection = review.RawAttributes,
@@ -233,10 +239,11 @@ internal sealed class ProductReadService : IProductReadService
                         RawAttributeSelection = variant.RawAttributeSelection,
                         RawAttributes = variant.RawAttributes
                     }),
-                Reviews = p.ProductReviews.Select(review => new ProductReviewDto
+                Reviews = p.ProductReviews
+                    .OrderByDescending(review => review.CreatedDateTime)
+                    .Select(review => new ProductReviewDto
                     {
                         Id = review.Id.Value,
-                        Title = review.Title,
                         Content = review.Content,
                         Rating = review.Rating,
                         RawAttributeSelection = review.RawAttributes,

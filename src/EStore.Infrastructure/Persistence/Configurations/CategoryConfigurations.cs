@@ -33,12 +33,19 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
         builder.Property(c => c.Name)
             .HasMaxLength(Category.MaxNameLength);
 
+        builder.Property(c => c.Slug)
+            .HasMaxLength(Category.MaxSlugLength);
+
         builder.Property(c => c.Id)
             .HasColumnName("CategoryId")
             .ValueGeneratedNever()
             .HasConversion(
                 id => id.Value,
                 value => CategoryId.Create(value));
+
+        builder.HasIndex(c => c.Slug);
+
+        builder.HasIndex(c => c.Name);
 
         builder.HasQueryFilter(c => !c.Deleted);
     }

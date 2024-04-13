@@ -29,5 +29,7 @@ public class BrandConfigurations : IEntityTypeConfiguration<Brand>
                 value => BrandId.Create(value));
 
         builder.HasQueryFilter(b => !b.Deleted);
+
+        builder.HasIndex(b => b.Name);
     }
 }

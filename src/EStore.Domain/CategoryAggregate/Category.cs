@@ -12,6 +12,10 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISof
 
     public const int MaxNameLength = 100;
 
+    public const int MinSlugLength = 2;
+
+    public const int MaxSlugLength = 150;
+
     private readonly List<Category> _children = new();
 
     public string Name { get; private set; } = null!;
@@ -28,6 +32,10 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISof
 
     public bool Deleted { get; private set; }
 
+    public string Slug { get; private set; } = null!;
+
+    public string? ImageUrl { get; private set; }
+
     public IReadOnlyList<Category> Children => _children.AsReadOnly();
 
     private Category()
@@ -37,15 +45,25 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISof
     private Category(
         CategoryId categoryId,
         string name,
+        string slug,
+        string? imageUrl,
         CategoryId? parentId) : base(categoryId)
     {
         Name = name;
+        Slug = slug.ToLowerInvariant();
+        ImageUrl = imageUrl;
         ParentId = parentId;
     }
 
-    public static ErrorOr<Category> Create(string name, CategoryId? parentId)
+    public static ErrorOr<Category> Create(
+        string name,
+        string slug,
+        string? imageUrl,
+        CategoryId? parentId)
     {
         var errors = ValidateName(name);
+
+        errors.AddRange(ValidateSlug(slug));
 
         if (errors.Count > 0)
         {
@@ -55,12 +73,19 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISof
         return new Category(
             CategoryId.CreateUnique(),
             name,
+            slug,
+            imageUrl,
             parentId);
     }
 
-    public ErrorOr<Updated> UpdateName(string name)
+    public ErrorOr<Updated> UpdateDetails(
+        string name,
+        string? imageUrl,
+        string slug)
     {
         var errors = ValidateName(name);
+
+        errors.AddRange(ValidateSlug(slug));
 
         if (errors.Count > 0)
         {
@@ -68,6 +93,8 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISof
         }
 
         Name = name;
+        Slug = slug.ToLowerInvariant();
+        ImageUrl = imageUrl;
 
         return Result.Updated;
     }
@@ -89,6 +116,18 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISof
         if (name.Length is < MinNameLength or > MaxNameLength)
         {
             errors.Add(Errors.Category.InvalidNameLength);
+        }
+
+        return errors;
+    }
+
+    private static List<Error> ValidateSlug(string slug)
+    {
+        List<Error> errors = new();
+
+        if (slug.Length is < MinSlugLength or > MaxSlugLength)
+        {
+            errors.Add(Errors.Category.InvalidSlugLength);
         }
 
         return errors;

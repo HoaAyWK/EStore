@@ -5,5 +5,5 @@ namespace EStore.Api.UnitTests.Controllers.Brands.TestUtils;
 public static class CreateBrandRequestUtils
 {
     public static CreateBrandRequest Create(string name)
-        => new CreateBrandRequest(name);
+        => new(name, string.Empty);
 }

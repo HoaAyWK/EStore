@@ -4,5 +4,5 @@ using MediatR;
 
 namespace EStore.Application.Brands.Commands.UpdateBrand;
 
-public record UpdateBrandCommand(BrandId Id, string Name)
+public record UpdateBrandCommand(BrandId Id, string Name, string? ImageUrl)
     : IRequest<ErrorOr<Updated>>;

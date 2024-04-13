@@ -25,12 +25,12 @@ public static partial class Constants
         public static readonly string NameExceedMaxLength = new string('a', Domain.CategoryAggregate.Category.MaxNameLength + 1);
 
         public static readonly Domain.CategoryAggregate.Category MockExistingCategoryNoParent =
-            Domain.CategoryAggregate.Category.Create(Name, null).Value;
+            Domain.CategoryAggregate.Category.Create(Name, Name, string.Empty, null).Value;
 
         public static readonly Domain.CategoryAggregate.Category MockExistingCategoryHasParent =
-            Domain.CategoryAggregate.Category.Create(Name, ParentId).Value;
+            Domain.CategoryAggregate.Category.Create(Name, Name, string.Empty, ParentId).Value;
 
         public static readonly Domain.CategoryAggregate.Category MockExistingParentCategory =
-            Domain.CategoryAggregate.Category.Create(Name, null).Value;
+            Domain.CategoryAggregate.Category.Create(Name, Name, string.Empty, null).Value;
     }
 }

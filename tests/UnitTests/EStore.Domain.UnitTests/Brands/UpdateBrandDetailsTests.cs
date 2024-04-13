@@ -5,15 +5,18 @@ using EStore.Domain.UnitTests.Brands.TestUtils;
 
 namespace EStore.Domain.UnitTests.Brands;
 
-public class UpdateBrandNameTests
+public class UpdateBrandDetailsTests
 {
-    Brand brand = Brand.Create(Constants.Brand.Name).Value;
+    private readonly Brand _brand = Brand.Create(
+        Constants.Brand.Name,
+        string.Empty)
+        .Value;
 
     [Theory]
     [ClassData(typeof(ValidBrandNameData))]
-    public void UpdateBrandName_WhenValidName_ShouldUpdate(string name)
+    public void UpdateBrandDetails_WhenValidName_ShouldUpdate(string name)
     {
-        var result = brand.UpdateName(name);
+        var result = _brand.UpdateDetails(name, string.Empty);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(Result.Updated);
@@ -23,7 +26,7 @@ public class UpdateBrandNameTests
     [ClassData(typeof(InvalidBrandNameData))]
     public void UpdateBrandName_WhenInvalidName_ShouldReturnInvalidNameLengthError(string name)
     {
-        var result = brand.UpdateName(name);
+        var result = _brand.UpdateDetails(name, string.Empty);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.Brand.InvalidNameLength);

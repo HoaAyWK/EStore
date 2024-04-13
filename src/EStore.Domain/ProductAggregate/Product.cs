@@ -426,7 +426,6 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
 
     public ErrorOr<ProductReview> AddReview(
         ProductVariantId? productVariantId,
-        string title,
         string content,
         int rating,
         CustomerId ownerId)
@@ -470,7 +469,6 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         }
 
         var createProductReviewResult = ProductReview.Create(
-            title,
             content,
             rating,
             rawAttributes,

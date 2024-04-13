@@ -5,15 +5,20 @@ using EStore.Domain.UnitTests.Categories.TestUtils;
 
 namespace EStore.Domain.UnitTests.Categories;
 
-public class UpdateCategoryNameTests
+public class UpdateCategoryDetailsTests
 {
-    Category category = Category.Create(Constants.Category.Name, null).Value;
+    private readonly Category _category = Category.Create(
+        Constants.Category.Name,
+        Constants.Category.Name,
+        string.Empty,
+        null)
+        .Value;
 
     [Theory]
     [ClassData(typeof(ValidCategoryNameData))]
-    public void UpdateCategoryName_WhenValidName_ShouldUpdate(string name)
+    public void UpdateCategoryDetails_WhenValidName_ShouldUpdate(string name)
     {
-        var result = category.UpdateName(name);
+        var result = _category.UpdateDetails(name, string.Empty, name);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(Result.Updated);
@@ -21,9 +26,9 @@ public class UpdateCategoryNameTests
 
     [Theory]
     [ClassData(typeof(InvalidCategoryNameData))]
-    public void UpdateCategoryName_WhenInvalidName_ShouldReturnInvalidNameLengthError(string name)
+    public void UpdateCategoryDetails_WhenInvalidName_ShouldReturnInvalidNameLengthError(string name)
     {
-        var result = category.UpdateName(name);
+        var result = _category.UpdateDetails(name, string.Empty, name);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.Category.InvalidNameLength);

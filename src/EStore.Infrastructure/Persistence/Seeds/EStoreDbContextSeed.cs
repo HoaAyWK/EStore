@@ -41,25 +41,25 @@ public static class EStoreDbContextSeed
 
     public static IEnumerable<Category> GetPreConfiguredCategories()
     {
-        var laptopCategory = Category.Create("Laptop", null).Value;
-        var smartphoneCategory = Category.Create("Smartphone", null).Value;
+        var laptopCategory = Category.Create("Laptop", "laptop", null, null).Value;
+        var smartphoneCategory = Category.Create("Smartphone", "smartphone", null, null).Value;
 
-        var laptopGaming = Category.Create("Laptop Gaming", laptopCategory.Id).Value;
-        var laptopForStudents = Category.Create("Laptop for Students", laptopCategory.Id).Value;
-        var laptopOffice = Category.Create("Laptop Office", laptopCategory.Id).Value;
-        var laptopProgramming = Category.Create("Laptop Programming", laptopCategory.Id).Value;
+        var laptopAsus = Category.Create("Laptop Asus", "laptop-asus", null, laptopCategory.Id).Value;
+        var laptopDell = Category.Create("Laptop Dell", "laptop-dell", null, laptopCategory.Id).Value;
+        var laptopLenovo = Category.Create("Laptop Lenovo", "laptop-lenovo", null, laptopCategory.Id).Value;
+        var laptopAcer = Category.Create("Laptop Acer", "laptop-acer", null, laptopCategory.Id).Value;
 
-        var iphones = Category.Create("iPhones", smartphoneCategory.Id).Value;
-        var samsungGalaxy = Category.Create("Samsung Galaxy", smartphoneCategory.Id).Value;
+        var iphones = Category.Create("iPhones", "iphones", null, smartphoneCategory.Id).Value;
+        var samsungGalaxy = Category.Create("Samsung Galaxy", "samsung-galaxy", null, smartphoneCategory.Id).Value;
 
         return new List<Category>
         {
             laptopCategory,
             smartphoneCategory,
-            laptopGaming,
-            laptopForStudents,
-            laptopOffice,
-            laptopProgramming,
+            laptopAsus,
+            laptopDell,
+            laptopLenovo,
+            laptopAcer,
             iphones,
             samsungGalaxy
         };
@@ -69,12 +69,12 @@ public static class EStoreDbContextSeed
     {
         return new List<Brand>()
         {
-            Brand.Create("Apple").Value,
-            Brand.Create("Samsung").Value,
-            Brand.Create("Lenovo").Value,
-            Brand.Create("Dell").Value,
-            Brand.Create("Asus").Value,
-            Brand.Create("Acer").Value,
+            Brand.Create("Apple", string.Empty).Value,
+            Brand.Create("Samsung", string.Empty).Value,
+            Brand.Create("Lenovo", string.Empty).Value,
+            Brand.Create("Dell", string.Empty).Value,
+            Brand.Create("Asus", string.Empty).Value,
+            Brand.Create("Acer", string.Empty).Value,
         };
     }
 

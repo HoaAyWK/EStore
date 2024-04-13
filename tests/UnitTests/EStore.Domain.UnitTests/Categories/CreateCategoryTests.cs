@@ -10,7 +10,7 @@ public class CreateCategoryTests
     [ClassData(typeof(ValidCategoryNameData))]
     public void CreateCategory_WhenValidName_ShouldReturnCategory(string name)
     {
-        var result = Category.Create(name, Constants.Category.ParentCategoryId);
+        var result = Category.Create(name, name, string.Empty, Constants.Category.ParentCategoryId);
 
         result.IsError.Should().BeFalse();
         result.Value.Name.Should().Be(name);
@@ -21,7 +21,7 @@ public class CreateCategoryTests
     [ClassData(typeof(InvalidCategoryNameData))]
     public void CreateCategory_WhenInvalidName_ShouldReturnInvalidNameLengthError(string name)
     {
-        var result = Category.Create(name, null);
+        var result = Category.Create(name, name, string.Empty, null);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.Category.InvalidNameLength);

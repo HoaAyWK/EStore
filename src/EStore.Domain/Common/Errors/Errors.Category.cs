@@ -33,7 +33,27 @@ public static partial class Errors
         public static Error InvalidNameLength = Error.Validation(
             code: "Category.InvalidNameLength",
             description: "Category name must be between " +
-                $"{Domain.CategoryAggregate.Category.MinNameLength} and " +
-                $"{Domain.CategoryAggregate.Category.MaxNameLength} characters.");
+                $"{CategoryAggregate.Category.MinNameLength} and " +
+                $"{CategoryAggregate.Category.MaxNameLength} characters.");
+
+        public static Error CategoryAlreadyExists(string name)
+        {
+            return Error.Validation(
+                code: "Category.CategoryAlreadyExists",
+                description: $"The category with name = {name} already exists.");
+        }
+
+        public static Error InvalidSlugLength = Error.Validation(
+            code: "Category.InvalidSlugLength",
+            description: "Category slug must be between " +
+                $"{CategoryAggregate.Category.MinSlugLength} and " +
+                $"{CategoryAggregate.Category.MaxSlugLength} characters.");
+
+        public static Error CategoryWithProvidedSlugAlreadyExists(string slug)
+        {
+            return Error.Validation(
+                code: "Category.CategoryWithProvidedSlugAlreadyExists",
+                description: $"The category with slug = {slug} already exists.");
+        }
     }
 }

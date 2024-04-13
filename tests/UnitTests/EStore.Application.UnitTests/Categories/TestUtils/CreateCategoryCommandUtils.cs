@@ -7,5 +7,5 @@ namespace EStore.Application.UnitTests.Categories.TestUtils;
 public static class CreateCategoryCommandUtils
 {
     public static CreateCategoryCommand CreateCommand(string? name = null, CategoryId? parentId = null) =>
-        new CreateCategoryCommand(name ?? Constants.Category.Name, parentId);
+        new(name ?? Constants.Category.Name, Constants.Category.Name, string.Empty, parentId);
 }

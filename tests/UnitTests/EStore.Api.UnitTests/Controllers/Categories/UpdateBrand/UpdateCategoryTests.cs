@@ -27,8 +27,17 @@ public class UpdateCategoryTests
     [Fact]
     public async Task UpdateCategory_WhenHandleCommandSuccess_ShouldReturnNoContentResult()
     {
-        var request = UpdateCategoryRequestUtils.Create(Constants.Category.Name, null);
-        var command = UpdateCategoryCommandUtils.Create(request.Name);
+        var request = UpdateCategoryRequestUtils.Create(
+            Constants.Category.Name,
+            Constants.Category.Name,
+            string.Empty,
+            null);
+
+        var command = UpdateCategoryCommandUtils.Create(
+            request.Name,
+            request.Slug,
+            request.ImageUrl);
+
         (Guid, UpdateCategoryRequest) src = (Constants.Category.Id.Value, request);
         ErrorOr<Updated> handleCommandResult = Result.Updated;
 
@@ -46,8 +55,17 @@ public class UpdateCategoryTests
     [Fact]
     public async Task UpdateCategory_WhenHandleCommandFail_ShouldReturnProblemDetails()
     {
-        var request = UpdateCategoryRequestUtils.Create(Constants.Category.NameUnderMinLength, null);
-        var command = UpdateCategoryCommandUtils.Create(request.Name);
+        var request = UpdateCategoryRequestUtils.Create(
+            Constants.Category.NameUnderMinLength,
+            Constants.Category.Name,
+            string.Empty,
+            null);
+
+        var command = UpdateCategoryCommandUtils.Create(
+            request.Name,
+            request.Slug,
+            request.ImageUrl);
+        
         (Guid, UpdateCategoryRequest) src = (Constants.Category.Id.Value, request);
         ErrorOr<Updated> handleCommandResult = Errors.Category.InvalidNameLength;
 
@@ -67,6 +85,8 @@ public class UpdateCategoryTests
     {
         var request = UpdateCategoryRequestUtils.Create(
             Constants.Category.Name,
+            Constants.Category.Name,
+            string.Empty,
             Constants.Category.InvalidParentId);
 
         var result = await _controller.UpdateCategory(Constants.Category.Id.Value, request);

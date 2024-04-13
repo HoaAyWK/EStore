@@ -6,5 +6,7 @@ public static class UpdateBrandRequestUtils
 {
     
     public static UpdateBrandRequest Create()
-        => new UpdateBrandRequest(Constants.Brand.Name);
+        => new(
+            Constants.Brand.Name,
+            string.Empty);
 }

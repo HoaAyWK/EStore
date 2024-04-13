@@ -188,9 +188,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
                     id => id.Value,
                     value => ProductReviewId.Create(value));
 
-            rb.Property(r => r.Title)
-                .HasMaxLength(ProductReview.MinTitleLength);
-
             rb.Property(r => r.Content)
                 .HasMaxLength(ProductReview.MaxContentLength);
 

@@ -19,6 +19,15 @@ public class UpdateCategoryCommandHandler
         UpdateCategoryCommand request,
         CancellationToken cancellationToken)
     {
+        var existingCategoryWithProvidedSlug = await _categoryRepository.GetBySlugAsync(
+            request.Slug);
+
+        if (existingCategoryWithProvidedSlug is not null &&
+            existingCategoryWithProvidedSlug.Id != request.Id)
+        {
+            return Errors.Category.CategoryWithProvidedSlugAlreadyExists(request.Slug);
+        }
+
         var category = await _categoryRepository.GetByIdAsync(request.Id);
 
         if (category is null)
@@ -26,7 +35,10 @@ public class UpdateCategoryCommandHandler
             return Errors.Category.NotFound;
         }
 
-        var updateCategoryNameResult = category.UpdateName(request.Name);
+        var updateCategoryNameResult = category.UpdateDetails(
+            request.Name,
+            request.ImageUrl,
+            request.Slug);
 
         if (updateCategoryNameResult.IsError)
         {

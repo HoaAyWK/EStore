@@ -8,7 +8,6 @@ namespace EStore.Application.Products.Commands.AddProductReview;
 
 public record AddProductReviewCommand(
     ProductId ProductId,
-    string Title,
     string Content,
     int Rating,
     CustomerId OwnerId,

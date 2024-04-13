@@ -27,11 +27,14 @@ public class CreateBrandTests
     [Fact]
     public async Task CreateBrand_WhenHandleCreateCommandSuccess_ShouldReturnOkResultWithCreatedBrand()
     {
-        var request = new CreateBrandRequest(Constants.Brand.Name);
+        var request = new CreateBrandRequest(Constants.Brand.Name, string.Empty);
         var command = CreateBrandCommandUtils.Create(request.Name);
         var brandResponse = BrandResponseUtils.Create(request.Name);
 
-        ErrorOr<Brand> handleCommandResult = Brand.Create(command.Name).Value;
+        ErrorOr<Brand> handleCommandResult = Brand.Create(
+            command.Name,
+            command.ImageUrl)
+            .Value;
 
         _mockMapper.Setup(m => m.Map<CreateBrandCommand>(request))
             .Returns(command);
@@ -51,7 +54,7 @@ public class CreateBrandTests
     [Fact]
     public async Task CreateBrand_WhenHandleCreateCommandFail_ShouldReturnProblemDetails()
     {
-        var request = new CreateBrandRequest(Constants.Brand.InvalidName);
+        var request = new CreateBrandRequest(Constants.Brand.InvalidName, string.Empty);
         var command = CreateBrandCommandUtils.Create(request.Name);
 
         ErrorOr<Brand> handleCommandResult = Errors.Brand.InvalidNameLength;

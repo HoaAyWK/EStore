@@ -14,6 +14,8 @@ public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity, ISoftDelet
 
     public string Name { get; private set; } = null!;
 
+    public string? ImageUrl { get; private set; }
+
     public DateTime CreatedDateTime { get; private set; }
 
     public DateTime UpdatedDateTime { get; private set; }
@@ -28,13 +30,15 @@ public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity, ISoftDelet
 
     private Brand(
         BrandId brandId,
-        string name)
+        string name,
+        string? imageUrl)
         : base(brandId)
     {
         Name = name;
+        ImageUrl = imageUrl;
     }
 
-    public static ErrorOr<Brand> Create(string name)
+    public static ErrorOr<Brand> Create(string name, string? imageUrl)
     {
         var errors = ValidateName(name);
 
@@ -45,10 +49,11 @@ public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity, ISoftDelet
 
         return new Brand(
             BrandId.CreateUnique(),
-            name);
+            name,
+            imageUrl);
     }
 
-    public ErrorOr<Updated> UpdateName(string name)
+    public ErrorOr<Updated> UpdateDetails(string name, string? imageUrl)
     {
         var errors = ValidateName(name);
 
@@ -58,6 +63,7 @@ public sealed class Brand : AggregateRoot<BrandId>, IAuditableEntity, ISoftDelet
         }
 
         Name = name;
+        ImageUrl = imageUrl;
 
         return Result.Updated;
     }

@@ -14,6 +14,8 @@ public static class UpdateCategoryCommandUtils
         return new UpdateCategoryCommand(
             id ?? Constants.Category.Id,
             name ?? Constants.Category.Name,
+            Constants.Category.Name,
+            string.Empty,
             parentId);
     }
 }

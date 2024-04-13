@@ -13,17 +13,11 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
 
     public const int MaxRatingValue = 5;
 
-    public const int MinTitleLength = 1;
-
-    public const int MaxTitleLength = 100;
-
     public const int MinContentLength = 1;
 
     public const int MaxContentLength = 2000; 
 
     private readonly List<ProductReviewComment> _reviewComments = new();
-
-    public string Title { get; private set; } = null!;
 
     public string Content { get; private set; } = null!;
 
@@ -41,14 +35,12 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
 
     private ProductReview(
         ProductReviewId id,
-        string title,
         string content,
         int rating,
         string rawAttributes,
         CustomerId ownerId)
         : base(id)
     {
-        Title = title;
         Content = content;
         Rating = rating;
         RawAttributes = rawAttributes;
@@ -56,7 +48,6 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
     }
 
     public static ErrorOr<ProductReview> Create(
-        string title,
         string content,
         int rating,
         string rawAttributes,
@@ -64,7 +55,6 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
     {
         var errors = ValidateRatingValue(rating);
 
-        errors.AddRange(ValidateTitle(title));
         errors.AddRange(ValidateContent(content));
 
         if (errors.Count > 0)
@@ -74,7 +64,6 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
 
         return new ProductReview(
             ProductReviewId.CreateUnique,
-            title,
             content,
             rating,
             rawAttributes,
@@ -98,18 +87,6 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
         if (rating < MinRatingValue || rating > MaxRatingValue)
         {
             errors.Add(Errors.Product.InvalidRatingValue);
-        }
-
-        return errors;
-    }
-
-    private static List<Error> ValidateTitle(string title)
-    {
-        var errors = new List<Error>();
-
-        if (title.Length < MinTitleLength || title.Length > MaxTitleLength)
-        {
-            errors.Add(Errors.Product.InvalidReviewTitleLength);
         }
 
         return errors;

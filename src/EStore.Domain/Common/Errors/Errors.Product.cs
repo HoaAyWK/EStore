@@ -140,12 +140,6 @@ public static partial class Errors
                 $"{ProductAggregate.Entities.ProductReview.MinRatingValue} and " +
                 $"{ProductAggregate.Entities.ProductReview.MaxRatingValue}.");
 
-        public static Error InvalidReviewTitleLength = Error.Validation(
-            code: "Product.InvalidReviewTitleLength",
-            description: "Review title must be between " +
-                $"{ProductAggregate.Entities.ProductReview.MinTitleLength} and " +
-                $"{ProductAggregate.Entities.ProductReview.MaxTitleLength} characters.");
-
         public static Error InvalidReviewContentLength = Error.Validation(
             code: "Product.InvalidReviewContentLength",
             description: "Review content must be between " +

@@ -19,6 +19,15 @@ public class UpdateBrandCommandHandler
         UpdateBrandCommand request,
         CancellationToken cancellationToken)
     {
+        var existingBrandWithProvidedName = await _brandRepository.GetByNameAsync(
+            request.Name);
+
+        if (existingBrandWithProvidedName is not null &&
+            existingBrandWithProvidedName.Id != request.Id)
+        {
+            return Errors.Brand.BrandAlreadyExists(request.Name);
+        }
+
         var brand = await _brandRepository.GetByIdAsync(request.Id);
     
         if (brand is null)
@@ -26,7 +35,9 @@ public class UpdateBrandCommandHandler
             return Errors.Brand.NotFound;
         }
 
-        var updateBrandResult = brand.UpdateName(request.Name);
+        var updateBrandResult = brand.UpdateDetails(
+            request.Name,
+            request.ImageUrl);
 
         if (updateBrandResult.IsError)
         {

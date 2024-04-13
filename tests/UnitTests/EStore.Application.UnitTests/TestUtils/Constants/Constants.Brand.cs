@@ -20,6 +20,7 @@ public static partial class Constants
 
         public static readonly string NameExceedMaxLength = new string('a', Domain.BrandAggregate.Brand.MaxNameLength + 1);
 
-        public static readonly Domain.BrandAggregate.Brand MockExistingBrand = Domain.BrandAggregate.Brand.Create(Name).Value;
+        public static readonly Domain.BrandAggregate.Brand MockExistingBrand =
+            Domain.BrandAggregate.Brand.Create(Name, string.Empty).Value;
     }
 }

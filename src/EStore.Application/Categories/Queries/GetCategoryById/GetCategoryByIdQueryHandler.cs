@@ -1,7 +1,6 @@
 using ErrorOr;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Domain.CategoryAggregate;
-using EStore.Domain.CategoryAggregate.Repositories;
 using MediatR;
 
 namespace EStore.Application.Categories.Queries.GetCategoryById;

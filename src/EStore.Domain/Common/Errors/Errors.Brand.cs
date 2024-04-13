@@ -25,7 +25,14 @@ public static partial class Errors
         public static Error InvalidNameLength = Error.Validation(
             code: "Brand.InvalidNameLength",
             description: "Brand name must be between " +
-                $"{Domain.BrandAggregate.Brand.MinNameLength} and " +
-                $"{Domain.BrandAggregate.Brand.MaxNameLength} characters.");
+                $"{BrandAggregate.Brand.MinNameLength} and " +
+                $"{BrandAggregate.Brand.MaxNameLength} characters.");
+
+        public static Error BrandAlreadyExists(string name)
+        {
+            return Error.Validation(
+                code: "Brand.BrandAlreadyExists",
+                description: $"The brand with name = {name} was not found.");
+        }
     }
 }

@@ -6,5 +6,5 @@ namespace EStore.Application.UnitTests.Brands.Commands.TestUtils;
 public static class CreateBrandCommandUtils
 {
     public static CreateBrandCommand CreateCommand(string? name = null)
-        => new CreateBrandCommand(name ?? Constants.Brand.Name);
+        => new CreateBrandCommand(name ?? Constants.Brand.Name, string.Empty);
 }

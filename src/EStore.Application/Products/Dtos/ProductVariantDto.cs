@@ -20,6 +20,8 @@ public class ProductVariantDto
 
     public string RawAttributes { get; set; } = string.Empty;
 
+    public AverageRatingDto AverageRating { get; set; } = null!;
+
     public Dictionary<string, string> Attributes
         => JsonConvert.DeserializeObject<Dictionary<string, string>>(RawAttributes) ?? new();
 

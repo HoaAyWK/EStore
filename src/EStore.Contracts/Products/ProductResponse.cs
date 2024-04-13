@@ -75,6 +75,7 @@ public record ProductVariantResponse(
     decimal? Price,
     int StockQuantity,
     bool IsActive,
+    AverageRatingResponse AverageRating,
     List<string>? AssignedProductImageIds,
     Dictionary<string, string> Attributes,
     Dictionary<Guid, Guid> AttributeSelection);
@@ -90,7 +91,6 @@ public record DiscountResponse(
 
 public record ProductReviewResponse(
     Guid Id,
-    string Title,
     string Content,
     int Rating,
     ProductReviewOwnerResponse? Owner,

@@ -1,6 +1,7 @@
 using EStore.Domain.BrandAggregate;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.BrandAggregate.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace EStore.Infrastructure.Persistence.Repositories;
 
@@ -21,6 +22,13 @@ internal class BrandRepository :  IBrandRepository
     public async Task<Brand?> GetByIdAsync(BrandId id)
     {
         return await _dbContext.Brands.FindAsync(id);
+    }
+
+    public async Task<Brand?> GetByNameAsync(string name)
+    {
+        return await _dbContext.Brands
+            .Where(brand => brand.Name == name)
+            .FirstOrDefaultAsync();
     }
 
     public void Delete(Brand brand)

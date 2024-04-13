@@ -24,6 +24,20 @@ internal sealed class CategoryRepository : ICategoryRepository
         return await _dbContext.Categories.FindAsync(id);
     }
 
+    public async Task<Category?> GetByNameAsync(string name)
+    {
+        return await _dbContext.Categories
+            .Where(category => category.Name == name)
+            .SingleOrDefaultAsync();
+    }
+
+    public async Task<Category?> GetBySlugAsync(string slug)
+    {
+        return await _dbContext.Categories
+            .Where(category => category.Slug == slug)
+            .SingleOrDefaultAsync();
+    }
+
     public void Delete(Category category)
     {
         _dbContext.Categories.Remove(category);

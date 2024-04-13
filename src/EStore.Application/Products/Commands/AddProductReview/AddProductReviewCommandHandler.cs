@@ -21,7 +21,9 @@ public class AddProductReviewCommandHandler
         _customerRepository = customerRepository;
     }
 
-    public async Task<ErrorOr<ProductReview>> Handle(AddProductReviewCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<ProductReview>> Handle(
+        AddProductReviewCommand request,
+        CancellationToken cancellationToken)
     {
         var product = await _productRepository.GetByIdAsync(request.ProductId);
 
@@ -41,7 +43,6 @@ public class AddProductReviewCommandHandler
 
         return product.AddReview(
             request.ProductVariantId,
-            request.Title,
             request.Content,
             request.Rating,
             request.OwnerId);

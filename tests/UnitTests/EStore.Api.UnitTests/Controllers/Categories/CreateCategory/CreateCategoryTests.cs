@@ -28,8 +28,18 @@ public class CreateCategoryTests
     public async Task CreateCategory_WhenHandleCreateCommandSuccess_ShouldReturnCreatedAtActionResult()
     {
         var request = CreateCategoryRequestUtils.CreateRequest(Constants.Category.Name, null);
-        var command = CreateCategoryCommandUtils.CreateCommand(request.Name, null);
-        ErrorOr<Category> handleCommandResult = Category.Create(command.Name, command.ParentId);
+
+        var command = CreateCategoryCommandUtils.CreateCommand(
+            request.Name,
+            request.Slug,
+            request.ImageUrl,
+            null);
+
+        ErrorOr<Category> handleCommandResult = Category.Create(
+            command.Name,
+            command.Slug,
+            command.ImageUrl,
+            command.ParentId);
 
         _mockMapper.Setup(m => m.Map<CreateCategoryCommand>(request))
             .Returns(command);
@@ -52,7 +62,12 @@ public class CreateCategoryTests
     public async Task CreateCategory_WhenHandleCommandFail_ShouldReturnProblemDetails()
     {
         var request = CreateCategoryRequestUtils.CreateRequest(Constants.Category.Name, null);
-        var command = CreateCategoryCommandUtils.CreateCommand(request.Name, null);
+        var command = CreateCategoryCommandUtils.CreateCommand(
+            request.Name,
+            request.Slug,
+            request.ImageUrl,
+            null);
+
         ErrorOr<Category> handleCommandResult = Errors.Category.InvalidNameLength;
 
         _mockMapper.Setup(m => m.Map<CreateCategoryCommand>(request))

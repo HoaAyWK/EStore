@@ -1,5 +1,6 @@
 using ErrorOr;
 using EStore.Domain.BrandAggregate;
+using EStore.Domain.Common.Errors;
 using EStore.Domain.BrandAggregate.Repositories;
 using MediatR;
 
@@ -19,7 +20,14 @@ public class CreateBrandCommandHandler
         CreateBrandCommand request,
         CancellationToken cancellationToken)
     {
-        var createBrandResult = Brand.Create(request.Name);
+        var existingBrand = await _brandRepository.GetByNameAsync(request.Name);
+
+        if (existingBrand is not null)
+        {
+            return Errors.Brand.BrandAlreadyExists(request.Name);
+        }
+
+        var createBrandResult = Brand.Create(request.Name, request.ImageUrl);
 
         if (createBrandResult.IsError)
         {

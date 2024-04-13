@@ -19,7 +19,18 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
         CreateCategoryCommand request,
         CancellationToken cancellationToken)
     {
-        var createCategoryResult = Category.Create(request.Name, request.ParentId);
+        var existingCategory = await _categoryRepository.GetBySlugAsync(request.Slug);
+
+        if (existingCategory is not null)
+        {
+            return Errors.Category.CategoryWithProvidedSlugAlreadyExists(request.Slug);
+        }
+
+        var createCategoryResult = Category.Create(
+            request.Name,
+            request.Slug,
+            request.ImageUrl,
+            request.ParentId);
 
         if (createCategoryResult.IsError)
         {
