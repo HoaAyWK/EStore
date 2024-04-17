@@ -60,6 +60,11 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
             return;
         }
 
+        if (!product.Published)
+        {
+            return;
+        }
+
         var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
         var brand = await _brandRepository.GetByIdAsync(product.BrandId);
         var category = await _categoryRepository.GetWithParentsByIdAsync(

@@ -2,11 +2,9 @@ using System.Dynamic;
 using Algolia.Search.Clients;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Events;
-using EStore.Application.Products.Services;
 using EStore.Contracts.Searching;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
-using EStore.Domain.CategoryAggregate.ValueObjects;
 using EStore.Domain.Common.Utilities;
 using EStore.Domain.DiscountAggregate;
 using EStore.Domain.DiscountAggregate.Repositories;
@@ -60,6 +58,11 @@ public class ProductVariantCreatedIntegrationEventHandler
         {
             // TODO: log error
 
+            return;
+        }
+
+        if (!product.Published)
+        {
             return;
         }
 

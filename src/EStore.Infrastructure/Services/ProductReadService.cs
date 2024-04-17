@@ -49,10 +49,12 @@ internal sealed class ProductReadService : IProductReadService
                     .FirstOrDefault(),
                 Category = _dbContext.Categories.AsNoTracking()
                     .Where(category => category.Id == p.CategoryId)
+                    .Include(category => category.Parent)
                     .Select(category => new CategoryDto
                     {
                         Id = category.Id.Value,
-                        Name = category.Name
+                        Name = category.Name,
+                        Slug = category.Slug,
                     })
                     .FirstOrDefault(),
                 Discount = _dbContext.Discounts.AsNoTracking()

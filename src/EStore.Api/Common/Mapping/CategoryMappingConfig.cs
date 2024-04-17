@@ -48,6 +48,8 @@ public class CategoryMappingConfig : IRegister
             .Map(dest => dest.Id, src => src.Data.Id)
             .Map(dest => dest.Level, src => src.Level)
             .Map(dest => dest.Name, src => src.Data.Name)
+            .Map(dest => dest.Slug, src => src.Data.Slug)
+            .Map(dest => dest.ImageUrl, src => src.Data.ImageUrl)
             .Map(dest => dest.ParentId, src => src.Data.ParentId);
     }
 }

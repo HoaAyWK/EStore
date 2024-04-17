@@ -169,6 +169,11 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
             return Errors.Product.ProductHadCombinableAttributes;
         }
 
+        if (!published && _productVariants.Count > 0)
+        {
+            return Errors.Product.ProductAlreadyHadVariants;
+        }
+
         var previousHasVariant = HasVariant;
 
         Name = name;

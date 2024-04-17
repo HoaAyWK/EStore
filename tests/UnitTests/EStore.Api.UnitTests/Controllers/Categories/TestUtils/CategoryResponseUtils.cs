@@ -9,6 +9,8 @@ public static class CategoryResponseUtils
         new CategoryResponse(
             Guid.NewGuid(),
             name,
+            string.Empty,
+            string.Empty,
             parentId,
             DateTime.UtcNow,
             DateTime.UtcNow);

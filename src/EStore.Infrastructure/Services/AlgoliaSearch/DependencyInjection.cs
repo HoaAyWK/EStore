@@ -1,5 +1,7 @@
 using Algolia.Search.Clients;
+using EStore.Infrastructure.Services.AlgoliaSearch.Interfaces;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
+using EStore.Infrastructure.Services.AlgoliaSearch.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,6 +25,8 @@ public static class DependencyInjection
             new SearchClient(
                 options!.ApplicationId,
                 options.AdminApiKey));
+
+        services.AddScoped<IAlgoliaIndexSettingsService, AlgoliaIndexSettingsService>();
 
         return services;
     }

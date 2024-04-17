@@ -11,9 +11,9 @@ namespace EStore.Infrastructure.IntegrationEvents.Products;
 public class ProductAttributeValueRemovedIntegrationEventHandler
     : INotificationHandler<ProductAttributeValueRemovedIntegrationEvent>
 {
-    private IProductRepository _productRepository;
-    private ISearchClient _searchClient;
-    private AlgoliaSearchOptions _algoliaSearchOptions;
+    private readonly IProductRepository _productRepository;
+    private readonly ISearchClient _searchClient;
+    private readonly AlgoliaSearchOptions _algoliaSearchOptions;
 
     public ProductAttributeValueRemovedIntegrationEventHandler(
         IProductRepository productRepository,

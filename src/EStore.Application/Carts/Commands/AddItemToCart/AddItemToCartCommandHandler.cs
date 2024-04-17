@@ -56,14 +56,9 @@ public class AddItemToCartCommandHandler
                 return Errors.Cart.ProductVariantUnavailable(productVariant.Id);
             }
 
-            if (!product.ProductVariants.Any(variant => variant.Id == productVariant.Id))
-            {
-                return Errors.Cart.ProductNotHadVariant(request.ProductId, request.ProductVariantId);
-            }
-
             if (productVariant.Price.HasValue)
             {
-                itemPrice += productVariant.Price.Value;
+                itemPrice = productVariant.Price.Value;
             }
         }
         

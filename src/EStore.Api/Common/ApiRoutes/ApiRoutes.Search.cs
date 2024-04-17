@@ -5,5 +5,7 @@ public static partial class ApiRoutes
     public static partial class Search
     {
         public const string SearchProducts = "products";
+
+        public const string GetAlgoliaIndexSettings = "algolia/index-settings";
     }
 }

@@ -137,6 +137,7 @@ public class ProductsController : ApiController
             ProductId.Create(id),
             request.Name,
             request.CanCombine,
+            request.Colorable,
             request.DisplayOrder);
 
         var addAttributeResult = await _mediator.Send(command);

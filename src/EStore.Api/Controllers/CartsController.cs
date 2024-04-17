@@ -39,9 +39,7 @@ public class CartsController : ApiController
             getCustomerCartResult = await _mediator.Send(query);
         }
 
-        return getCustomerCartResult.Match(
-            Ok,
-            Problem);
+        return getCustomerCartResult.Match(Ok, Problem);
     }
 
     [HttpPut]
@@ -59,9 +57,7 @@ public class CartsController : ApiController
         var query = _mapper.Map<GetCartByCustomerIdQuery>(customerId);
         var getCustomerCartResult = await _mediator.Send(query);
 
-        return getCustomerCartResult.Match(
-            Ok,
-            errors => Problem(errors));
+        return getCustomerCartResult.Match(Ok, Problem);
     }
 
     [HttpDelete(ApiRoutes.Cart.RemoveItem)]
