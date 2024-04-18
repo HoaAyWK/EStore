@@ -2,8 +2,6 @@ namespace EStore.Api.Common.Contexts;
 
 public class WorkContextSource : IWorkContextSource
 {
-    const string CookiesName = "Guest";
-
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public WorkContextSource(IHttpContextAccessor httpContextAccessor)
@@ -25,9 +23,9 @@ public class WorkContextSource : IWorkContextSource
                 }
             }
 
-            if (httpContext.Request.Cookies.ContainsKey(CookiesName))
+            if (httpContext.Request.Cookies.ContainsKey(Constants.Cookies.Guest))
             {
-                var guestCookie = httpContext.Request.Cookies[CookiesName];
+                var guestCookie = httpContext.Request.Cookies[Constants.Cookies.Guest];
 
                 if (guestCookie is not null && Guid.TryParse(guestCookie, out var customerId))
                 {
@@ -46,27 +44,33 @@ public class WorkContextSource : IWorkContextSource
         return Guid.NewGuid();
     }
 
-    public void AppendGuestCookies(Guid guestId)
+    public void AppendCookies(string cookieName, Guid customerId, int expireMinutes = 3600)
     {
         if (_httpContextAccessor.HttpContext is HttpContext httpContext)
         {
             var cookieOptions = new CookieOptions
             {
-                IsEssential = true,
+                IsEssential = false,
                 SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddYears(1)
+                Expires = DateTime.UtcNow.AddMinutes(expireMinutes),
+                Path = "/",
+                HttpOnly = true,
+                Secure = false
             };
 
-            httpContext.Response.Cookies.Append(CookiesName, guestId.ToString(), cookieOptions);
+            httpContext.Response.Cookies.Append(
+                cookieName,
+                customerId.ToString(),
+                cookieOptions);
         }
     }
 
-    public void RemoveGuestCookies()
+    public void RemoveCookies(string cookieName)
     {
         if (_httpContextAccessor.HttpContext is HttpContext httpContext &&
-            httpContext.Request.Cookies.ContainsKey(CookiesName))
+            httpContext.Request.Cookies.ContainsKey(cookieName))
         {
-           httpContext.Response.Cookies.Delete(CookiesName);
+           httpContext.Response.Cookies.Delete(cookieName);
         }
     }
 }

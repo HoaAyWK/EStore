@@ -32,7 +32,7 @@ var app = builder.Build();
     });
 
     app.UseExceptionHandler($"/{ApiRoutes.Error}");
-    app.UseHttpsRedirection();
+    // app.UseHttpsRedirection();
     app.UseCors(corsPolicyName);
     app.UseAuthentication();
     app.UseAuthorization();

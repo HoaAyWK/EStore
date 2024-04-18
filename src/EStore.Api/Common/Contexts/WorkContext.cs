@@ -20,8 +20,10 @@ public class WorkContext : IWorkContext
 
                 if (customerId is null)
                 {
-                    var guestId = _workContextSource.CreateGuestId();
-                    _workContextSource.AppendGuestCookies(guestId);
+                    var guestId = _workContextSource.CreateGuestId();                    
+
+                    _workContextSource.AppendCookies(Constants.Cookies.Guest, guestId);
+                    _customerId = guestId;
 
                     return guestId;
                 }

@@ -152,6 +152,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                     DisplayOrder = product.DisplayOrder,
                     CreatedDateTime = product.CreatedDateTime,
                     UpdatedDateTime = product.UpdatedDateTime,
+                    IsActive = variant.IsActive,
                     Image = product.Images
                         .Where(image => image.IsMain)
                         .Select(image => image.ImageUrl)

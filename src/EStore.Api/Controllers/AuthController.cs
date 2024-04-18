@@ -6,6 +6,8 @@ using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Customers.Commands.CreateCustomer;
 using EStore.Application.Carts.Services;
+using EStore.Api.Common;
+using EStore.Api.Common.Contexts;
 
 namespace EStore.Api.Controllers;
 
@@ -16,19 +18,22 @@ public class AuthController : ApiController
     private readonly IAuthenticationService _authenticationService;
     private readonly ICartService _cartService;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly IWorkContextSource _workContextSource;
 
     public AuthController(
         ISender mediator,
         IMapper mapper,
         IAuthenticationService authenticationService,
         ICartService cartService,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment,
+        IWorkContextSource workContextSource)
     {
         _mediator = mediator;
         _mapper = mapper;
         _authenticationService = authenticationService;
         _cartService = cartService;
         _webHostEnvironment = webHostEnvironment;
+        _workContextSource = workContextSource;
     }
 
     [HttpPost(ApiRoutes.Auth.Register)]
@@ -47,7 +52,7 @@ public class AuthController : ApiController
 
         return authResult.Match(
             authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
-            errors => Problem(errors));
+            Problem);
     }
 
     [HttpPost(ApiRoutes.Auth.Login)]
@@ -72,9 +77,7 @@ public class AuthController : ApiController
         var sendEmailResult = await _authenticationService
             .SendConfirmationEmailAddressEmailAsync(request.Email, templatePath);
 
-        return sendEmailResult.Match(
-            success => NoContent(),
-            errors => Problem(errors));
+        return sendEmailResult.Match(success => NoContent(), Problem);
     }
 
     [HttpPost(ApiRoutes.Auth.VerifyEmail)]
@@ -83,9 +86,7 @@ public class AuthController : ApiController
         var verifyEmailResult = await _authenticationService
             .VerifyEmailAsync(request.Email, request.Token);
 
-        return verifyEmailResult.Match(
-            success => NoContent(),
-            Problem);
+        return verifyEmailResult.Match(success => NoContent(), Problem);
     }
 
     [HttpPost(ApiRoutes.Auth.ForgetPassword)]
@@ -111,18 +112,32 @@ public class AuthController : ApiController
             Problem);
     }
 
+    [HttpGet(ApiRoutes.Auth.Logout)]
+    public async Task<IActionResult> Logout()
+    {
+        _workContextSource.RemoveCookies(Constants.Cookies.Guest);
+
+        await Task.CompletedTask;
+
+        return NoContent();
+    }
+
     private async Task TransferAnonymousCartToCustomerCartAsync(Guid customerId)
     {
-        if (Request.Cookies.ContainsKey("Cart"))
+        if (Request.Cookies.ContainsKey(Constants.Cookies.Guest))
         {
-            var anonymousId = Request.Cookies["Cart"];
+            var anonymousId = Request.Cookies[Constants.Cookies.Guest];
 
             if (Guid.TryParse(anonymousId, out Guid _))
             {
                 await _cartService.TransferCartAsync(new Guid(anonymousId), customerId);
             }
 
-            Response.Cookies.Delete("Cart");
+            // Remove guest cookies
+            _workContextSource.RemoveCookies(Constants.Cookies.Guest);
+
+            //  Add customer cookies
+            _workContextSource.AppendCookies(Constants.Cookies.Guest, customerId);
         }
     }
 

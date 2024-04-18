@@ -13,6 +13,7 @@ public record CartResponse(
         string ProductName,
         string? ProductAttributes,
         decimal Price,
+        string? ProductImageUrl,
         CartItemResponse.DiscountResponse? Discount,
         int Quantity,
         decimal SubTotal)

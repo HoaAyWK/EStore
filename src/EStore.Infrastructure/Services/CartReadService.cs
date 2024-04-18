@@ -55,19 +55,23 @@ internal sealed class CartReadService : ICartReadService
         var productsWithDiscountQuery =
             from product in _dbContext.Products.AsNoTracking()
             join discount in _dbContext.Discounts.AsNoTracking()
-            on product.DiscountId equals discount.Id
+            on product.DiscountId equals discount.Id into pds
+            from pd in pds.DefaultIfEmpty()
             where productIds.Contains(product.Id)
             select new
             {
                 Product = product,
-                Discount = discount
+                Discount = pd
             };
             
         var productsWithDiscount = await productsWithDiscountQuery.ToListAsync();
 
         List<CartResponse.CartItemResponse> itemResponses = cart.Items.Select(cartItem =>
         {
-            var productWithDiscount = productsWithDiscount.First(p => p.Product.Id == cartItem.ProductId);
+            var productWithDiscount = productsWithDiscount
+                .Where(p => p.Product.Id == cartItem.ProductId)
+                .First();
+
             string? rawAttributeSelection = null;
 
             if (cartItem.ProductVariantId is not null)
@@ -115,10 +119,15 @@ internal sealed class CartReadService : ICartReadService
                 }
             }
 
-            var discountResponse = new CartResponse.CartItemResponse.DiscountResponse(
-                productWithDiscount.Discount.UsePercentage,
-                productWithDiscount.Discount.DiscountPercentage,
-                productWithDiscount.Discount.DiscountAmount);
+            CartResponse.CartItemResponse.DiscountResponse? discountResponse = null;
+
+            if (productWithDiscount.Discount is not null)
+            {
+                discountResponse = new CartResponse.CartItemResponse.DiscountResponse(
+                    productWithDiscount.Discount.UsePercentage,
+                    productWithDiscount.Discount.DiscountPercentage,
+                    productWithDiscount.Discount.DiscountAmount);
+            }
 
             ProductVariant? productVariant = null;
 
@@ -139,6 +148,30 @@ internal sealed class CartReadService : ICartReadService
                     productWithDiscount.Discount);
             }
 
+            var productImage = productWithDiscount.Product.Images
+                .Where(image => image.IsMain)
+                .FirstOrDefault();
+
+            string? imageUrl = productImage?.ImageUrl;
+
+            if (productVariant is not null)
+            {
+                var productVariantImages = productVariant.AssignedProductImageIds.Split(' ');
+
+                if (productVariantImages.Length > 0 && !productVariantImages.Contains(imageUrl))
+                {
+                    var firstImageId = productVariantImages.First();
+
+                    var image = productWithDiscount.Product.Images
+                        .FirstOrDefault(i => i.Id == ProductImageId.Create(new Guid(firstImageId)));
+
+                    if (image is not null)
+                    {
+                        imageUrl = image.ImageUrl;
+                    }
+                }
+            }
+
             return new CartResponse.CartItemResponse(
                 cartItem.Id.Value,
                 cartItem.ProductId.Value,
@@ -146,6 +179,7 @@ internal sealed class CartReadService : ICartReadService
                 productWithDiscount.Product.Name,
                 productAttributesSb.ToString(),
                 price,
+                imageUrl,
                 discountResponse,
                 cartItem.Quantity,
                 price * cartItem.Quantity);

@@ -28,7 +28,9 @@ using EStore.Infrastructure.Services;
 using EStore.Infrastructure.Services.AlgoliaSearch;
 using EStore.Infrastructure.Services.OptionsSetup;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +52,14 @@ public static class DependencyInjection
         services.ConfigureOptions<StripeSettingsOptionsSetup>();
 
         services.AddMediatR(typeof(DependencyInjection).Assembly);
+
+        // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        //     .AddCookie(options =>
+        //     {
+        //         options.Cookie.Name = "Guest";
+        //         options.Cookie.HttpOnly = true;
+        //         options.Cookie.SecurePolicy = CookieSecurePolicy.None; 
+        //     });
 
         services.AddAuthentication(options =>
         {

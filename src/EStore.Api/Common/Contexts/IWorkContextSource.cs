@@ -4,6 +4,6 @@ public interface IWorkContextSource
 {
     Guid? GetCurrentCustomerId();
     Guid CreateGuestId();
-    void AppendGuestCookies(Guid guestId);
-    void RemoveGuestCookies();
+    void AppendCookies(string cookieName, Guid customerId, int expireMinutes = 3600);
+    void RemoveCookies(string cookieName);
 }

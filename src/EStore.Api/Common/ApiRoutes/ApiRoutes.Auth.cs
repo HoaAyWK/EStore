@@ -8,6 +8,8 @@ public static partial class ApiRoutes
 
         public const string Register = "register";
 
+        public const string Logout = "logout";
+
         public const string SendConfirmationEmail = "send-confirmation-email";
 
         public const string VerifyEmail = "verify-email";
