@@ -20,7 +20,11 @@ public class UserSeedingSettings
 
     public string City { get; init; } = null!;
 
-    public string State { get; init; } = null!;
+    public int StateId { get; init; }
 
-    public string Country { get; init; } = null!;
+    public string StateName { get; init; } = null!;
+
+    public int CountryId { get; init; }
+
+    public string CountryName { get; init; } = null!;
 }

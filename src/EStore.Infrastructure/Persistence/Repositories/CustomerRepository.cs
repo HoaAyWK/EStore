@@ -27,6 +27,12 @@ internal sealed class CustomerRepository : ICustomerRepository
     public async Task<Customer?> GetByEmailAsync(string email)
     {
         return await _dbContext.Customers.Where(u => u.Email == email)
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
+    }
+
+    public async Task<Customer?> GetByPhoneNumberAsync(string phoneNumber)
+    {
+        return await _dbContext.Customers.Where(u => u.PhoneNumber == phoneNumber)
+            .SingleOrDefaultAsync();
     }
 }

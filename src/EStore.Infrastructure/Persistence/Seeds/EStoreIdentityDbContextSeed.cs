@@ -54,11 +54,7 @@ public class EStoreIdentityDbContextSeed
                 adminSettings.FirstName,
                 adminSettings.LastName,
                 adminSettings.Phone,
-                adminSettings.AvatarUrl,
-                adminSettings.Street,
-                adminSettings.City,
-                adminSettings.State,
-                adminSettings.Country);
+                adminSettings.AvatarUrl);
             
             eStoreContext.Customers.Add(admin);
 

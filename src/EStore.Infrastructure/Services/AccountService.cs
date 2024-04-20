@@ -7,6 +7,7 @@ using EStore.Domain.Common.Errors;
 using EStore.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using EStore.Infrastructure.Authentication;
+using EStore.Contracts.Common;
 
 namespace EStore.Infrastructure.Services;
 
@@ -47,13 +48,25 @@ public class AccountService : IAccountService
             userRole = roles[0];
         }
 
-        // TODO: need to add Avatar property for Customer model
+        var addressResponses = user.Addresses.Select(address => new AddressResponse(
+            Id: address.Id.Value,
+            IsDefault: address.IsDefault,
+            Street: address.Street,
+            City: address.City,
+            StateId: address.StateId,
+            State: address.State,
+            CountryId: address.CountryId,
+            Country: address.Country,
+            ZipCode: address.ZipCode))
+            .ToList();
+        
         return new UserInfoResponse(
             user.Id.Value,
             user.FirstName,
             user.LastName,
             user.Email,
             userRole,
-            "");
+            user.AvatarUrl,
+            addressResponses);
     }
 }

@@ -19,6 +19,9 @@ public class UpdateCustomerCommandHandler
         UpdateCustomerCommand request,
         CancellationToken cancellationToken)
     {
+        var existingCustomerWithProvidedPhoneNumber = await _CustomerRepository
+            .GetByPhoneNumberAsync(request.PhoneNumber);
+
         var customer = await _CustomerRepository.GetByIdAsync(request.Id);
 
         if (customer is null)
@@ -26,15 +29,17 @@ public class UpdateCustomerCommandHandler
             return Errors.Customer.NotFound;
         }
 
+        if (existingCustomerWithProvidedPhoneNumber is not null &&
+            existingCustomerWithProvidedPhoneNumber.Id != customer.Id)
+        {
+            return Errors.Customer.PhoneNumberAlreadyExists;
+        }
+
         var updateCustomerDetailResult = customer.UpdateDetails(
             request.FirstName,
             request.LastName,
             request.PhoneNumber,
-            request.AvatarUrl,
-            request.Street,
-            request.City,
-            request.State,
-            request.Country);
+            request.AvatarUrl);
 
         if (updateCustomerDetailResult.IsError)
         {

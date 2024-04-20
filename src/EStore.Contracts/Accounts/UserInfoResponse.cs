@@ -1,3 +1,5 @@
+using EStore.Contracts.Common;
+
 namespace EStore.Contracts.Accounts;
 
 public record UserInfoResponse(
@@ -6,4 +8,5 @@ public record UserInfoResponse(
     string LastName,
     string Email,
     string Role,
-    string? AvatarUrl);
+    string? AvatarUrl,
+    List<AddressResponse> Addresses);

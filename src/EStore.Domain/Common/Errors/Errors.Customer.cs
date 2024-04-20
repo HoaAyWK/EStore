@@ -1,4 +1,5 @@
 using ErrorOr;
+using EStore.Domain.CustomerAggregate.Entities;
 
 namespace EStore.Domain.Common.Errors;
 
@@ -27,5 +28,38 @@ public static partial class Errors
         public static Error InvalidPhoneNumberLength = Error.Validation(
             code: "Customer.InvalidPhoneLength",
             description: $"Phone number must be {CustomerAggregate.Customer.PhoneNumberLength} characters long.");
+
+        public static Error PhoneNumberAlreadyExists = Error.Conflict(
+            code: "Customer.PhoneNumberAlreadyExists",
+            description: "Customer with given phone number already exists.");
+
+        public static Error InvalidStreetLength = Error.Validation(
+            code: "Customer.InvalidStreetLength",
+            description: $"Street must be between {Address.MinStreetLength} " +
+                $"and {Address.MaxStreetLength} characters.");
+
+        public static Error InvalidCityLength = Error.Validation(
+            code: "Customer.InvalidCityLength",
+            description: $"City must be between {Address.MinCityLength} " +
+                $"and {Address.MaxCityLength} characters.");
+
+        public static Error InvalidStateLength = Error.Validation(
+            code: "Customer.InvalidStateLength",
+            description: $"State must be between {Address.MinStateLength} " +
+                $"and {Address.MaxStateLength} characters.");
+
+        public static Error InvalidCountryLength = Error.Validation(
+            code: "Customer.InvalidCountryLength",
+            description: $"Country must be between {Address.MinCountryLength} " +
+                $"and {Address.MaxCountryLength} characters.");
+
+        public static Error InvalidZipCodeLength = Error.Validation(
+            code: "Customer.InvalidZipCodeLength",
+            description: $"ZipCode must be between {Address.MinZipCodeLength} " +
+                $"and {Address.MaxZipCodeLength} characters.");
+
+        public static Error AddressNotFound = Error.NotFound(
+            code: "Customer.AddressNotFound",
+            description: $"The address with specified identifier was not found.");
     }
 }

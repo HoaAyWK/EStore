@@ -4,6 +4,7 @@ using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EStore.Infrastructure.Migrations
 {
     [DbContext(typeof(EStoreDbContext))]
-    partial class EStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240420063918_Update_Address")]
+    partial class Update_Address
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,7 +173,7 @@ namespace EStore.Infrastructure.Migrations
 
                     b.HasIndex("PhoneNumber");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("EStore.Domain.DiscountAggregate.Discount", b =>
@@ -407,12 +410,8 @@ namespace EStore.Infrastructure.Migrations
 
             modelBuilder.Entity("EStore.Domain.CustomerAggregate.Customer", b =>
                 {
-                    b.OwnsMany("EStore.Domain.CustomerAggregate.Entities.Address", "Addresses", b1 =>
+                    b.OwnsOne("EStore.Domain.Common.ValueObjects.Address", "Address", b1 =>
                         {
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
-                                .HasColumnName("AddressId");
-
                             b1.Property<Guid>("CustomerId")
                                 .HasColumnType("uniqueidentifier");
 
@@ -429,9 +428,6 @@ namespace EStore.Infrastructure.Migrations
                             b1.Property<int>("CountryId")
                                 .HasColumnType("int");
 
-                            b1.Property<bool>("IsDefault")
-                                .HasColumnType("bit");
-
                             b1.Property<string>("State")
                                 .IsRequired()
                                 .HasMaxLength(50)
@@ -445,22 +441,15 @@ namespace EStore.Infrastructure.Migrations
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)");
 
-                            b1.Property<string>("ZipCode")
-                                .IsRequired()
-                                .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)");
+                            b1.HasKey("CustomerId");
 
-                            b1.HasKey("Id", "CustomerId");
-
-                            b1.HasIndex("CustomerId");
-
-                            b1.ToTable("CustomerAddresses", (string)null);
+                            b1.ToTable("Customers");
 
                             b1.WithOwner()
                                 .HasForeignKey("CustomerId");
                         });
 
-                    b.Navigation("Addresses");
+                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("EStore.Domain.OrderAggregate.Order", b =>

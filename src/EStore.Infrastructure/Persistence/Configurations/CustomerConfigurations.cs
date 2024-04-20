@@ -1,5 +1,5 @@
-using EStore.Domain.Common.ValueObjects;
 using EStore.Domain.CustomerAggregate;
+using EStore.Domain.CustomerAggregate.Entities;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -10,6 +10,14 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
 {
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
+        ConfigureCustomersTable(builder);
+        ConfigureAddressesTable(builder);
+    }
+
+    private void ConfigureCustomersTable(EntityTypeBuilder<Customer> builder)
+    {
+        builder.ToTable("Customers");
+
         builder.HasKey(u => u.Id);
 
         builder.Property(u => u.Id)
@@ -32,8 +40,34 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
             .IsUnicode()
             .HasMaxLength(255);
 
-        builder.OwnsOne(u => u.Address, ab =>
+        builder.HasIndex(u => u.Email).IsUnique();
+
+        builder.HasIndex(u => u.PhoneNumber);
+
+        builder.HasIndex(u => u.Id);
+
+        builder.Ignore(u => u.FullName);
+
+        builder.HasQueryFilter(u => !u.Deleted);
+    }
+
+    private void ConfigureAddressesTable(EntityTypeBuilder<Customer> builder)
+    {
+        builder.OwnsMany(c => c.Addresses, ab =>
         {
+            ab.ToTable("CustomerAddresses");
+
+            ab.WithOwner().HasForeignKey("CustomerId");
+
+            ab.HasKey(nameof(Address.Id), "CustomerId");
+
+            ab.Property(a => a.Id)
+                .HasColumnName("AddressId")
+                .ValueGeneratedNever()
+                .HasConversion(
+                    id => id.Value,
+                    value => AddressId.Create(value));
+
             ab.Property(a => a.Street)
                 .HasMaxLength(Address.MaxStreetLength);
 
@@ -45,16 +79,12 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
 
             ab.Property(a => a.Country)
                 .HasMaxLength(Address.MaxCountryLength);
+
+            ab.Property(a => a.ZipCode)
+                .HasMaxLength(Address.MaxZipCodeLength);
         });
 
-        builder.HasIndex(u => u.Email).IsUnique();
-
-        builder.HasIndex(u => u.PhoneNumber);
-
-        builder.HasIndex(u => u.Id);
-
-        builder.Ignore(u => u.FullName);
-
-        builder.HasQueryFilter(u => !u.Deleted);
+        builder.Metadata.FindNavigation(nameof(Customer.Addresses))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }

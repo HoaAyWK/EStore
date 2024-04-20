@@ -2,7 +2,7 @@ using ErrorOr;
 using EStore.Domain.Common.Abstractions;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Models;
-using EStore.Domain.Common.ValueObjects;
+using EStore.Domain.CustomerAggregate.Entities;
 using EStore.Domain.CustomerAggregate.Events;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 
@@ -20,15 +20,15 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
 
     public const int PhoneNumberLength = 10;
 
+    private readonly List<Address> _addresses = new();
+
     public string Email { get; private set; } = null!;
     
     public string FirstName { get; private set; } = null!;
 
     public string LastName { get; private set; } = null!;
 
-    public string FullName => $"{FirstName} {LastName}";
-
-    public Address? Address { get; private set; }
+    public string FullName => $"{FirstName} {LastName}";    
 
     public string? AvatarUrl { get; private set; }
 
@@ -41,6 +41,8 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
     public DateTime? DeletedOnUtc { get; private set; }
 
     public bool Deleted { get; private set; }
+
+    public IReadOnlyList<Address> Addresses => _addresses.AsReadOnly();
 
     private Customer()
     {
@@ -85,21 +87,11 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
         string firstName,
         string lastName,
         string phoneNumber,
-        string avatarUrl,
-        string street,
-        string city,
-        string state,
-        string country)
+        string? avatarUrl)
     {
         List<Error> errors = ValidateNames(firstName, lastName);
-        var createAddressResult = Address.Create(street, city, state, country);
 
         errors.AddRange(ValidatePhone(phoneNumber));
-
-        if (createAddressResult.IsError)
-        {
-            errors.AddRange(createAddressResult.Errors);
-        }
 
         if (errors.Count > 0)
         {
@@ -110,9 +102,97 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
         LastName = lastName;
         PhoneNumber = phoneNumber;
         AvatarUrl = avatarUrl;
-        Address = createAddressResult.Value;
 
         return Result.Updated;
+    }
+
+    public ErrorOr<Address> AddAddress(
+        bool isDefault,
+        string street,
+        string city,
+        int stateId,
+        string state,
+        int countryId,
+        string country,
+        string zipCode)
+    {
+        if (isDefault)
+        {
+            foreach (var entity in _addresses)
+            {
+                entity.SetNormal();
+            }
+        }
+
+        if (_addresses.Count is 0)
+        {
+            isDefault = true;
+        }
+
+        var createAddressResult = Address.Create(
+            isDefault,
+            street,
+            city,
+            stateId,
+            state,
+            countryId,
+            country,
+            zipCode);
+
+        if (createAddressResult.IsError)
+        {
+            return createAddressResult.Errors;
+        }
+
+        var address = createAddressResult.Value;
+
+        _addresses.Add(address);
+
+        return address;
+    }
+
+    public ErrorOr<Address> UpdateAddress(
+        AddressId addressId,
+        bool isDefault,
+        string street,
+        string city,
+        int stateId,
+        string state,
+        int countryId,
+        string country,
+        string zipCode)
+    {
+        var existingAddress = _addresses.FirstOrDefault(a => a.Id == addressId);
+
+        if (existingAddress is null)
+        {
+            return Errors.Customer.AddressNotFound;
+        }
+
+        if (isDefault)
+        {
+            foreach (var address in _addresses)
+            {
+                address.SetNormal();
+            }
+        }
+
+        var updateAddressResult = existingAddress.Update(
+            isDefault,
+            street,
+            city,
+            stateId,
+            state,
+            countryId,
+            country,
+            zipCode);
+
+        if (updateAddressResult.IsError)
+        {
+            return updateAddressResult.Errors;
+        }
+
+        return existingAddress;
     }
 
     private static List<Error> ValidateNames(string firstName, string lastName)

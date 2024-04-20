@@ -24,10 +24,6 @@ public sealed class ProductAttribute : Entity<ProductAttributeId>
     public IReadOnlyList<ProductAttributeValue> ProductAttributeValues
         => _productAttributeValues.AsReadOnly();
 
-    private ProductAttribute()
-    {
-    }
-
     private ProductAttribute(
         ProductAttributeId id,
         string name,
