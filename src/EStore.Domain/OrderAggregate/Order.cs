@@ -1,4 +1,6 @@
+using ErrorOr;
 using EStore.Domain.Common.Abstractions;
+using EStore.Domain.Common.Errors;
 using EStore.Domain.Common.Models;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate.Entities;
@@ -11,6 +13,7 @@ namespace EStore.Domain.OrderAggregate;
 public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDeletableEntity
 {
     private readonly List<OrderItem> _orderItems = new();
+    private readonly List<OrderStatusHistoryTracking> _orderStatusHistoryTrackings = new();
 
     public CustomerId CustomerId { get; private set; } = null!;
 
@@ -28,9 +31,14 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
 
     public bool Deleted { get; private set; }
 
+    public PaymentMethod PaymentMethod { get; private set; } = PaymentMethod.CashOnDelivery;
+
     public decimal TotalAmount => _orderItems.Sum(item => item.SubTotal);
 
     public IReadOnlyList<OrderItem> OrderItems => _orderItems.AsReadOnly();
+    
+    public IReadOnlyList<OrderStatusHistoryTracking> OrderStatusHistoryTrackings
+        => _orderStatusHistoryTrackings.AsReadOnly();
 
     private Order()
     {
@@ -42,7 +50,9 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
         OrderStatus orderStatus,
         string? transactionId,
         ShippingAddress shippingAddress,
-        List<OrderItem> orderItems)
+        List<OrderItem> orderItems,
+        DateTime orderedDateTime,
+        PaymentMethod paymentMethod)
         : base(id)
     {
         CustomerId = customerId;
@@ -50,6 +60,8 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
         TransactionId = transactionId;
         ShippingAddress = shippingAddress;
         _orderItems = orderItems;
+        PaymentMethod = paymentMethod;
+        AddOrderStatusHistoryTracking(OrderStatusHistory.OrderPlaced, orderedDateTime);
     }
 
     public static Order Create(
@@ -57,7 +69,9 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
         OrderStatus status,
         string? transactionId,
         ShippingAddress shippingAddress,
-        List<OrderItem> orderItems)
+        List<OrderItem> orderItems,
+        DateTime orderedDateTime,
+        PaymentMethod paymentMethod)
     {
         var order = new Order(
             OrderId.CreateUnique(),
@@ -65,7 +79,9 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
             status,
             transactionId,
             shippingAddress,
-            orderItems);
+            orderItems,
+            orderedDateTime,
+            paymentMethod);
 
         order.RaiseDomainEvent(new OrderCreatedDomainEvent(order.Id, customerId));
 
@@ -85,6 +101,26 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
     public void UpdateOrderStatus(OrderStatus orderStatus)
     {
         OrderStatus = orderStatus;
+    }
+
+    public ErrorOr<OrderStatusHistoryTracking> AddOrderStatusHistoryTracking(
+        OrderStatusHistory status,
+        DateTime createdDateTime)
+    {
+        var latestOrderStatus = _orderStatusHistoryTrackings
+            .OrderByDescending(x => x.CreatedDateTime)
+            .FirstOrDefault();
+
+        if (latestOrderStatus is not null && status.Value <= latestOrderStatus.Status.Value)
+        {
+            return Errors.Order.InvalidOrderStatusHistory;
+        }
+
+        var orderStatusHistoryTracking = OrderStatusHistoryTracking.Create(status, createdDateTime);
+
+        _orderStatusHistoryTrackings.Add(orderStatusHistoryTracking);
+
+        return orderStatusHistoryTracking;
     }
 
     public void MarkAsRefunded()

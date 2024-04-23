@@ -7,6 +7,8 @@ public static partial class ApiRoutes
 
         public const string Get = "{id:guid}";
 
+        public const string Create = "";
+
         public const string Refund = "{id:guid}/refund";
     }
 }

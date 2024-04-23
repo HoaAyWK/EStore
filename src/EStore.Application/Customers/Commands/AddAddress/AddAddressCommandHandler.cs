@@ -27,6 +27,8 @@ public class AddAddressCommandHandler : IRequestHandler<AddAddressCommand, Error
         }
 
         var addAddressResult = customer.AddAddress(
+            request.ReceiverName,
+            request.PhoneNumber,
             request.IsDefault,
             request.Street,
             request.City,

@@ -27,7 +27,8 @@ public static partial class Errors
 
         public static Error InvalidPhoneNumberLength = Error.Validation(
             code: "Customer.InvalidPhoneLength",
-            description: $"Phone number must be {CustomerAggregate.Customer.PhoneNumberLength} characters long.");
+            description: $"Phone number must be between {CustomerAggregate.Customer.MinPhoneNumberLength} " +
+                $"and {CustomerAggregate.Customer.MaxPhoneNumberLength} characters.");
 
         public static Error PhoneNumberAlreadyExists = Error.Conflict(
             code: "Customer.PhoneNumberAlreadyExists",
@@ -61,5 +62,10 @@ public static partial class Errors
         public static Error AddressNotFound = Error.NotFound(
             code: "Customer.AddressNotFound",
             description: $"The address with specified identifier was not found.");
+
+        public static Error InvalidReceiverNameLength = Error.Validation(
+            code: "Customer.InvalidReceiverNameLength",
+            description: $"Receiver name must be between {Address.MinReceiverNameLength} " +
+                $"and {Address.MaxReceiverNameLength} characters.");
     }
 }

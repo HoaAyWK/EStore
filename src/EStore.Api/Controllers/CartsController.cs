@@ -68,6 +68,6 @@ public class CartsController : ApiController
 
         return removeItemFromCartResult.Match(
             deleted => NoContent(),
-            errors => Problem(errors));
+            Problem);
     }
 }

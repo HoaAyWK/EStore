@@ -3,6 +3,7 @@ using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
 using EStore.Domain.CustomerAggregate.Entities;
+using EStore.Domain.CustomerAggregate.ValueObjects;
 
 namespace EStore.Application.Customers.Commands.UpdateAddress;
 
@@ -26,8 +27,12 @@ public class UpdateAddressCommandHandler : IRequestHandler<UpdateAddressCommand,
             return Errors.Customer.NotFound;
         }
 
+        var addressId = AddressId.Create(request.AddressId);
+
         var updateAddressResult = customer.UpdateAddress(
-            request.AddressId,
+            addressId,
+            request.ReceiverName,
+            request.PhoneNumber,
             request.IsDefault,
             request.Street,
             request.City,

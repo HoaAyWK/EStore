@@ -4,6 +4,7 @@ using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EStore.Infrastructure.Migrations
 {
     [DbContext(typeof(EStoreDbContext))]
-    partial class EStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240421043500_Add_Receiver_for_Address")]
+    partial class Add_Receiver_for_Address
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,8 +158,8 @@ namespace EStore.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<DateTime>("UpdatedDateTime")
                         .HasColumnType("datetime2");
@@ -431,11 +434,6 @@ namespace EStore.Infrastructure.Migrations
 
                             b1.Property<bool>("IsDefault")
                                 .HasColumnType("bit");
-
-                            b1.Property<string>("PhoneNumber")
-                                .IsRequired()
-                                .HasMaxLength(15)
-                                .HasColumnType("nvarchar(15)");
 
                             b1.Property<string>("ReceiverName")
                                 .IsRequired()

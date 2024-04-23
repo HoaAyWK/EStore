@@ -50,6 +50,8 @@ public class AccountService : IAccountService
 
         var addressResponses = user.Addresses.Select(address => new AddressResponse(
             Id: address.Id.Value,
+            ReceiverName: address.ReceiverName,
+            PhoneNumber: address.PhoneNumber,
             IsDefault: address.IsDefault,
             Street: address.Street,
             City: address.City,

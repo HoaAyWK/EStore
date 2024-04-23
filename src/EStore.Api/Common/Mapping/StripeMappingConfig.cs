@@ -11,6 +11,7 @@ public class StripeMappingConfig : IRegister
     {
         config.NewConfig<(Guid, CheckoutRequest), CreateCheckoutSessionCommand>()
             .Map(dest => dest.CustomerId, src => CustomerId.Create(src.Item1))
+            .Map(dest => dest.AddressId, src => AddressId.Create(src.Item2.AddressId))
             .Map(dest => dest, src => src.Item2);
     }
 }

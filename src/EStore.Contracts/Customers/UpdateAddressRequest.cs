@@ -1,6 +1,8 @@
 namespace EStore.Contracts.Customers;
 
 public record UpdateAddressRequest(
+    string ReceiverName,
+    string PhoneNumber,
     bool IsDefault,
     string Street,
     string City,

@@ -2,6 +2,8 @@ namespace EStore.Contracts.Common;
 
 public record AddressResponse(
     Guid Id,
+    string ReceiverName,
+    string PhoneNumber,
     bool IsDefault,
     string Street,
     string City,

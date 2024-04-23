@@ -2,6 +2,8 @@ namespace EStore.Contracts.Customers;
 
 public record AddAddressRequest(
     Guid CustomerId,
+    string ReceiverName,
+    string PhoneNumber,
     bool IsDefault,
     string Street,
     string City,

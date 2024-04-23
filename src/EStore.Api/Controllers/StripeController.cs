@@ -50,9 +50,7 @@ public class StripeController : ApiController
         var command = _mapper.Map<CreateCheckoutSessionCommand>((id.Value, request));
         var createCheckoutSessionResult = await _mediator.Send(command);
 
-        return createCheckoutSessionResult.Match(
-            sessionUrl => Ok(sessionUrl),
-            errors => Problem(errors));
+        return createCheckoutSessionResult.Match(Ok, Problem);
     }
 
     [HttpPost(ApiRoutes.Stripe.Webhook)]
@@ -77,12 +75,6 @@ public class StripeController : ApiController
                 if (session is not null)
                 {
                     string paymentIntentId = session.PaymentIntentId;
-                    var shippingAddress = ShippingAddress.Create(
-                        street: session.ShippingDetails.Address.Line1,
-                        city: session.ShippingDetails.Address.City,
-                        state: session.ShippingDetails.Address.State,
-                        country: session.ShippingDetails.Address.State,
-                        zipCode: session.ShippingDetails.Address.PostalCode);
 
                     var orderId = session.Metadata["order_id"];
 
@@ -91,8 +83,7 @@ public class StripeController : ApiController
                         var command = new UpdateOrderCommand(
                             OrderId.Create(new Guid(orderId)),
                             OrderStatus.Paid,
-                            paymentIntentId,
-                            shippingAddress);
+                            paymentIntentId);
                         
                         var updateOrderResult = await _mediator.Send(command);
 

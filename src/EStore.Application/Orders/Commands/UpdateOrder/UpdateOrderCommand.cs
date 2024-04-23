@@ -8,6 +8,5 @@ namespace EStore.Application.Orders.Commands.UpdateOrder;
 public record UpdateOrderCommand(
     OrderId OrderId,
     OrderStatus OrderStatus,
-    string? TransactionId,
-    ShippingAddress? ShippingAddress = null)
+    string? TransactionId)
     : IRequest<ErrorOr<Updated>>;

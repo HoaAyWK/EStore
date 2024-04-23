@@ -1,8 +1,10 @@
 using ErrorOr;
 using EStore.Application.Carts.Services;
 using EStore.Application.Common.Interfaces.Persistence;
+using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Orders.Services;
 using EStore.Domain.Common.Errors;
+using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Entities;
 using EStore.Domain.OrderAggregate.Enumerations;
@@ -19,18 +21,24 @@ public class CreateCheckoutSessionCommandHandler
     private readonly IPaymentService _paymentService;
     private readonly ICartReadService _cartReadService;
     private readonly IOrderRepository _orderRepository;
+    private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public CreateCheckoutSessionCommandHandler(
         IPaymentService paymentService,
         ICartReadService cartReadService,
         IOrderRepository orderRepository,
-        IUnitOfWork unitOfWork)
+        ICustomerRepository customerRepository,
+        IUnitOfWork unitOfWork,
+        IDateTimeProvider dateTimeProvider)
     {
         _paymentService = paymentService;
         _cartReadService = cartReadService;
         _orderRepository = orderRepository;
+        _customerRepository = customerRepository;
         _unitOfWork = unitOfWork;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<ErrorOr<string>> Handle(
@@ -44,9 +52,25 @@ public class CreateCheckoutSessionCommandHandler
             return Errors.Order.CartNotFound;
         }
 
-        if (cart.Items.Count == 0)
+        if (cart.Items.Count is 0)
         {
             return Errors.Order.CartIsEmpty;
+        }
+
+        var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
+
+        if (customer is null)
+        {
+            return Errors.Customer.NotFound;
+        }
+
+        var address = customer.Addresses
+            .Where(address => address.Id == request.AddressId)
+            .SingleOrDefault();
+
+        if (address is null)
+        {
+            return Errors.Customer.AddressNotFound;
         }
 
         var validateCartItemResult = await _cartReadService.ValidatePurchasedItemsAsync(
@@ -59,11 +83,13 @@ public class CreateCheckoutSessionCommandHandler
         }
 
         var shippingAddress = ShippingAddress.Create(
-            street: "",
-            city: "",
-            state: "",
-            country: "",
-            zipCode: "");
+            receiverName: address.ReceiverName,
+            phoneNumber: address.PhoneNumber,
+            street: address.Street,
+            city: address.City,
+            state: address.State,
+            country: address.Country,
+            zipCode: address.ZipCode);
 
         List<OrderItem> orderItems = new();
 
@@ -75,7 +101,7 @@ public class CreateCheckoutSessionCommandHandler
                     ? ProductVariantId.Create(cartItem.ProductVariantId.Value)
                     : null,
                 productName: cartItem.ProductName,
-                productImage: "",
+                productImage: cartItem.ProductImageUrl!,
                 productAttributes: cartItem.ProductAttributes);
 
             var orderItem = OrderItem.Create(itemOrdered, cartItem.Price, cartItem.Quantity);
@@ -88,7 +114,9 @@ public class CreateCheckoutSessionCommandHandler
             status: OrderStatus.Pending,
             transactionId: null,
             shippingAddress: shippingAddress,
-            orderItems: orderItems);
+            orderItems: orderItems,
+            orderedDateTime: _dateTimeProvider.UtcNow,
+            paymentMethod: PaymentMethod.CreditCard);
         
 
         await _orderRepository.AddAsync(order);

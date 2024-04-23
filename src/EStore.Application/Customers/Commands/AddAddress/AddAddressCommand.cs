@@ -7,6 +7,8 @@ namespace EStore.Application.Customers.Commands.AddAddress;
 
 public record AddAddressCommand(
     CustomerId CustomerId,
+    string ReceiverName,
+    string PhoneNumber,
     bool IsDefault,
     string Street,
     string City,

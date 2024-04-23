@@ -7,6 +7,14 @@ namespace EStore.Domain.CustomerAggregate.Entities;
 
 public class Address : Entity<AddressId>
 {
+    public const int MinReceiverNameLength = 2;
+
+    public const int MaxReceiverNameLength = 100;
+
+    public const int MinPhoneNumberLength = 7;
+
+    public const int MaxPhoneNumberLength = 15;
+
     public const int MinStreetLength = 2;
 
     public const int MaxStreetLength = 100;
@@ -27,6 +35,10 @@ public class Address : Entity<AddressId>
 
     public const int MaxZipCodeLength = 20;
 
+    public string ReceiverName { get; private set; } = default!;
+
+    public string PhoneNumber { get; private set; } = default!;
+
     public bool IsDefault { get; private set; }
 
     public string Street { get; private set; } = default!;
@@ -45,6 +57,8 @@ public class Address : Entity<AddressId>
 
     private Address(
         AddressId id,
+        string receiverName,
+        string phoneNumber,
         bool isDefault,
         string street,
         string city,
@@ -55,6 +69,8 @@ public class Address : Entity<AddressId>
         string zipCode)
         : base(id)
     {
+        ReceiverName = receiverName;
+        PhoneNumber = phoneNumber;
         IsDefault = isDefault;
         Street = street;
         City = city;
@@ -71,6 +87,8 @@ public class Address : Entity<AddressId>
     }
 
     public static ErrorOr<Address> Create(
+        string receiverName,
+        string phoneNumber,
         bool isDefault,
         string street,
         string city,
@@ -81,6 +99,8 @@ public class Address : Entity<AddressId>
         string zipCode)
     {
         var errors = ValidateAddress(
+            receiverName,
+            phoneNumber,
             street,
             city,
             state,
@@ -94,6 +114,8 @@ public class Address : Entity<AddressId>
 
         return new Address(
             AddressId.CreateUnique(),
+            receiverName,
+            phoneNumber,
             isDefault,
             street,
             city,
@@ -105,6 +127,8 @@ public class Address : Entity<AddressId>
     }
 
     public ErrorOr<Updated> Update(
+        string receiverName,
+        string phoneNumber,
         bool isDefault,
         string street,
         string city,
@@ -115,6 +139,8 @@ public class Address : Entity<AddressId>
         string zipCode)
     {
         var errors = ValidateAddress(
+            receiverName,
+            phoneNumber,
             street,
             city,
             state,
@@ -126,6 +152,8 @@ public class Address : Entity<AddressId>
             return errors;
         }
 
+        ReceiverName = receiverName;
+        PhoneNumber = phoneNumber;
         IsDefault = isDefault;
         Street = street;
         City = city;
@@ -139,6 +167,8 @@ public class Address : Entity<AddressId>
     }
 
     private static List<Error> ValidateAddress(
+        string receiverName,
+        string phoneNumber,
         string street,
         string city,
         string state,
@@ -146,6 +176,16 @@ public class Address : Entity<AddressId>
         string zipCode)
     {
         var errors = new List<Error>();
+
+        if (receiverName.Length < MinReceiverNameLength || receiverName.Length > MaxReceiverNameLength)
+        {
+            errors.Add(Errors.Customer.InvalidReceiverNameLength);
+        }
+
+        if (phoneNumber.Length < MinPhoneNumberLength || phoneNumber.Length > MaxPhoneNumberLength)
+        {
+            errors.Add(Errors.Customer.InvalidPhoneNumberLength);
+        }
 
         if (street.Length < MinStreetLength || street.Length > MaxStreetLength)
         {

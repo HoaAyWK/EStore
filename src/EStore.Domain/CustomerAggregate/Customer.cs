@@ -18,7 +18,9 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
 
     public const int MaxLastNameLength = 100;
 
-    public const int PhoneNumberLength = 10;
+    public const int MinPhoneNumberLength = 7;
+
+    public const int MaxPhoneNumberLength = 15;
 
     private readonly List<Address> _addresses = new();
 
@@ -107,6 +109,8 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
     }
 
     public ErrorOr<Address> AddAddress(
+        string receiverName,
+        string phoneNumber,
         bool isDefault,
         string street,
         string city,
@@ -130,6 +134,8 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
         }
 
         var createAddressResult = Address.Create(
+            receiverName,
+            phoneNumber,
             isDefault,
             street,
             city,
@@ -153,6 +159,8 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
 
     public ErrorOr<Address> UpdateAddress(
         AddressId addressId,
+        string receiverName,
+        string phoneNumber,
         bool isDefault,
         string street,
         string city,
@@ -178,6 +186,8 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
         }
 
         var updateAddressResult = existingAddress.Update(
+            receiverName,
+            phoneNumber,
             isDefault,
             street,
             city,
@@ -216,7 +226,7 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
     {
         List<Error> errors = new();
 
-        if (phone.Length != PhoneNumberLength)
+        if (phone.Length < MinPhoneNumberLength || phone.Length > MaxPhoneNumberLength)
         {
             errors.Add(Errors.Customer.InvalidPhoneNumberLength);
         }

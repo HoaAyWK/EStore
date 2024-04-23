@@ -1,7 +1,9 @@
+using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
 using EStore.Application.Orders.Queries.GetOrderListPaged;
 using EStore.Contracts.Common;
 using EStore.Contracts.Orders;
+using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Entities;
 using EStore.Domain.OrderAggregate.ValueObjects;
@@ -45,5 +47,9 @@ public class OrderMappingConfig : IRegister
         config.NewConfig<(int, int), GetOrderListPagedQuery>()
             .Map(dest => dest.Page, src => src.Item1)
             .Map(dest => dest.PageSize, src => src.Item2);
+
+        config.NewConfig<(Guid, CreateOrderRequest), CreateOrderCommand>()
+            .Map(dest => dest.CustomerId, src => CustomerId.Create(src.Item1))
+            .Map(dest => dest.AddressId, src => AddressId.Create(src.Item2.AddressId));
     }
 }

@@ -34,7 +34,7 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
             .HasMaxLength(Customer.MaxLastNameLength);
 
         builder.Property(u => u.PhoneNumber)
-            .HasMaxLength(Customer.PhoneNumberLength);
+            .HasMaxLength(Customer.MaxPhoneNumberLength);
 
         builder.Property(u => u.Email)
             .IsUnicode()
@@ -67,6 +67,12 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
                 .HasConversion(
                     id => id.Value,
                     value => AddressId.Create(value));
+
+            ab.Property(a => a.ReceiverName)
+                .HasMaxLength(Address.MaxReceiverNameLength);
+
+            ab.Property(a => a.PhoneNumber)
+                .HasMaxLength(Address.MaxPhoneNumberLength);
 
             ab.Property(a => a.Street)
                 .HasMaxLength(Address.MaxStreetLength);

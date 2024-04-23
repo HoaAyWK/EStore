@@ -69,9 +69,9 @@ public class CustomersController : ApiController
     public async Task<IActionResult> UpdateAddress(
         Guid id,
         Guid addressId,
-        [FromBody] AddAddressRequest request)
+        [FromBody] UpdateAddressRequest request)
     {
-        var command = _mapper.Map<(Guid, Guid, AddAddressRequest), UpdateAddressCommand>(
+        var command = _mapper.Map<(Guid, Guid, UpdateAddressRequest), UpdateAddressCommand>(
             (id, addressId, request));
 
         var updateAddressResult = await _mediator.Send(command);

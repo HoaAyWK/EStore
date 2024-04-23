@@ -7,7 +7,9 @@ namespace EStore.Application.Customers.Commands.UpdateAddress;
 
 public record UpdateAddressCommand(
     CustomerId CustomerId,
-    AddressId AddressId,
+    Guid AddressId,
+    string ReceiverName,
+    string PhoneNumber,
     bool IsDefault,
     string Street,
     string City,

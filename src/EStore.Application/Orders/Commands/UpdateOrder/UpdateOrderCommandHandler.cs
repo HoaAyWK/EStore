@@ -36,11 +36,6 @@ public class UpdateOrderCommandHandler
         }
 
         order.UpdateOrderStatus(request.OrderStatus);
-        
-        if (request.ShippingAddress is not null)
-        {
-            order.UpdateShippingAddress(request.ShippingAddress);
-        }
 
         if (request.TransactionId is not null)
         {

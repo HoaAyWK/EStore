@@ -39,5 +39,9 @@ public static partial class Errors
             => Error.Validation(
                 code: "Order.UnpaidOrder",
                 description: $"The order with id = {id.Value} was unpaying.");
+
+        public static Error InvalidOrderStatusHistory = Error.Validation(
+            code: "Order.InvalidOrderStatusHistory",
+            description: "The order status history is invalid.");
     }
 }

@@ -4,6 +4,10 @@ namespace EStore.Domain.OrderAggregate.ValueObjects;
 
 public sealed class ShippingAddress : ValueObject
 {
+    public string ReceiverName { get; } = string.Empty;
+
+    public string PhoneNumber { get; } = string.Empty;
+
     public string Street { get; } = string.Empty;
 
     public string City { get; } = string.Empty;
@@ -19,12 +23,16 @@ public sealed class ShippingAddress : ValueObject
     }
 
     private ShippingAddress(
+        string receiverName,
+        string phoneNumber,
         string street,
         string city,
         string state,
         string country,
         string zipCode)
     {
+        ReceiverName = receiverName;
+        PhoneNumber = phoneNumber;
         Street = street;
         City = city;
         State = state;
@@ -33,6 +41,8 @@ public sealed class ShippingAddress : ValueObject
     }
 
     public static ShippingAddress Create(
+        string receiverName,
+        string phoneNumber,
         string street,
         string city,
         string state,
@@ -40,6 +50,8 @@ public sealed class ShippingAddress : ValueObject
         string zipCode)
     {
         return new(
+            receiverName,
+            phoneNumber,
             street,
             city,
             state,
@@ -49,6 +61,8 @@ public sealed class ShippingAddress : ValueObject
 
     public override IEnumerable<object> GetEqualityComponents()
     {
+        yield return ReceiverName;
+        yield return PhoneNumber;
         yield return Street;
         yield return City;
         yield return State;

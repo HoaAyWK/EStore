@@ -4,5 +4,8 @@ using MediatR;
 
 namespace EStore.Application.Orders.Commands.CreateCheckoutSession;
 
-public record CreateCheckoutSessionCommand(CustomerId CustomerId, decimal CartTotalAmount)
+public record CreateCheckoutSessionCommand(
+    CustomerId CustomerId,
+    AddressId AddressId,
+    decimal CartTotalAmount)
     : IRequest<ErrorOr<string>>;

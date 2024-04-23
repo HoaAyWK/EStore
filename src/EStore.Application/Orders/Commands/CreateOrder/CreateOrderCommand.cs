@@ -1,16 +1,11 @@
+using ErrorOr;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
-using EStore.Domain.OrderAggregate.Entities;
-using EStore.Domain.OrderAggregate.Enumerations;
-using EStore.Domain.OrderAggregate.ValueObjects;
 using MediatR;
 
 namespace EStore.Application.Orders.Commands.CreateOrder;
 
 public record CreateOrderCommand(
     CustomerId CustomerId,
-    OrderStatus OrderStatus,
-    string? TransactionId,
-    ShippingAddress ShippingAddress,
-    List<OrderItem> OrderItems)
-    : IRequest<Order>;
+    AddressId AddressId)
+    : IRequest<ErrorOr<Order>>;
