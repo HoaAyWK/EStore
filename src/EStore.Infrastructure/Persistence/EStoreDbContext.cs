@@ -7,6 +7,7 @@ using EStore.Domain.DiscountAggregate;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.ProductAggregate;
 using EStore.Infrastructure.Identity;
+using EStore.Infrastructure.OrderSequenceManager;
 using Microsoft.EntityFrameworkCore;
 
 namespace EStore.Infrastructure.Persistence;
@@ -42,4 +43,6 @@ public class EStoreDbContext : DbContext
     public DbSet<Discount> Discounts { get; set; } = null!;
 
     public DbSet<AccountToken> AccountTokens { get; set; } = null!;
+
+    public DbSet<OrderSequence> OrderSequences { get; set; } = null!;
 }

@@ -15,8 +15,12 @@ public class GetOrderListPagedQueryHandler
         _orderReadService = orderReadService;
     }
 
-    public async Task<PagedList<Order>> Handle(GetOrderListPagedQuery request, CancellationToken cancellationToken)
+    public async Task<PagedList<Order>> Handle(
+        GetOrderListPagedQuery request,
+        CancellationToken cancellationToken)
     {
-        return await _orderReadService.GetListPagedAsync(request.Page, request.PageSize);
+        return await _orderReadService.GetListPagedAsync(
+            request.Page,
+            request.PageSize);
     }
 }

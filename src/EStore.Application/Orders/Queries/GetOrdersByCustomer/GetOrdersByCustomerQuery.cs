@@ -5,5 +5,9 @@ using MediatR;
 
 namespace EStore.Application.Orders.Queries.GetOrdersByCustomer;
 
-public record GetOrdersByCustomerQuery(CustomerId CustomerId, int Page, int PageSize)
+public record GetOrdersByCustomerQuery(
+    CustomerId CustomerId,
+    int Page,
+    int PageSize,
+    string? OrderStatus = null)
     : IRequest<PagedList<Order>>;

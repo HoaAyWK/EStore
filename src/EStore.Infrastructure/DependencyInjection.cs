@@ -19,6 +19,7 @@ using EStore.Infrastructure.Authentication.OptionsSetup;
 using EStore.Infrastructure.BackgroundJobs;
 using EStore.Infrastructure.Identity;
 using EStore.Infrastructure.Messaging;
+using EStore.Infrastructure.OrderSequenceManager;
 using EStore.Infrastructure.Persistence;
 using EStore.Infrastructure.Persistence.Interceptors;
 using EStore.Infrastructure.Persistence.Repositories;
@@ -28,9 +29,7 @@ using EStore.Infrastructure.Services;
 using EStore.Infrastructure.Services.AlgoliaSearch;
 using EStore.Infrastructure.Services.OptionsSetup;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -105,6 +104,7 @@ public static class DependencyInjection
         services.AddScoped<IHierarchicalCategoryService, HierarchicalCategoryService>();
         services.AddScoped<IAccountTokenService, AccountTokenService>();
         services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IOrderSequenceService, OrderSequenceService>();
 
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IOtpService, OtpService>();

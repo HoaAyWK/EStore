@@ -6,9 +6,13 @@ namespace EStore.Domain.OrderAggregate.Entities;
 
 public class OrderStatusHistoryTracking : Entity<OrderStatusHistoryTrackingId>
 {
-    public OrderStatusHistory Status { get; private set; }
+    public OrderStatusHistory Status { get; private set; } = OrderStatusHistory.OrderPlaced;
 
     public DateTime CreatedDateTime { get; private set; }
+
+    private OrderStatusHistoryTracking()
+    {
+    }
 
     private OrderStatusHistoryTracking(
         OrderStatusHistoryTrackingId id,

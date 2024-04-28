@@ -1,4 +1,5 @@
 using EStore.Domain.Common.Models;
+using Newtonsoft.Json;
 
 namespace EStore.Domain.OrderAggregate.ValueObjects;
 
@@ -9,6 +10,12 @@ public sealed class OrderStatusHistoryTrackingId : ValueObject
     private OrderStatusHistoryTrackingId(Guid value)
     {
         Value = value;
+    }
+
+    [JsonConstructor]
+    private OrderStatusHistoryTrackingId(string value)
+    {
+        Value = new Guid(value);
     }
 
     public static OrderStatusHistoryTrackingId Create(Guid value)

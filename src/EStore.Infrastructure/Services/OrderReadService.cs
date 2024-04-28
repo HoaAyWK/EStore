@@ -2,6 +2,7 @@ using EStore.Application.Orders.Services;
 using EStore.Contracts.Common;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
+using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.ValueObjects;
 using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ internal sealed class OrderReadService : IOrderReadService
     {
         var totalItems =  await _dbContext.Orders.CountAsync();
         var orders = await _dbContext.Orders.AsNoTracking()
+            .OrderByDescending(o => o.CreatedDateTime)
             .Skip((page -1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -36,18 +38,28 @@ internal sealed class OrderReadService : IOrderReadService
             .FirstOrDefaultAsync(o => o.Id == orderId);
     }
 
-    public async Task<PagedList<Order>> GetByCustomerIdAsync(CustomerId customerId, int page, int pageSize)
+    public async Task<PagedList<Order>> GetByCustomerIdAsync(
+        CustomerId customerId,
+        int page,
+        int pageSize,
+        OrderStatus? orderStatus = null,
+        CancellationToken cancellationToken = default)
     {
         var ordersQuery = _dbContext.Orders
             .AsNoTracking()
             .Where(o => o.CustomerId == customerId);
 
-        var totalItems = await ordersQuery.CountAsync();
+        if (orderStatus is not null)
+        {
+            ordersQuery = ordersQuery.Where(o => o.OrderStatus == orderStatus);
+        }
+
+        var totalItems = await ordersQuery.CountAsync(cancellationToken);
         
         var orders = await ordersQuery
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 

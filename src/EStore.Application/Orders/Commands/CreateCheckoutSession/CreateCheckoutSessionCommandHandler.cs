@@ -5,9 +5,11 @@ using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Orders.Services;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.CustomerAggregate.Repositories;
+using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Entities;
 using EStore.Domain.OrderAggregate.Enumerations;
+using EStore.Domain.OrderAggregate.Events;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.OrderAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
@@ -24,6 +26,8 @@ public class CreateCheckoutSessionCommandHandler
     private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IOrderSequenceService _orderSequenceService;
+    private readonly IPublisher _publisher;
 
     public CreateCheckoutSessionCommandHandler(
         IPaymentService paymentService,
@@ -31,7 +35,9 @@ public class CreateCheckoutSessionCommandHandler
         IOrderRepository orderRepository,
         ICustomerRepository customerRepository,
         IUnitOfWork unitOfWork,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider,
+        IOrderSequenceService orderSequenceService,
+        IPublisher publisher)
     {
         _paymentService = paymentService;
         _cartReadService = cartReadService;
@@ -39,6 +45,8 @@ public class CreateCheckoutSessionCommandHandler
         _customerRepository = customerRepository;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
+        _orderSequenceService = orderSequenceService;
+        _publisher = publisher;
     }
 
     public async Task<ErrorOr<string>> Handle(
@@ -64,8 +72,9 @@ public class CreateCheckoutSessionCommandHandler
             return Errors.Customer.NotFound;
         }
 
+        var addressId = AddressId.Create(request.AddressId);
         var address = customer.Addresses
-            .Where(address => address.Id == request.AddressId)
+            .Where(address => address.Id == addressId)
             .SingleOrDefault();
 
         if (address is null)
@@ -104,12 +113,20 @@ public class CreateCheckoutSessionCommandHandler
                 productImage: cartItem.ProductImageUrl!,
                 productAttributes: cartItem.ProductAttributes);
 
-            var orderItem = OrderItem.Create(itemOrdered, cartItem.Price, cartItem.Quantity);
+            var discountAmount = cartItem.FinalPrice - cartItem.BasePrice;
+            var orderItem = OrderItem.Create(
+                itemOrdered,
+                cartItem.FinalPrice,
+                discountAmount,
+                cartItem.Quantity);
 
             orderItems.Add(orderItem);
         }
 
+        var orderNumber = await _orderSequenceService.GetNextOrderNumberAsync();
+
         var order = Order.Create(
+            orderNumber: orderNumber,
             customerId: request.CustomerId,
             status: OrderStatus.Pending,
             transactionId: null,
@@ -118,9 +135,12 @@ public class CreateCheckoutSessionCommandHandler
             orderedDateTime: _dateTimeProvider.UtcNow,
             paymentMethod: PaymentMethod.CreditCard);
         
-
         await _orderRepository.AddAsync(order);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _orderSequenceService.IncreaseLastOrderNumberAsync();
+        await _publisher.Publish(
+            new OrderCreatedDomainEvent(order.Id, customer.Id),
+            cancellationToken);        
 
         string sessionUrl = await _paymentService.ProcessPaymentAsync(order);
 

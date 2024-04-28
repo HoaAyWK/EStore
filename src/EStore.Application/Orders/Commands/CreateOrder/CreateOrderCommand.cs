@@ -7,5 +7,5 @@ namespace EStore.Application.Orders.Commands.CreateOrder;
 
 public record CreateOrderCommand(
     CustomerId CustomerId,
-    AddressId AddressId)
+    Guid AddressId)
     : IRequest<ErrorOr<Order>>;

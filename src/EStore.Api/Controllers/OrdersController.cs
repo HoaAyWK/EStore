@@ -4,16 +4,19 @@ using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
 using EStore.Application.Orders.Queries.GetOrderById;
 using EStore.Application.Orders.Queries.GetOrderListPaged;
+using EStore.Application.Orders.Queries.GetOrdersByCustomer;
+using EStore.Application.Orders.Queries.GetOrderStatuses;
 using EStore.Contracts.Common;
 using EStore.Contracts.Orders;
-using EStore.Domain.CustomerAggregate.ValueObjects;
-using EStore.Domain.OrderAggregate.Enumerations;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EStore.Api.Controllers;
 
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class OrdersController : ApiController
 {
     private readonly ISender _mediator;
@@ -30,10 +33,34 @@ public class OrdersController : ApiController
         _workContext = workContext;
     }
 
+    [AllowAnonymous]
+    [HttpGet(ApiRoutes.Order.GetStatuses)]
+    public async Task<IActionResult> GetOrderStatuses()
+    {
+        var query = new GetOrderStatusesQuery();
+        var orderStatuses = await _mediator.Send(query);
+
+        return Ok(orderStatuses);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetOrders(int page = 1, int pageSize = 5)
     {
-        var query = _mapper.Map<GetOrderListPagedQuery>((page, pageSize));
+        var query = _mapper.Map<GetOrderListPagedQuery>((
+            page,
+            pageSize));
+
+        var listPaged = await _mediator.Send(query);
+
+        return Ok(_mapper.Map<PagedList<OrderResponse>>(listPaged));
+    }
+
+    [HttpGet(ApiRoutes.Order.GetMyOrders)]
+    public async Task<IActionResult> GetMyOrders([FromQuery] GetMyOrdersRequest request)
+    {
+        var query = _mapper.Map<(Guid, GetMyOrdersRequest), GetOrdersByCustomerQuery>((
+            _workContext.CustomerId, request));
+
         var listPaged = await _mediator.Send(query);
 
         return Ok(_mapper.Map<PagedList<OrderResponse>>(listPaged));
@@ -59,7 +86,10 @@ public class OrdersController : ApiController
         var createOrderResult = await _mediator.Send(command);
 
         return createOrderResult.Match(
-            order => CreatedAtAction(nameof(GetOrder), new { id = order.Id }, _mapper.Map<OrderResponse>(order)),
+            order => CreatedAtAction(
+                nameof(GetOrder),
+                new { id = order.Id.Value },
+                _mapper.Map<OrderResponse>(order)),
             Problem);
     }
 

@@ -1,5 +1,4 @@
 using ErrorOr;
-using EStore.Api.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 

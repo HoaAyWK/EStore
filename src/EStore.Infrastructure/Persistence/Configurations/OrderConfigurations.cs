@@ -1,3 +1,4 @@
+using EStore.Domain.CustomerAggregate.Entities;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Entities;
@@ -16,6 +17,7 @@ public sealed class OrderConfigurations : IEntityTypeConfiguration<Order>
     {
         ConfigureOrdersTable(builder);
         ConfigureOrderItemsTable(builder);
+        ConfigureOrderStatusHistoryTrackingsTable(builder);
     }
 
     private void ConfigureOrdersTable(EntityTypeBuilder<Order> builder)
@@ -37,12 +39,39 @@ public sealed class OrderConfigurations : IEntityTypeConfiguration<Order>
                 id => id.Value,
                 value => CustomerId.Create(value));
         
-        builder.OwnsOne(o => o.ShippingAddress);
+        builder.OwnsOne(o => o.ShippingAddress, sb =>
+        {
+            sb.Property(sa => sa.ReceiverName)
+                .HasMaxLength(Address.MaxReceiverNameLength);
+
+            sb.Property(sa => sa.PhoneNumber)
+                .HasMaxLength(Address.MaxPhoneNumberLength);
+
+            sb.Property(sa => sa.Street)
+                .HasMaxLength(Address.MaxStreetLength);
+
+            sb.Property(sa => sa.City)
+                .HasMaxLength(Address.MaxCityLength);
+
+            sb.Property(sa => sa.State)
+                .HasMaxLength(Address.MaxStateLength);
+
+            sb.Property(sa => sa.Country)
+                .HasMaxLength(Address.MaxCountryLength);
+
+            sb.Property(sa => sa.ZipCode)
+                .HasMaxLength(Address.MaxZipCodeLength);
+        });
 
         builder.Property(o => o.OrderStatus)
             .HasConversion<int>(
                 status => status.Value,
                 value => OrderStatus.FromValue(value)!);
+
+        builder.Property(o => o.PaymentMethod)
+            .HasConversion<int>(
+                method => method.Value,
+                value => PaymentMethod.FromValue(value)!);
 
         builder.Ignore(o => o.TotalAmount);
 
@@ -69,6 +98,11 @@ public sealed class OrderConfigurations : IEntityTypeConfiguration<Order>
             ib.Property(i => i.UnitPrice)
                 .HasColumnType("decimal(18, 2)");
 
+            ib.Property(i => i.DiscountAmount)
+                .HasColumnType("decimal(18, 2)");
+
+            ib.Ignore(i => i.TotalDiscount);
+
             ib.OwnsOne(i => i.ItemOrdered, iob =>
             {
                 iob.Property(io => io.ProductId)
@@ -90,5 +124,29 @@ public sealed class OrderConfigurations : IEntityTypeConfiguration<Order>
 
         builder.Metadata.FindNavigation(nameof(Order.OrderItems))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
+    }
+
+    private void ConfigureOrderStatusHistoryTrackingsTable(EntityTypeBuilder<Order> builder)
+    {
+        builder.OwnsMany(o => o.OrderStatusHistoryTrackings, ob =>
+        {
+            ob.ToTable("OrderStatusHistoryTrackings");
+
+            ob.WithOwner().HasForeignKey("OrderId");
+
+            ob.HasKey(nameof(OrderStatusHistoryTracking.Id), "OrderId");
+
+            ob.Property(i => i.Id)
+                .HasColumnName("OrderStatusHistoryTrackingId")
+                .ValueGeneratedNever()
+                .HasConversion(
+                    id => id.Value,
+                    value => OrderStatusHistoryTrackingId.Create(value));
+
+            ob.Property(i => i.Status)
+                .HasConversion<int>(
+                    status => status.Value,
+                    value => OrderStatusHistory.FromValue(value)!);
+        });
     }
 }

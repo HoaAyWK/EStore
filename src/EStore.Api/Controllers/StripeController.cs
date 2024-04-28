@@ -50,7 +50,7 @@ public class StripeController : ApiController
         var command = _mapper.Map<CreateCheckoutSessionCommand>((id.Value, request));
         var createCheckoutSessionResult = await _mediator.Send(command);
 
-        return createCheckoutSessionResult.Match(Ok, Problem);
+        return createCheckoutSessionResult.Match(result => Ok(new { Url = result }), Problem);
     }
 
     [HttpPost(ApiRoutes.Stripe.Webhook)]

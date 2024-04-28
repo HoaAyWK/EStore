@@ -12,8 +12,11 @@ namespace EStore.Domain.OrderAggregate;
 
 public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDeletableEntity
 {
+    
     private readonly List<OrderItem> _orderItems = new();
     private readonly List<OrderStatusHistoryTracking> _orderStatusHistoryTrackings = new();
+
+    public long OrderNumber { get; private set; }
 
     public CustomerId CustomerId { get; private set; } = null!;
 
@@ -46,6 +49,7 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
 
     private Order(
         OrderId id,
+        long orderNumber,
         CustomerId customerId,
         OrderStatus orderStatus,
         string? transactionId,
@@ -55,6 +59,7 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
         PaymentMethod paymentMethod)
         : base(id)
     {
+        OrderNumber = orderNumber;
         CustomerId = customerId;
         OrderStatus = orderStatus;
         TransactionId = transactionId;
@@ -65,6 +70,7 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
     }
 
     public static Order Create(
+        long orderNumber,
         CustomerId customerId,
         OrderStatus status,
         string? transactionId,
@@ -75,6 +81,7 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
     {
         var order = new Order(
             OrderId.CreateUnique(),
+            orderNumber,
             customerId,
             status,
             transactionId,
@@ -83,7 +90,7 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
             orderedDateTime,
             paymentMethod);
 
-        order.RaiseDomainEvent(new OrderCreatedDomainEvent(order.Id, customerId));
+        // order.RaiseDomainEvent(new OrderCreatedDomainEvent(order.Id, customerId));
 
         return order;
     }
