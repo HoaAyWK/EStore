@@ -4,19 +4,19 @@ using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.Repositories;
 using MediatR;
 
-namespace EStore.Application.Orders.Commands.MarkOrderAsPaid;
+namespace EStore.Application.Orders.Commands.MarkOrderAsCompleted;
 
-public class MarkOrderAsPaidCommandHandler
-    : IRequestHandler<MarkOrderAsPaidCommand, ErrorOr<Updated>>
+public class MarkOrderAsCompletedCommandHandler
+    : IRequestHandler<MarkOrderAsCompletedCommand, ErrorOr<Updated>>
 {
     private readonly IOrderRepository _orderRepository;
 
-    public MarkOrderAsPaidCommandHandler(IOrderRepository orderRepository)
+    public MarkOrderAsCompletedCommandHandler(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
     }
 
-    public async Task<ErrorOr<Updated>> Handle(MarkOrderAsPaidCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Updated>> Handle(MarkOrderAsCompletedCommand request, CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetByIdAsync(request.OrderId);
 
@@ -25,7 +25,7 @@ public class MarkOrderAsPaidCommandHandler
             return Errors.Order.NotFound;
         }
 
-        order.UpdateOrderStatus(OrderStatus.Paid);
+        order.UpdateOrderStatus(OrderStatus.Completed);
         
         return Result.Updated;
     }

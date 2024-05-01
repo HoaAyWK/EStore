@@ -12,6 +12,10 @@ public static partial class Errors
             code: "Product.NotFound",
             description: "The product with specified identifier was not found.");
 
+        public static Error NotFoundValidation(Guid id) => Error.Validation(
+            code: "Product.NotFoundValidation",
+            description: $"The product with identifier = {id} was not found.");
+
         public static Error BrandNotFound(BrandId brandId) =>
             Error.Validation(
                 code: "Product.BrandNotFound",
@@ -54,6 +58,10 @@ public static partial class Errors
         public static Error ProductVariantNotFound = Error.Validation(
             code: "Product.ProductVariantNotFound",
             description: "The product's variant with specified identifier was not found.");
+
+        public static Error ProductVariantNotFoundValidation(Guid id) => Error.Validation(
+            code: "Product.ProductVariantNotFoundValidation",
+            description: $"The product's variant with identifier = ${id} was not found.");
 
         public static Error ProductImageNotFound = Error.Validation(
             code: "Product.ProductImageNotFound",
@@ -165,5 +173,13 @@ public static partial class Errors
             description: "Product attribute name must be between " +
                 $"{ProductAggregate.Entities.ProductAttribute.MinNameLength} and " +
                 $"{ProductAggregate.Entities.ProductAttribute.MaxNameLength} characters.");
+
+        public static Error NotEnoughStock(Guid id) => Error.Validation(
+            code: "Product.NotEnoughStock",
+            description: $"The product with id = {id} does not have enough stock.");
+
+        public static Error ProductVariantNotEnoughStock(Guid id) => Error.Validation(
+            code: "Product.ProductVariantNotEnoughStock",
+            description: $"The product's variant with id = {id} does not have enough stock.");
     }
 }

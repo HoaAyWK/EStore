@@ -4,6 +4,7 @@ using EStore.Domain.CategoryAggregate;
 using EStore.Domain.Common.Models;
 using EStore.Domain.CustomerAggregate;
 using EStore.Domain.DiscountAggregate;
+using EStore.Domain.NotificationAggregate;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.ProductAggregate;
 using EStore.Infrastructure.Identity;
@@ -41,6 +42,8 @@ public class EStoreDbContext : DbContext
     public DbSet<Order> Orders { get; set; } = null!;
 
     public DbSet<Discount> Discounts { get; set; } = null!;
+
+    public DbSet<Notification> Notifications { get; set; } = null!;
 
     public DbSet<AccountToken> AccountTokens { get; set; } = null!;
 

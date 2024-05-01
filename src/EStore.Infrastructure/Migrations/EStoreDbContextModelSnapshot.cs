@@ -216,6 +216,48 @@ namespace EStore.Infrastructure.Migrations
                     b.ToTable("Discounts", (string)null);
                 });
 
+            modelBuilder.Entity("EStore.Domain.NotificationAggregate.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("NotificationId");
+
+                    b.Property<string>("Domain")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("From")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("From");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("To")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("To");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("EStore.Domain.OrderAggregate.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -241,6 +283,9 @@ namespace EStore.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
                     b.Property<string>("TransactionId")

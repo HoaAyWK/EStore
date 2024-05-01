@@ -73,6 +73,11 @@ public sealed class OrderConfigurations : IEntityTypeConfiguration<Order>
                 method => method.Value,
                 value => PaymentMethod.FromValue(value)!);
 
+        builder.Property(o => o.PaymentStatus)
+            .HasConversion<int>(
+                status => status.Value,
+                value => PaymentStatus.FromValue(value)!);
+
         builder.Ignore(o => o.TotalAmount);
 
         builder.HasQueryFilter(o => !o.Deleted);

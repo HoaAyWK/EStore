@@ -1,5 +1,7 @@
+using EStore.Application.Orders.Commands.ConfirmPaymentInfo;
 using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
+using EStore.Application.Orders.Queries.GetOrderById;
 using EStore.Application.Orders.Queries.GetOrderListPaged;
 using EStore.Application.Orders.Queries.GetOrdersByCustomer;
 using EStore.Contracts.Common;
@@ -22,10 +24,12 @@ public class OrderMappingConfig : IRegister
             .Map(dest => dest.OrderNumber, src => src.OrderNumber)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.Name)
             .Map(dest => dest.PaymentMethod, src => src.PaymentMethod.Name)
+            .Map(dest => dest.PaymentStatus, src => src.PaymentStatus.Name)
             .Map(dest => dest.CustomerId, src => src.CustomerId.Value)
             .Map(dest => dest.ShippingAddress, src => src.ShippingAddress)
             .Map(dest => dest.OrderItems, src => src.OrderItems)
-            .Map(dest => dest.TotalAmount, src => src.TotalAmount);
+            .Map(dest => dest.TotalAmount, src => src.TotalAmount)
+            .Map(dest => dest.OrderStatusHistoryTrackings, src => src.OrderStatusHistoryTrackings);
 
         config.NewConfig<OrderItem, OrderItemResponse>()
             .Map(dest => dest.ProductId, src => src.ItemOrdered.ProductId.Value)
@@ -38,10 +42,18 @@ public class OrderMappingConfig : IRegister
             .Map(dest => dest.TotalDiscount, src => src.TotalDiscount)
             .Map(dest => dest.Quantity, src => src.Quantity);
 
+        config.NewConfig<OrderStatusHistoryTracking, OrderStatusHistoryTrackingResponse>()
+            .Map(dest => dest.Id, src => src.Id.Value)
+            .Map(dest => dest.Status, src => src.Status.Name)
+            .Map(dest => dest.CreatedDateTime, src => src.CreatedDateTime);
+
         config.NewConfig<ShippingAddress, ShippingAddressResponse>();
 
         config.NewConfig<Guid, OrderId>()
             .Map(dest => dest, src => OrderId.Create(src));
+
+        config.NewConfig<Guid, GetOrderByIdQuery>()
+            .Map(dest => dest.OrderId, src => OrderId.Create(src));
 
         config.NewConfig<Guid, RefundOrderCommand>()
             .Map(dest => dest.OrderId, src => OrderId.Create(src));
@@ -61,5 +73,8 @@ public class OrderMappingConfig : IRegister
         config.NewConfig<(Guid, CreateOrderRequest), CreateOrderCommand>()
             .Map(dest => dest.CustomerId, src => CustomerId.Create(src.Item1))
             .Map(dest => dest.AddressId, src => src.Item2.AddressId);
+
+        config.NewConfig<Guid, ConfirmPaymentInfoCommand>()
+            .Map(dest => dest.OrderId, src => OrderId.Create(src));
     }
 }

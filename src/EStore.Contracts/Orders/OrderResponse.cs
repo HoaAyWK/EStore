@@ -9,8 +9,10 @@ public record OrderResponse(
     DateTime UpdatedDateTime,
     decimal TotalAmount,
     string PaymentMethod,
+    string PaymentStatus,
     OrderResponse.ShippingAddressResponse ShippingAddress,
-    List<OrderResponse.OrderItemResponse> OrderItems)
+    List<OrderResponse.OrderItemResponse> OrderItems,
+    List<OrderResponse.OrderStatusHistoryTrackingResponse> OrderStatusHistoryTrackings)
 {
     public record ShippingAddressResponse(
         string ReceiverName,
@@ -31,4 +33,9 @@ public record OrderResponse(
         decimal SubTotal,
         decimal TotalDiscount,
         int Quantity);
+
+    public record OrderStatusHistoryTrackingResponse(
+        Guid Id,
+        string Status,
+        DateTime CreatedDateTime);
 }

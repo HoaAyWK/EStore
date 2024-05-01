@@ -10,9 +10,11 @@ public sealed class OrderStatusHistory : Enumeration<OrderStatusHistory>
 
     public static readonly OrderStatusHistory OrderShippedOut = new(3, nameof(OrderShippedOut));
 
-    public static readonly OrderStatusHistory OrderReceived = new(4, nameof(OrderReceived));
+    public static readonly OrderStatusHistory InTransit = new(4, nameof(InTransit));
 
-    public static readonly OrderStatusHistory OrderCompleted = new(5, nameof(OrderCompleted));
+    public static readonly OrderStatusHistory OrderReceived = new(5, nameof(OrderReceived));
+
+    public static readonly OrderStatusHistory OrderCompleted = new(6, nameof(OrderCompleted));
 
     private OrderStatusHistory(int value, string name)
         : base(value, name)

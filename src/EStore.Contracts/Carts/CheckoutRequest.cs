@@ -1,3 +1,3 @@
 namespace EStore.Contracts.Carts;
 
-public record CheckoutRequest(Guid AddressId, decimal CartTotalAmount);
+public record CheckoutRequest(Guid AddressId);

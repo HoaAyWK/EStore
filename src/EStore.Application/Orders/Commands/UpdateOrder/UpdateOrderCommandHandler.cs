@@ -36,6 +36,7 @@ public class UpdateOrderCommandHandler
         }
 
         order.UpdateOrderStatus(request.OrderStatus);
+        order.UpdatePaymentStatus(request.PaymentStatus);
 
         if (request.TransactionId is not null)
         {

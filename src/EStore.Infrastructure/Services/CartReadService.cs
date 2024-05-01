@@ -192,7 +192,7 @@ internal sealed class CartReadService : ICartReadService
     }
 
 
-    public async Task<ErrorOr<Success>> ValidatePurchasedItemsAsync(CustomerId customerId, decimal cartTotalAmount)
+    public async Task<ErrorOr<Success>> ValidatePurchasedItemsAsync(CustomerId customerId)
     {
         var cart = await _dbContext.Carts
             .AsNoTracking()

@@ -4,23 +4,23 @@ using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.Common.Errors;
 using MediatR;
 
-namespace EStore.Application.Customers.Queries;
+namespace EStore.Application.Customers.Queries.GetCustomerByEmail;
 
-public class GetCustomerByIdQueryHandler
-    : IRequestHandler<GetCustomerByIdQuery, ErrorOr<CustomerResponse>>
+public class GetCustomerByEmailQueryHandler
+    : IRequestHandler<GetCustomerByEmailQuery, ErrorOr<CustomerResponse>>
 {
     private readonly ICustomerRepository _customerRepository;
 
-    public GetCustomerByIdQueryHandler(ICustomerRepository customerRepository)
+    public GetCustomerByEmailQueryHandler(ICustomerRepository customerRepository)
     {
         _customerRepository = customerRepository;
     }
 
     public async Task<ErrorOr<CustomerResponse>> Handle(
-        GetCustomerByIdQuery request,
+        GetCustomerByEmailQuery request,
         CancellationToken cancellationToken)
     {
-        var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
+        var customer = await _customerRepository.GetByEmailAsync(request.Email);
 
         if (customer is null)
         {

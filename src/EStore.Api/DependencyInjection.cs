@@ -2,6 +2,8 @@ using EStore.Api.Common.Contexts;
 using EStore.Api.Common.Mapping;
 using EStore.Api.Common.Options;
 using EStore.Api.Common.OptionsSetup;
+using EStore.Api.SignalRServices;
+using EStore.Infrastructure.Services.SignalRServices;
 
 namespace EStore.Api;
 
@@ -13,6 +15,8 @@ public static class DependencyInjection
             .Get<CorsOptions>();
 
         services.ConfigureOptions<SwaggerGenOptionsSetup>();
+
+        services.AddSignalR();
 
         services.AddMappings();
         services.AddControllers()
@@ -27,6 +31,7 @@ public static class DependencyInjection
         
         services.AddScoped<IWorkContext, WorkContext>();
         services.AddScoped<IWorkContextSource, WorkContextSource>();
+        services.AddScoped<INotificationSignalR, NotificationSignalR>();
 
         if (corsOptions != null)
         {

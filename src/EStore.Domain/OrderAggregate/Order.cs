@@ -36,6 +36,8 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
 
     public PaymentMethod PaymentMethod { get; private set; } = PaymentMethod.CashOnDelivery;
 
+    public PaymentStatus PaymentStatus { get; private set; } = PaymentStatus.Pending;
+
     public decimal TotalAmount => _orderItems.Sum(item => item.SubTotal);
 
     public IReadOnlyList<OrderItem> OrderItems => _orderItems.AsReadOnly();
@@ -66,6 +68,7 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
         ShippingAddress = shippingAddress;
         _orderItems = orderItems;
         PaymentMethod = paymentMethod;
+        PaymentStatus = PaymentStatus.Pending;
         AddOrderStatusHistoryTracking(OrderStatusHistory.OrderPlaced, orderedDateTime);
     }
 
@@ -108,6 +111,11 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
     public void UpdateOrderStatus(OrderStatus orderStatus)
     {
         OrderStatus = orderStatus;
+    }
+
+    public void UpdatePaymentStatus(PaymentStatus paymentStatus)
+    {
+        PaymentStatus = paymentStatus;
     }
 
     public ErrorOr<OrderStatusHistoryTracking> AddOrderStatusHistoryTracking(

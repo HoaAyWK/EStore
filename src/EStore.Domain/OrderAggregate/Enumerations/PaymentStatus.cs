@@ -10,6 +10,8 @@ public class PaymentStatus : Enumeration<PaymentStatus>
 
     public static readonly PaymentStatus Failed = new(3, nameof(Failed));
 
+    public static readonly PaymentStatus Refunded = new(4, nameof(Refunded));
+
     private PaymentStatus(int value, string name)
         : base(value, name)
     {

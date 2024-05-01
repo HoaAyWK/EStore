@@ -4,6 +4,7 @@ using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Common.Searching;
 using EStore.Application.Discounts.Services;
+using EStore.Application.Notifications.Services;
 using EStore.Application.Orders.Services;
 using EStore.Application.Products.Services;
 using EStore.Domain.BrandAggregate.Repositories;
@@ -12,11 +13,13 @@ using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.Common.Abstractions;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.DiscountAggregate.Repositories;
+using EStore.Domain.NotificationAggregate.Repositories;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Infrastructure.Authentication;
 using EStore.Infrastructure.Authentication.OptionsSetup;
 using EStore.Infrastructure.BackgroundJobs;
+using EStore.Infrastructure.BackgroundJobs.Options;
 using EStore.Infrastructure.Identity;
 using EStore.Infrastructure.Messaging;
 using EStore.Infrastructure.OrderSequenceManager;
@@ -49,6 +52,14 @@ public static class DependencyInjection
         services.ConfigureOptions<UserSeedingOptionsSetup>();
         services.ConfigureOptions<MailSettingsOptionsSetup>();
         services.ConfigureOptions<StripeSettingsOptionsSetup>();
+
+        var processOutboxMessagesJobOptions = configuration
+            .GetSection(ProcessOutboxMessagesJobOptions.SectionName)
+            .Get<ProcessOutboxMessagesJobOptions>();
+
+        var simulateOrderHistoryTrackingJobOptions = configuration
+            .GetSection(SimulateOrderHistoryTrackingJobOptions.SectionName)
+            .Get<SimulateOrderHistoryTrackingJobOptions>();
 
         services.AddMediatR(typeof(DependencyInjection).Assembly);
 
@@ -88,6 +99,7 @@ public static class DependencyInjection
         services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IDiscountRepository, DiscountRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         services.AddScoped<IBrandReadService, BrandReadService>();
         services.AddScoped<ICategoryReadService, CategoryReadService>();
@@ -105,6 +117,7 @@ public static class DependencyInjection
         services.AddScoped<IAccountTokenService, AccountTokenService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IOrderSequenceService, OrderSequenceService>();
+        services.AddScoped<INotificationReadService, NotificationReadService>();
 
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IOtpService, OtpService>();
@@ -123,13 +136,23 @@ public static class DependencyInjection
 
         services.AddQuartz(configure =>
         {
-            var jobKey = new JobKey(nameof(ProcessOutboxMessagesJob));
+            var processOutboxMessageJobKey = new JobKey(nameof(ProcessOutboxMessagesJob));
+            var simulateOrderHistoryTrackingJobKey = new JobKey(nameof(SimulateOrderHistoryTrackingJob));
 
-            configure.AddJob<ProcessOutboxMessagesJob>(jobKey)
+            configure.AddJob<ProcessOutboxMessagesJob>(processOutboxMessageJobKey)
                 .AddTrigger(trigger =>
-                    trigger.ForJob(jobKey)
+                    trigger.ForJob(processOutboxMessageJobKey)
                         .WithSimpleSchedule(schedule =>
-                            schedule.WithIntervalInSeconds(10)
+                            schedule.WithIntervalInSeconds(
+                                processOutboxMessagesJobOptions?.IntervalInSeconds ?? 10)
+                                .RepeatForever()));
+
+            configure.AddJob<SimulateOrderHistoryTrackingJob>(simulateOrderHistoryTrackingJobKey)
+                .AddTrigger(trigger =>
+                    trigger.ForJob(simulateOrderHistoryTrackingJobKey)
+                        .WithSimpleSchedule(schedule =>
+                            schedule.WithIntervalInSeconds(
+                                simulateOrderHistoryTrackingJobOptions?.IntervalInSeconds ?? 30)
                                 .RepeatForever()));
         });
 

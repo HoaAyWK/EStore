@@ -1,4 +1,5 @@
 using ErrorOr;
+using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
 
@@ -43,5 +44,12 @@ public static partial class Errors
         public static Error InvalidOrderStatusHistory = Error.Validation(
             code: "Order.InvalidOrderStatusHistory",
             description: "The order status history is invalid.");
+
+        public static Error OrderStatusTransitionNotAllow(
+            OrderStatus from,
+            OrderStatus to)
+            => Error.Validation(
+                code: "Order.OrderStatusTransitionNotAllow",
+                description: $"The transition from {from} to {to} is not allowed for this order.");
     }
 }

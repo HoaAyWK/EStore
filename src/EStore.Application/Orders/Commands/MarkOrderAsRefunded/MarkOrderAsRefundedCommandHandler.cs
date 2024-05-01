@@ -1,5 +1,6 @@
 using ErrorOr;
 using EStore.Domain.Common.Errors;
+using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.Repositories;
 using MediatR;
 
@@ -15,7 +16,9 @@ public class MarkOrderAsRefundedCommandHandler
         _orderRepository = orderRepository;
     }
 
-    public async Task<ErrorOr<Updated>> Handle(MarkOrderAsRefundedCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Updated>> Handle(
+        MarkOrderAsRefundedCommand request,
+        CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetByTransactionIdAsync(request.TransactionId);
 
@@ -25,6 +28,7 @@ public class MarkOrderAsRefundedCommandHandler
         }
 
         order.MarkAsRefunded();
+        order.UpdatePaymentStatus(PaymentStatus.Refunded);
 
         return Result.Updated;
     }

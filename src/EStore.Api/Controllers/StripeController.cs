@@ -82,7 +82,8 @@ public class StripeController : ApiController
                     {
                         var command = new UpdateOrderCommand(
                             OrderId.Create(new Guid(orderId)),
-                            OrderStatus.Paid,
+                            OrderStatus.Pending,
+                            PaymentStatus.Paid,
                             paymentIntentId);
                         
                         var updateOrderResult = await _mediator.Send(command);

@@ -83,8 +83,7 @@ public class CreateCheckoutSessionCommandHandler
         }
 
         var validateCartItemResult = await _cartReadService.ValidatePurchasedItemsAsync(
-            request.CustomerId,
-            request.CartTotalAmount);
+            request.CustomerId);
 
         if (validateCartItemResult.IsError)
         {

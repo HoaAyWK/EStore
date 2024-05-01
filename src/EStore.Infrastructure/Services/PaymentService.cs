@@ -17,7 +17,9 @@ internal sealed class PaymentService : IPaymentService
         StripeConfiguration.ApiKey = _stripeSettings.SecretKey;
     }
 
-    public async Task<string> ProcessPaymentAsync(Order order)
+    public async Task<string> ProcessPaymentAsync(
+        Order order,
+        CancellationToken cancellationToken = default)
     {
         var lineItems = new List<SessionLineItemOptions>();
 
@@ -29,15 +31,25 @@ internal sealed class PaymentService : IPaymentService
                 productName += $" ({orderItem.ItemOrdered.ProductAttributes})";
             }
 
+            var productData = new SessionLineItemPriceDataProductDataOptions
+            {
+                Name = productName
+            };
+
+            if (orderItem.ItemOrdered.ProductImage is not null)
+            {
+                productData.Images = new List<string>
+                {
+                    orderItem.ItemOrdered.ProductImage
+                };
+            }
+
             var lineItem = new SessionLineItemOptions
             {
                 Quantity = orderItem.Quantity,
                 PriceData = new SessionLineItemPriceDataOptions
                 {
-                    ProductData = new SessionLineItemPriceDataProductDataOptions
-                    {
-                        Name = productName
-                    },
+                    ProductData = productData,
                     UnitAmount = (long)orderItem.UnitPrice * 100,
                     Currency = "usd"
                 },
@@ -49,10 +61,10 @@ internal sealed class PaymentService : IPaymentService
         var options = new SessionCreateOptions
         {
             LineItems = lineItems,
-            ShippingAddressCollection = new SessionShippingAddressCollectionOptions
-            {
-                AllowedCountries = new List<string> { "VN" }
-            },
+            // ShippingAddressCollection = new SessionShippingAddressCollectionOptions
+            // {
+            //     AllowedCountries = new List<string> { "VN" }
+            // },
             Mode = "payment",
             SuccessUrl = _stripeSettings.SuccessUrl,
             CancelUrl = _stripeSettings.CancelUrl,
@@ -63,16 +75,21 @@ internal sealed class PaymentService : IPaymentService
         };
 
         var service = new SessionService();
-        Session session = await service.CreateAsync(options);
+        
+        Session session = await service.CreateAsync(
+            options,
+            cancellationToken: cancellationToken);
 
         return session.Url;
     }
 
-    public async Task ProcessRefundAsync(Order order)
+    public async Task ProcessRefundAsync(
+        Order order,
+        CancellationToken cancellationToken = default)
     {
         var options = new RefundCreateOptions { PaymentIntent = order.TransactionId };
         var service = new RefundService();
 
-        await service.CreateAsync(options);
+        await service.CreateAsync(options, cancellationToken: cancellationToken);
     }
 } 

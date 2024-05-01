@@ -1,5 +1,6 @@
 using EStore.Api.Common.ApiRoutes;
 using EStore.Api.Common.Contexts;
+using EStore.Application.Orders.Commands.ConfirmPaymentInfo;
 using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
 using EStore.Application.Orders.Queries.GetOrderById;
@@ -8,6 +9,7 @@ using EStore.Application.Orders.Queries.GetOrdersByCustomer;
 using EStore.Application.Orders.Queries.GetOrderStatuses;
 using EStore.Contracts.Common;
 using EStore.Contracts.Orders;
+using EStore.Infrastructure.Authentication;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -100,6 +102,19 @@ public class OrdersController : ApiController
         var refundOrderResult = await _mediator.Send(command);
 
         return refundOrderResult.Match(
+            success => NoContent(),
+            Problem);
+    }
+
+    [Authorize(Roles = $"{Roles.Admin}")]
+    [HttpPut(ApiRoutes.Order.ConfirmPaymentInfo)]
+    public async Task<IActionResult> ConfirmPaymentInfo([FromRoute] Guid id)
+    {
+        var command = _mapper.Map<Guid, ConfirmPaymentInfoCommand>(id);
+
+        var confirmPaymentInfoResult = await _mediator.Send(command);
+
+        return confirmPaymentInfoResult.Match(
             success => NoContent(),
             Problem);
     }

@@ -6,6 +6,5 @@ namespace EStore.Application.Orders.Commands.CreateCheckoutSession;
 
 public record CreateCheckoutSessionCommand(
     CustomerId CustomerId,
-    Guid AddressId,
-    decimal CartTotalAmount)
+    Guid AddressId)
     : IRequest<ErrorOr<string>>;

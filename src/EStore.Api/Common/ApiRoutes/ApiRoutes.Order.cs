@@ -13,5 +13,7 @@ public static partial class ApiRoutes
         public const string Create = "";
 
         public const string Refund = "{id:guid}/refund";
+
+        public const string ConfirmPaymentInfo = "{id:guid}/confirm-payment-info";
     }
 }

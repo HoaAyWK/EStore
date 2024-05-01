@@ -2,7 +2,7 @@ using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Customers.Command.UpdateCustomer;
 using EStore.Application.Customers.Commands.AddAddress;
 using EStore.Application.Customers.Commands.UpdateAddress;
-using EStore.Application.Customers.Queries;
+using EStore.Application.Customers.Queries.GetCustomerById;
 using EStore.Contracts.Common;
 using EStore.Contracts.Customers;
 using EStore.Domain.CustomerAggregate.Entities;

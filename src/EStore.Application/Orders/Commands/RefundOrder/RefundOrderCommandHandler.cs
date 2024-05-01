@@ -19,7 +19,9 @@ public class RefundOrderCommandHandler
         _paymentService = paymentService;
     }
 
-    public async Task<ErrorOr<Success>> Handle(RefundOrderCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Success>> Handle(
+        RefundOrderCommand request,
+        CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetByIdAsync(request.OrderId);
 
@@ -28,7 +30,7 @@ public class RefundOrderCommandHandler
             return Errors.Order.NotFound;
         }
 
-        if (order.OrderStatus != OrderStatus.Paid)
+        if (order.PaymentStatus != PaymentStatus.Paid)
         {
             return Errors.Order.UnpaidOrder(order.Id);
         }

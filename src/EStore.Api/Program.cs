@@ -38,6 +38,7 @@ var app = builder.Build();
     app.UseAuthorization();
     app.UseStaticFiles();
     app.MapControllers();
+    app.MapHub<NotificationsHub>(NotificationsHub.HubUrl);
 
     await SeedDataAsync(app);
 
