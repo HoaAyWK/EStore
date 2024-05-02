@@ -7,5 +7,6 @@ namespace EStore.Application.Notifications.Services;
 public interface INotificationReadService
 {
     Task<List<NotificationResponse>> GetNotificationsByCustomerId(CustomerId customerId);
+        
     Task<NotificationResponse?> GetNotificationById(NotificationId notificationId);
 }
