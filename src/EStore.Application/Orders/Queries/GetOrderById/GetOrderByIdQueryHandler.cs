@@ -1,13 +1,13 @@
 using ErrorOr;
 using EStore.Application.Orders.Services;
-using EStore.Domain.OrderAggregate;
 using EStore.Domain.Common.Errors;
 using MediatR;
+using EStore.Contracts.Orders;
 
 namespace EStore.Application.Orders.Queries.GetOrderById;
 
 public class GetOrderByIdQueryHandler
-    : IRequestHandler<GetOrderByIdQuery, ErrorOr<Order>>
+    : IRequestHandler<GetOrderByIdQuery, ErrorOr<OrderResponse>>
 {
     private readonly IOrderReadService _orderReadService;
 
@@ -16,7 +16,7 @@ public class GetOrderByIdQueryHandler
         _orderReadService = orderReadService;
     }
 
-    public async Task<ErrorOr<Order>> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<OrderResponse>> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
     {
         var order = await _orderReadService.GetByIdAsync(request.OrderId);
 

@@ -2,6 +2,7 @@ namespace EStore.Contracts.Products;
 
 public record UpdateProductRequest(
     string Name,
+    string ShortDescription,
     string Description,
     decimal Price,
     bool Published,

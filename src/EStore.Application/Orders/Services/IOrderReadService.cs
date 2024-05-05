@@ -1,4 +1,5 @@
 using EStore.Contracts.Common;
+using EStore.Contracts.Orders;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Enumerations;
@@ -8,8 +9,15 @@ namespace EStore.Application.Orders.Services;
 
 public interface IOrderReadService
 {
-    Task<PagedList<Order>> GetListPagedAsync(int page, int pageSize);
-    Task<Order?> GetByIdAsync(OrderId orderId);
+    Task<PagedList<OrderResponse>> GetListPagedAsync(
+        int page,
+        int pageSize,
+        string? orderStatus,
+        string? order,
+        string? orderBy,
+        int? orderNumber);
+
+    Task<OrderResponse?> GetByIdAsync(OrderId orderId);
     Task<PagedList<Order>> GetByCustomerIdAsync(
         CustomerId customerId,
         int page,

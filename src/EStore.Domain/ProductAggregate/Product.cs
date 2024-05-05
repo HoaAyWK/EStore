@@ -28,12 +28,18 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
 
     public const int MaxRating = 5;
 
+    public const int MinShortDescriptionLength = 0;
+
+    public const int MaxShortDescriptionLength = 1000;
+
     private readonly List<ProductImage> _images = new();
     private readonly List<ProductAttribute> _productAttributes = new();
     private readonly List<ProductVariant> _productVariants = new();
     private readonly List<ProductReview> _productReviews = new();
 
     public string Name { get; private set; } = null!;
+
+    public string ShortDescription { get; private set; } = string.Empty;
 
     public string Description { get; private set; } = null!;
 
@@ -78,6 +84,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
     private Product(
         ProductId productId,
         string name,
+        string shortDescription,
         string description,
         bool published,
         decimal price,
@@ -89,6 +96,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         : base(productId)
     {
         Name = name;
+        ShortDescription = shortDescription;
         Description = description;
         Published = published;
         Price = price;
@@ -101,6 +109,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
 
     public static ErrorOr<Product> Create(
         string name,
+        string shortDescription,
         string description,
         bool published,
         decimal price,
@@ -112,6 +121,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         var errors = ValidateName(name);
 
         errors.AddRange(ValidatePrice(price));
+        errors.AddRange(ValidateShortDescription(shortDescription));
 
         if (errors.Count > 0)
         {
@@ -121,6 +131,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         var product = new Product(
             ProductId.CreateUnique(),
             name,
+            shortDescription,
             description,
             published,
             price,
@@ -144,6 +155,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
 
     public ErrorOr<Updated> UpdateDetails(
         string name,
+        string shortDescription,
         string description,
         decimal price,
         int displayOrder,
@@ -152,6 +164,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
     {
         var errors = ValidateName(name);
 
+        errors.AddRange(ValidateShortDescription(shortDescription));
         errors.AddRange(ValidatePrice(price));
 
         if (errors.Count > 0)
@@ -177,6 +190,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         var previousHasVariant = HasVariant;
 
         Name = name;
+        ShortDescription = shortDescription;
         Description = description;
         Price = price;
         DisplayOrder = displayOrder;
@@ -546,6 +560,18 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         if (name.Length is < MinNameLength or > MaxNameLength)
         {
             errors.Add(Errors.Product.InvalidNameLength);
+        }
+
+        return errors;
+    }
+
+    private static List<Error> ValidateShortDescription(string shortDescription)
+    {
+        List<Error> errors = new();
+
+        if (shortDescription.Length > MaxShortDescriptionLength)
+        {
+            errors.Add(Errors.Product.InvalidShortDescriptionLength);
         }
 
         return errors;

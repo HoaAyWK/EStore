@@ -11,6 +11,7 @@ namespace EStore.Application.Products.Commands.UpdateProduct;
 public record UpdateProductCommand(
     ProductId Id,
     string Name,
+    string ShortDescription,
     string Description,
     decimal Price,
     bool Published,

@@ -1,4 +1,5 @@
 using EStore.Application.Orders.Commands.ConfirmPaymentInfo;
+using EStore.Application.Orders.Commands.ConfirmReceived;
 using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
 using EStore.Application.Orders.Queries.GetOrderById;
@@ -11,7 +12,6 @@ using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Entities;
 using EStore.Domain.OrderAggregate.ValueObjects;
 using Mapster;
-using static EStore.Contracts.Orders.OrderResponse;
 
 namespace EStore.Api.Common.Mapping;
 
@@ -76,5 +76,16 @@ public class OrderMappingConfig : IRegister
 
         config.NewConfig<Guid, ConfirmPaymentInfoCommand>()
             .Map(dest => dest.OrderId, src => OrderId.Create(src));
+
+        config.NewConfig<Guid, ConfirmReceivedCommand>()
+            .Map(dest => dest.OrderId, src => OrderId.Create(src));
+
+        config.NewConfig<GetOrdersRequest, GetOrderListPagedQuery>()
+            .Map(dest => dest.Page, src => src.Page)
+            .Map(dest => dest.PageSize, src => src.PageSize)
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+            .Map(dest => dest.Order, src => src.Order)
+            .Map(dest => dest.OrderBy, src => src.OrderBy)
+            .Map(dest => dest.OrderNumber, src => src.OrderNumber);
     }
 }

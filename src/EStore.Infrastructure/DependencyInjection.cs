@@ -1,3 +1,4 @@
+using EStore.Application.Banners.Services;
 using EStore.Application.Carts.Services;
 using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
@@ -7,6 +8,7 @@ using EStore.Application.Discounts.Services;
 using EStore.Application.Notifications.Services;
 using EStore.Application.Orders.Services;
 using EStore.Application.Products.Services;
+using EStore.Domain.BannerAggregate.Repositories;
 using EStore.Domain.BrandAggregate.Repositories;
 using EStore.Domain.CartAggregate.Repositories;
 using EStore.Domain.CategoryAggregate.Repositories;
@@ -100,6 +102,7 @@ public static class DependencyInjection
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IDiscountRepository, DiscountRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IBannerRepository, BannerRepository>();
 
         services.AddScoped<IBrandReadService, BrandReadService>();
         services.AddScoped<ICategoryReadService, CategoryReadService>();
@@ -118,6 +121,7 @@ public static class DependencyInjection
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IOrderSequenceService, OrderSequenceService>();
         services.AddScoped<INotificationReadService, NotificationReadService>();
+        services.AddScoped<IBannerReadService, BannerReadService>();
 
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IOtpService, OtpService>();

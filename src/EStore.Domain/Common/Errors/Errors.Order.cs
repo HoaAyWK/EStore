@@ -51,5 +51,14 @@ public static partial class Errors
             => Error.Validation(
                 code: "Order.OrderStatusTransitionNotAllow",
                 description: $"The transition from {from} to {to} is not allowed for this order.");
+
+
+        public static Error OrderDidNotHaveAnyStatusTracking = Error.Validation(
+            code: "Order.OrderDidNotHaveAnyStatusTracking",
+            description: "The order did not have any status tracking.");
+
+        public static Error OrderHasNotDeliveredYet = Error.Validation(
+            code: "Order.OrderHasNotDeliveredYet",
+            description: "The order has not delivered yet.");
     }
 }

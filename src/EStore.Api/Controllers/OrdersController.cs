@@ -1,6 +1,7 @@
 using EStore.Api.Common.ApiRoutes;
 using EStore.Api.Common.Contexts;
 using EStore.Application.Orders.Commands.ConfirmPaymentInfo;
+using EStore.Application.Orders.Commands.ConfirmReceived;
 using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
 using EStore.Application.Orders.Queries.GetOrderById;
@@ -46,15 +47,12 @@ public class OrdersController : ApiController
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetOrders(int page = 1, int pageSize = 5)
+    public async Task<IActionResult> GetOrders(
+        [FromQuery] GetOrdersRequest request)
     {
-        var query = _mapper.Map<GetOrderListPagedQuery>((
-            page,
-            pageSize));
+        var query = _mapper.Map<GetOrdersRequest, GetOrderListPagedQuery>(request);
 
-        var listPaged = await _mediator.Send(query);
-
-        return Ok(_mapper.Map<PagedList<OrderResponse>>(listPaged));
+        return Ok(await _mediator.Send(query));
     }
 
     [HttpGet(ApiRoutes.Order.GetMyOrders)]
@@ -111,12 +109,28 @@ public class OrdersController : ApiController
     public async Task<IActionResult> ConfirmPaymentInfo([FromRoute] Guid id)
     {
         var command = _mapper.Map<Guid, ConfirmPaymentInfoCommand>(id);
-
         var confirmPaymentInfoResult = await _mediator.Send(command);
+        var query = _mapper.Map<Guid, GetOrderByIdQuery>(id);
+        var getOrderResult = await _mediator.Send(query);
 
-        return confirmPaymentInfoResult.Match(
-            success => NoContent(),
-            Problem);
+        return getOrderResult.Match(Ok, Problem);
+    }
+
+    [HttpPut(ApiRoutes.Order.ConfirmReceived)]
+    public async Task<IActionResult> ConfirmReceived([FromRoute] Guid id)
+    {
+        var command = _mapper.Map<Guid, ConfirmReceivedCommand>(id);
+        var confirmReceivedResult = await _mediator.Send(command);
+
+        if (confirmReceivedResult.IsError)
+        {
+            return Problem(confirmReceivedResult.Errors);
+        }
+
+        var query = _mapper.Map<Guid, GetOrderByIdQuery>(id);
+        var getOrderResult = await _mediator.Send(query);
+
+        return getOrderResult.Match(Ok, Problem);
     }
 }
 

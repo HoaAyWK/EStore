@@ -2,6 +2,7 @@ namespace EStore.Contracts.Products;
 
 public record CreateProductRequest(
     string Name,
+    string ShortDescription,
     string Description,
     bool Published,
     decimal Price,

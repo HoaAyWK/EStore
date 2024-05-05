@@ -181,5 +181,11 @@ public static partial class Errors
         public static Error ProductVariantNotEnoughStock(Guid id) => Error.Validation(
             code: "Product.ProductVariantNotEnoughStock",
             description: $"The product's variant with id = {id} does not have enough stock.");
+
+        public static Error InvalidShortDescriptionLength = Error.Validation(
+            code: "Product.InvalidShortDescriptionLength",
+            description: "Product short description must be between " +
+                $"{ProductAggregate.Product.MinShortDescriptionLength} and " +
+                $"{ProductAggregate.Product.MaxShortDescriptionLength} characters.");
     }
 }

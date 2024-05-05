@@ -65,6 +65,7 @@ public class UpdateProductCommandHandler
 
         var updateDetailsResult = product.UpdateDetails(
             name: request.Name,
+            shortDescription: request.ShortDescription,
             description: request.Description,
             price: request.Price,
             displayOrder: request.DisplayOrder,

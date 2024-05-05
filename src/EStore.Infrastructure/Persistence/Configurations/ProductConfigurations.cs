@@ -37,6 +37,9 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Name)
             .HasMaxLength(Product.MaxNameLength);
 
+        builder.Property(p => p.ShortDescription)
+            .HasMaxLength(Product.MaxShortDescriptionLength);
+
         builder.Property(p => p.Price)
             .HasColumnType("decimal(18, 2)");
 

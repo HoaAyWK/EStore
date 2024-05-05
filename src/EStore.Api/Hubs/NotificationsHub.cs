@@ -255,7 +255,7 @@ public class NotificationsHub : Hub<INotificationClient>
             Type: OrderStatusHistory.PaymentInfoConfirmed.Name,
             EntityId: orderId,
             From: CustomerId.Create(adminId),
-            To: order.CustomerId,
+            To: CustomerId.Create(order.CustomerId),
             IsRead: false,
             Timestamp: _dateTimeProvider.UtcNow);
 
@@ -274,7 +274,7 @@ public class NotificationsHub : Hub<INotificationClient>
             return;
         }
 
-        await Clients.User(order.CustomerId.Value.ToString())
+        await Clients.User(order.CustomerId.ToString())
             .NotifyCustomerWhenOrderStatusChange(getNotificationResult.Value);
     }
 }

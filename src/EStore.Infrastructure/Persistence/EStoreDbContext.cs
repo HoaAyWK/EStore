@@ -1,3 +1,4 @@
+using EStore.Domain.BannerAggregate;
 using EStore.Domain.BrandAggregate;
 using EStore.Domain.CartAggregate;
 using EStore.Domain.CategoryAggregate;
@@ -42,6 +43,8 @@ public class EStoreDbContext : DbContext
     public DbSet<Order> Orders { get; set; } = null!;
 
     public DbSet<Discount> Discounts { get; set; } = null!;
+
+    public DbSet<Banner> Banners { get; set; } = null!;
 
     public DbSet<Notification> Notifications { get; set; } = null!;
 

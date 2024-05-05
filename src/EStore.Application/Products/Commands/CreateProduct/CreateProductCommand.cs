@@ -8,6 +8,7 @@ namespace EStore.Application.Products.Commands.CreateProduct;
 
 public record CreateProductCommand(
     string Name,
+    string ShortDescription,
     string Description,
     bool Published,
     decimal Price,

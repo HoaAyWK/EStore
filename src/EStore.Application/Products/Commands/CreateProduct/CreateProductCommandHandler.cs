@@ -48,6 +48,7 @@ public class CreateProductCommandHandler
         var createProductResult = Product.Create(
             name: request.Name,
             description: request.Description,
+            shortDescription: request.ShortDescription,
             published: request.Published,
             price: request.Price,
             displayOrder: request.DisplayOrder,

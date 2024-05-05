@@ -9,6 +9,7 @@ public static class CreateProductCommandUtils
 {
     public static CreateProductCommand CreateCommand(
         string? name = null,
+        string? shortDescription = null,
         string? description = null,
         bool published = true,
         decimal price = 0,
@@ -19,6 +20,7 @@ public static class CreateProductCommandUtils
     {
         return new CreateProductCommand(
             name ?? Constants.Product.Name,
+            shortDescription ?? Constants.Product.Description,
             description ?? Constants.Product.Description,
             published,
             price,
