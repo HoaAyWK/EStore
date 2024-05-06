@@ -31,6 +31,8 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
 
     public string RawAttributes { get; private set; } = default!;
 
+    public string? RawAttributeSelection { get; private set; }
+
     public IReadOnlyList<ProductReviewComment> ReviewComments => _reviewComments.AsReadOnly();
 
     private ProductReview(
@@ -38,12 +40,14 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
         string content,
         int rating,
         string rawAttributes,
+        string? rawAttributeSelection,
         CustomerId ownerId)
         : base(id)
     {
         Content = content;
         Rating = rating;
         RawAttributes = rawAttributes;
+        RawAttributeSelection = rawAttributeSelection;
         OwnerId = ownerId;
     }
 
@@ -51,6 +55,7 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
         string content,
         int rating,
         string rawAttributes,
+        string? rawAttributeSelection,
         CustomerId customerId)
     {
         var errors = ValidateRatingValue(rating);
@@ -67,6 +72,7 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
             content,
             rating,
             rawAttributes,
+            rawAttributeSelection,
             customerId);
     }
 

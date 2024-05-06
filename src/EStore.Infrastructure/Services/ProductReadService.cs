@@ -108,10 +108,10 @@ internal sealed class ProductReadService : IProductReadService
                         Price = variant.Price,
                         IsActive = variant.IsActive,
                         AverageRating = new AverageRatingDto
-                            {
-                                Value = variant.AverageRating.Value,
-                                NumRatings = variant.AverageRating.NumRatings
-                            },
+                        {
+                            Value = variant.AverageRating.Value,
+                            NumRatings = variant.AverageRating.NumRatings
+                        },
                         AssignedProductImageIds = variant.AssignedProductImageIds,
                         RawAttributeSelection = variant.RawAttributeSelection,
                         RawAttributes = variant.RawAttributes
@@ -123,7 +123,8 @@ internal sealed class ProductReadService : IProductReadService
                         Id = review.Id.Value,
                         Content = review.Content,
                         Rating = review.Rating,
-                        RawAttributeSelection = review.RawAttributes,
+                        RawAttributeSelection = review.RawAttributeSelection,
+                        RawAttributes = review.RawAttributes,
                         Owner = _dbContext.Customers.AsNoTracking()
                             .Where(customer => customer.Id == review.OwnerId)
                             .Select(customer => new ProductReviewOwnerDto
@@ -237,6 +238,11 @@ internal sealed class ProductReadService : IProductReadService
                         StockQuantity = variant.StockQuantity,
                         Price = variant.Price,
                         IsActive = variant.IsActive,
+                        AverageRating = new AverageRatingDto
+                        {
+                            Value = variant.AverageRating.Value,
+                            NumRatings = variant.AverageRating.NumRatings
+                        },
                         AssignedProductImageIds = variant.AssignedProductImageIds,
                         RawAttributeSelection = variant.RawAttributeSelection,
                         RawAttributes = variant.RawAttributes
@@ -248,7 +254,8 @@ internal sealed class ProductReadService : IProductReadService
                         Id = review.Id.Value,
                         Content = review.Content,
                         Rating = review.Rating,
-                        RawAttributeSelection = review.RawAttributes,
+                        RawAttributeSelection = review.RawAttributeSelection,
+                        RawAttributes = review.RawAttributes,
                         Owner = _dbContext.Customers.AsNoTracking()
                             .Where(customer => customer.Id == review.OwnerId)
                             .Select(customer => new ProductReviewOwnerDto

@@ -5,6 +5,7 @@ using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,70 @@ internal sealed class OrderReadService : IOrderReadService
     public OrderReadService(EStoreDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public async Task<List<OrderResponse>> GetOrdersByCriteriaAsync(
+        CustomerId customerId,
+        ProductId productId,
+        ProductVariantId? productVariantId)
+    {
+        var orders = await _dbContext.Orders.AsNoTracking()
+            .Where(order => order.CustomerId == customerId)
+            .Where(order => order.OrderItems.Any(item =>
+                item.ItemOrdered.ProductId == productId &&
+                item.ItemOrdered.ProductVariantId! == productVariantId!))
+            .Select(order => new OrderResponse
+            {
+                Id = order.Id.Value,
+                OrderNumber = order.OrderNumber,
+                CreatedDateTime = order.CreatedDateTime,
+                UpdatedDateTime = order.UpdatedDateTime,
+                OrderStatus = order.OrderStatus.Name,
+                TotalAmount = order.TotalAmount,
+                CustomerId = order.CustomerId.Value,
+                Customer = _dbContext.Customers.AsNoTracking()
+                    .Where(customer => customer.Id == order.CustomerId)
+                    .Select(customer => new CustomerResponse(
+                        customer.Id.Value,
+                        customer.FirstName,
+                        customer.LastName,
+                        customer.Email,
+                        customer.AvatarUrl))
+                    .SingleOrDefault(),
+                OrderItems = order.OrderItems
+                    .Select(orderItem => new OrderItemResponse(
+                        orderItem.ItemOrdered.ProductId.Value,
+                        orderItem.ItemOrdered.ProductVariantId! == null!
+                            ? null
+                            : orderItem.ItemOrdered.ProductVariantId.Value,
+                        orderItem.ItemOrdered.ProductName,
+                        orderItem.ItemOrdered.ProductImage!,
+                        orderItem.ItemOrdered.ProductAttributes,
+                        orderItem.UnitPrice,
+                        orderItem.SubTotal,
+                        orderItem.TotalDiscount,
+                        orderItem.Quantity))
+                    .ToList(),
+                ShippingAddress = new ShippingAddressResponse(
+                    order.ShippingAddress.ReceiverName,
+                    order.ShippingAddress.PhoneNumber,
+                    order.ShippingAddress.Street,
+                    order.ShippingAddress.City,
+                    order.ShippingAddress.State,
+                    order.ShippingAddress.Country,
+                    order.ShippingAddress.ZipCode),
+                PaymentMethod = order.PaymentMethod.Name,
+                PaymentStatus = order.PaymentStatus.Name,
+                OrderStatusHistoryTrackings = order.OrderStatusHistoryTrackings
+                    .Select(tracking => new OrderStatusHistoryTrackingResponse(
+                        tracking.Id.Value,
+                        tracking.Status.Name,
+                        tracking.CreatedDateTime))
+                    .ToList()
+            })
+            .ToListAsync();
+
+        return orders;
     }
     
     public async Task<PagedList<OrderResponse>> GetListPagedAsync(

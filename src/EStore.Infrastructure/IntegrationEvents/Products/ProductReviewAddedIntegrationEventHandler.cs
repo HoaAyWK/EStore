@@ -56,6 +56,7 @@ public class ProductReviewAddedIntegrationEventHandler : INotificationHandler<Pr
                 new ProductSearchModel
                 {
                     ObjectID = variant.Id.Value.ToString(),
+                    ProductId = product.Id.Value,
                     AverageRating = variant.AverageRating.Value,
                     NumRatings = variant.AverageRating.NumRatings
                 },

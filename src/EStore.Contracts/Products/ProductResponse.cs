@@ -97,6 +97,7 @@ public record ProductReviewResponse(
     DateTime CreatedDateTime,
     DateTime UpdatedDateTime,
     Dictionary<Guid, Guid> AttributeSelection,
+    Dictionary<string, string> Attributes,
     List<ProductReviewCommentResponse> ReviewComments);
 
 public record ProductReviewCommentResponse(

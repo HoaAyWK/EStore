@@ -4,6 +4,7 @@ using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate.ValueObjects;
 
 namespace EStore.Application.Orders.Services;
 
@@ -24,4 +25,9 @@ public interface IOrderReadService
         int pageSize,
         OrderStatus? orderStatus = null,
         CancellationToken cancellationToken = default);
+
+    Task<List<OrderResponse>> GetOrdersByCriteriaAsync(
+        CustomerId customerId,
+        ProductId productId,
+        ProductVariantId? productVariantId);
 }

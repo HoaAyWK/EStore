@@ -4,6 +4,7 @@ using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
 using EStore.Application.Orders.Queries.GetOrderById;
 using EStore.Application.Orders.Queries.GetOrderListPaged;
+using EStore.Application.Orders.Queries.GetOrdersByCriteria;
 using EStore.Application.Orders.Queries.GetOrdersByCustomer;
 using EStore.Contracts.Common;
 using EStore.Contracts.Orders;
@@ -11,6 +12,7 @@ using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.OrderAggregate;
 using EStore.Domain.OrderAggregate.Entities;
 using EStore.Domain.OrderAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using Mapster;
 
 namespace EStore.Api.Common.Mapping;
@@ -87,5 +89,14 @@ public class OrderMappingConfig : IRegister
             .Map(dest => dest.Order, src => src.Order)
             .Map(dest => dest.OrderBy, src => src.OrderBy)
             .Map(dest => dest.OrderNumber, src => src.OrderNumber);
+
+        config.NewConfig<(Guid, GetMyOrdersWithSpecificProductRequest), GetOrdersByCriteriaQuery>()
+            .Map(dest => dest.CustomerId, src => CustomerId.Create(src.Item1))
+            .Map(dest => dest.ProductId, src => ProductId.Create(src.Item2.ProductId))
+            .Map(
+                dest => dest.ProductVariantId,
+                src => src.Item2.ProductVariantId == null
+                    ? null
+                    : ProductVariantId.Create(src.Item2.ProductVariantId.Value));
     }
 }

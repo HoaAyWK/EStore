@@ -55,13 +55,13 @@ public class ProductMappingConfig : IRegister
 
         config.NewConfig<AddProductAttributeRequest, AddProductAttributeCommand>();
 
-        config.NewConfig<(Guid, AddProductReviewRequest), AddProductReviewCommand>()
-            .Map(dest => dest.ProductId, src => ProductId.Create(src.Item1))
-            .Map(dest => dest.ProductVariantId, src => src.Item2.ProductVariantId == null
+        config.NewConfig<(Guid, Guid, AddProductReviewRequest), AddProductReviewCommand>()
+            .Map(dest => dest.OwnerId, src => CustomerId.Create(src.Item1))
+            .Map(dest => dest.ProductId, src => ProductId.Create(src.Item2))
+            .Map(dest => dest.ProductVariantId, src => src.Item3.ProductVariantId == null
                 ? null
-                : ProductVariantId.Create(src.Item2.ProductVariantId.Value))
-            .Map(dest => dest.OwnerId, src => CustomerId.Create(src.Item2.OwnerId))
-            .Map(dest => dest, src => src.Item2);
+                : ProductVariantId.Create(src.Item3.ProductVariantId.Value))
+            .Map(dest => dest, src => src.Item3);
 
         config.NewConfig<Guid, CategoryId>()
             .MapWith(src => CategoryId.Create(src));
@@ -82,8 +82,12 @@ public class ProductMappingConfig : IRegister
                 dest => dest.AttributeSelection,
                 src => src.AttributeSelection.AttributesMap.ToDictionary(
                     k => k.Key.Value,
-                    v => v.Value.First().Value)
-            );
+                    v => v.Value.First().Value))
+            .Map(
+                dest => dest.Attributes,
+                src => src.Attributes.ToDictionary(
+                    k => k.Key,
+                    v => v.Value));
 
         config.NewConfig<ProductReviewCommentDto, ProductReviewCommentResponse>();
 

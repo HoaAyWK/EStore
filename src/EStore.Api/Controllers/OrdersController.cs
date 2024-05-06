@@ -6,6 +6,7 @@ using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
 using EStore.Application.Orders.Queries.GetOrderById;
 using EStore.Application.Orders.Queries.GetOrderListPaged;
+using EStore.Application.Orders.Queries.GetOrdersByCriteria;
 using EStore.Application.Orders.Queries.GetOrdersByCustomer;
 using EStore.Application.Orders.Queries.GetOrderStatuses;
 using EStore.Contracts.Common;
@@ -131,6 +132,16 @@ public class OrdersController : ApiController
         var getOrderResult = await _mediator.Send(query);
 
         return getOrderResult.Match(Ok, Problem);
+    }
+
+    [HttpGet(ApiRoutes.Order.GetMyOrdersWithSpecificProduct)]
+    public async Task<IActionResult> GetMyOrdersWithSpecificProduct(
+        [FromQuery] GetMyOrdersWithSpecificProductRequest request)
+    {
+        var query = _mapper.Map<(Guid, GetMyOrdersWithSpecificProductRequest), GetOrdersByCriteriaQuery>((
+            _workContext.CustomerId, request));
+
+        return Ok(new { Data = await _mediator.Send(query) });
     }
 }
 

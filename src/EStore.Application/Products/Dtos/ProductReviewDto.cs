@@ -1,5 +1,6 @@
 using EStore.Domain.Common.Utilities;
 using EStore.Domain.ProductAggregate.ValueObjects;
+using Newtonsoft.Json;
 
 namespace EStore.Application.Products.Dtos;
 
@@ -19,7 +20,12 @@ public class ProductReviewDto
 
     public string? RawAttributeSelection { get; set; }
 
+    public string RawAttributes { get; set; } = string.Empty;
+
     public IEnumerable<ProductReviewCommentDto> ReviewComments { get; set; } = null!;
+
+    public Dictionary<string, string> Attributes
+        => JsonConvert.DeserializeObject<Dictionary<string, string>>(RawAttributes) ?? new();
 
     public AttributeSelection<ProductAttributeId, ProductAttributeValueId> AttributeSelection
         => AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(RawAttributeSelection);

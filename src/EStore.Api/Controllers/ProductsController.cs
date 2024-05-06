@@ -21,20 +21,26 @@ using EStore.Application.Products.Commands.AddProductVariant;
 using EStore.Application.Products.Commands.UpdateProductVariant;
 using EStore.Api.Common.ApiRoutes;
 using EStore.Application.Products.Commands.AddProductReview;
+using EStore.Api.Common.Contexts;
 
 namespace EStore.Api.Controllers;
 
-[Authorize(Roles = $"{Roles.Admin}")]
+
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ProductsController : ApiController
 {
     private readonly ISender _mediator;
     private readonly IMapper _mapper;
+    private readonly IWorkContext _workContext;
 
-    public ProductsController(ISender mediator, IMapper mapper)
+    public ProductsController(
+        ISender mediator,
+        IMapper mapper,
+        IWorkContext workContext)
     {
         _mediator = mediator;
         _mapper = mapper;
+        _workContext = workContext;
     }
 
     [AllowAnonymous]
@@ -72,6 +78,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPost]
+    [Authorize(Roles = $"{Roles.Admin}")]
     public async Task<IActionResult> CreateProduct(CreateProductRequest request)
     {
         var command = _mapper.Map<CreateProductCommand>(request);
@@ -83,6 +90,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPost]
+    [Authorize(Roles = $"{Roles.Admin}")]
     [Route(ApiRoutes.Product.AddImages)]
     public async Task<IActionResult> AddProductImage(
         Guid id,
@@ -108,6 +116,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPut(ApiRoutes.Product.Update)]
+    [Authorize(Roles = $"{Roles.Admin}")]
     public async Task<IActionResult> UpdateProduct(
         Guid id,
         [FromBody] UpdateProductRequest request)
@@ -129,6 +138,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPost(ApiRoutes.Product.AddAttribute)]
+    [Authorize(Roles = $"{Roles.Admin}")]
     public async Task<IActionResult> AddAttribute(
         Guid id,
         [FromBody] AddProductAttributeRequest request)
@@ -157,6 +167,7 @@ public class ProductsController : ApiController
 
 
     [HttpPut]
+    [Authorize(Roles = $"{Roles.Admin}")]
     [Route(ApiRoutes.Product.UpdateAttribute)]
     public async Task<IActionResult> UpdateAttribute(
         Guid id,
@@ -186,6 +197,7 @@ public class ProductsController : ApiController
             Problem);
     }
 
+    [Authorize(Roles = $"{Roles.Admin}")]
     [HttpPost(ApiRoutes.Product.AddAttributeValue)]
     public async Task<IActionResult> AddAttributeValue(
         Guid id,
@@ -215,6 +227,7 @@ public class ProductsController : ApiController
             Problem);
     }
 
+    [Authorize(Roles = $"{Roles.Admin}")]
     [HttpPut(ApiRoutes.Product.UpdateAttributeValue)]
     public async Task<IActionResult> UpdateAttributeValue(
         Guid id,
@@ -247,6 +260,7 @@ public class ProductsController : ApiController
     }
 
     [HttpDelete]
+    [Authorize(Roles = $"{Roles.Admin}")]
     [Route(ApiRoutes.Product.DeleteAttributeValue)]
     public async Task<IActionResult> DeleteVarianAttributeValue(
         [FromRoute] DeleteAttributeValueRequest request)
@@ -268,6 +282,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPost]
+    [Authorize(Roles = $"{Roles.Admin}")]
     [Route(ApiRoutes.Product.AddVariant)]
     public async Task<IActionResult> AddProductVariant(Guid id, [FromBody] CreateProductVariantRequest request)
     {
@@ -288,6 +303,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPut]
+    [Authorize(Roles = $"{Roles.Admin}")]
     [Route(ApiRoutes.Product.UpdateVariant)]
     public async Task<IActionResult> UpdateProductVariant(
         Guid id,
@@ -311,12 +327,16 @@ public class ProductsController : ApiController
     }
 
     [HttpPost]
+    [Authorize(Roles = $"{Roles.Customer}")]
     [Route(ApiRoutes.Product.AddReview)]
     public async Task<IActionResult> AddProductReview(
         Guid id,
         [FromBody] AddProductReviewRequest request)
     {
-        var command = _mapper.Map<AddProductReviewCommand>((id, request));
+        var command = _mapper.Map<(Guid, Guid, AddProductReviewRequest), AddProductReviewCommand>((
+            _workContext.CustomerId,
+            id,
+            request));
 
         var addProductReviewResult = await _mediator.Send(command);
 

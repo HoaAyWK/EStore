@@ -484,6 +484,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         CustomerId ownerId)
     {
         var rawAttributes = string.Empty;
+        var rawAttributeSelection = string.Empty;
         ProductVariant? productVariant = null;
 
         if (productVariantId is not null)
@@ -498,8 +499,8 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
             }
 
             var reviewed = _productReviews.Where(review =>
-                AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(review.RawAttributes).Equals(
-                    AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(productVariant.RawAttributes)))
+                AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(review.RawAttributeSelection).Equals(
+                    AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(productVariant.RawAttributeSelection)))
                 .Any();
 
             if (reviewed)
@@ -508,6 +509,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
             }
 
             rawAttributes = productVariant.RawAttributes;
+            rawAttributeSelection = productVariant.RawAttributeSelection;
         }
         else
         {
@@ -525,6 +527,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
             content,
             rating,
             rawAttributes,
+            rawAttributeSelection,
             ownerId);
 
         if (createProductReviewResult.IsError)
