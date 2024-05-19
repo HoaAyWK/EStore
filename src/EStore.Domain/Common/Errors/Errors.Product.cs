@@ -187,5 +187,9 @@ public static partial class Errors
             description: "Product short description must be between " +
                 $"{ProductAggregate.Product.MinShortDescriptionLength} and " +
                 $"{ProductAggregate.Product.MaxShortDescriptionLength} characters.");
+
+        public static Error NotPublishedYet = Error.Validation(
+            code: "Product.NotPublishedYet",
+            description: "The product is not published yet.");
     }
 }

@@ -4,6 +4,7 @@ using EStore.Application.Common.Interfaces.Authentication;
 using EStore.Application.Common.Interfaces.Persistence;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Common.Searching;
+using EStore.Application.Customers.Services;
 using EStore.Application.Discounts.Services;
 using EStore.Application.Notifications.Services;
 using EStore.Application.Orders.Services;
@@ -122,6 +123,7 @@ public static class DependencyInjection
         services.AddScoped<IOrderSequenceService, OrderSequenceService>();
         services.AddScoped<INotificationReadService, NotificationReadService>();
         services.AddScoped<IBannerReadService, BannerReadService>();
+        services.AddScoped<ICustomerReadService, CustomerReadService>();
 
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IOtpService, OtpService>();

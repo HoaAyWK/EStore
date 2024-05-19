@@ -1,6 +1,8 @@
 using EStore.Application.Customers.Command.UpdateCustomer;
 using EStore.Application.Customers.Commands.AddAddress;
 using EStore.Application.Customers.Commands.UpdateAddress;
+using EStore.Application.Customers.Queries.GetAllCustomers;
+using EStore.Application.Customers.Queries.GetCustomerStats;
 using EStore.Contracts.Common;
 using EStore.Contracts.Customers;
 using EStore.Domain.CustomerAggregate;
@@ -40,5 +42,12 @@ public class CustomerMappingConfig : IRegister
 
         config.NewConfig<Guid, CustomerId>()
             .Map(dest => dest, src => CustomerId.Create(src));
+
+        config.NewConfig<GetCustomerStatsRequest, GetCustomerStatsQuery>();
+
+        config.NewConfig<Guid, GetAllCustomersQuery>()
+            .Map(
+                dest => dest.CurrentCustomerId,
+                src => CustomerId.Create(src));
     }
 }

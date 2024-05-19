@@ -425,7 +425,7 @@ namespace EStore.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AccountTokens");
+                    b.ToTable("AccountTokens", (string)null);
                 });
 
             modelBuilder.Entity("EStore.Infrastructure.OrderSequenceManager.OrderSequence", b =>
@@ -441,7 +441,7 @@ namespace EStore.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderSequences");
+                    b.ToTable("OrderSequences", (string)null);
                 });
 
             modelBuilder.Entity("EStore.Infrastructure.Persistence.Outbox.OutboxMessage", b =>
@@ -473,7 +473,7 @@ namespace EStore.Infrastructure.Migrations
 
             modelBuilder.Entity("EStore.Domain.CartAggregate.Cart", b =>
                 {
-                    b.OwnsMany("EStore.Domain.CartAggregate.Entities.CartItem", "Items", b1 =>
+                    b.OwnsMany("EStore.Domain.CartAggregate.Cart.Items#EStore.Domain.CartAggregate.Entities.CartItem", "Items", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
@@ -519,7 +519,7 @@ namespace EStore.Infrastructure.Migrations
 
             modelBuilder.Entity("EStore.Domain.CustomerAggregate.Customer", b =>
                 {
-                    b.OwnsMany("EStore.Domain.CustomerAggregate.Entities.Address", "Addresses", b1 =>
+                    b.OwnsMany("EStore.Domain.CustomerAggregate.Customer.Addresses#EStore.Domain.CustomerAggregate.Entities.Address", "Addresses", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
@@ -587,7 +587,7 @@ namespace EStore.Infrastructure.Migrations
 
             modelBuilder.Entity("EStore.Domain.OrderAggregate.Order", b =>
                 {
-                    b.OwnsMany("EStore.Domain.OrderAggregate.Entities.OrderItem", "OrderItems", b1 =>
+                    b.OwnsMany("EStore.Domain.OrderAggregate.Order.OrderItems#EStore.Domain.OrderAggregate.Entities.OrderItem", "OrderItems", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
@@ -614,7 +614,7 @@ namespace EStore.Infrastructure.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
 
-                            b1.OwnsOne("EStore.Domain.OrderAggregate.ValueObjects.ItemOrdered", "ItemOrdered", b2 =>
+                            b1.OwnsOne("EStore.Domain.OrderAggregate.Order.OrderItems#EStore.Domain.OrderAggregate.Entities.OrderItem.ItemOrdered#EStore.Domain.OrderAggregate.ValueObjects.ItemOrdered", "ItemOrdered", b2 =>
                                 {
                                     b2.Property<Guid>("OrderItemId")
                                         .HasColumnType("uniqueidentifier");
@@ -641,7 +641,7 @@ namespace EStore.Infrastructure.Migrations
 
                                     b2.HasKey("OrderItemId", "OrderItemOrderId");
 
-                                    b2.ToTable("OrderItems");
+                                    b2.ToTable("OrderItems", (string)null);
 
                                     b2.WithOwner()
                                         .HasForeignKey("OrderItemId", "OrderItemOrderId");
@@ -651,7 +651,7 @@ namespace EStore.Infrastructure.Migrations
                                 .IsRequired();
                         });
 
-                    b.OwnsMany("EStore.Domain.OrderAggregate.Entities.OrderStatusHistoryTracking", "OrderStatusHistoryTrackings", b1 =>
+                    b.OwnsMany("EStore.Domain.OrderAggregate.Order.OrderStatusHistoryTrackings#EStore.Domain.OrderAggregate.Entities.OrderStatusHistoryTracking", "OrderStatusHistoryTrackings", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
@@ -676,7 +676,7 @@ namespace EStore.Infrastructure.Migrations
                                 .HasForeignKey("OrderId");
                         });
 
-                    b.OwnsOne("EStore.Domain.OrderAggregate.ValueObjects.ShippingAddress", "ShippingAddress", b1 =>
+                    b.OwnsOne("EStore.Domain.OrderAggregate.Order.ShippingAddress#EStore.Domain.OrderAggregate.ValueObjects.ShippingAddress", "ShippingAddress", b1 =>
                         {
                             b1.Property<Guid>("OrderId")
                                 .HasColumnType("uniqueidentifier");
@@ -718,7 +718,7 @@ namespace EStore.Infrastructure.Migrations
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Orders");
+                            b1.ToTable("Orders", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -734,7 +734,55 @@ namespace EStore.Infrastructure.Migrations
 
             modelBuilder.Entity("EStore.Domain.ProductAggregate.Product", b =>
                 {
-                    b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductAttribute", "ProductAttributes", b1 =>
+                    b.OwnsOne("EStore.Domain.ProductAggregate.Product.AverageRating#EStore.Domain.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("NumRatings")
+                                .HasColumnType("int");
+
+                            b1.Property<double>("Value")
+                                .HasColumnType("float");
+
+                            b1.HasKey("ProductId");
+
+                            b1.ToTable("Products", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.OwnsMany("EStore.Domain.ProductAggregate.Product.Images#EStore.Domain.ProductAggregate.Entities.ProductImage", "Images", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("ProductImageId");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("DisplayOrder")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("ImageUrl")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool>("IsMain")
+                                .HasColumnType("bit");
+
+                            b1.HasKey("Id", "ProductId");
+
+                            b1.HasIndex("ProductId");
+
+                            b1.ToTable("ProductImages", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.OwnsMany("EStore.Domain.ProductAggregate.Product.ProductAttributes#EStore.Domain.ProductAggregate.Entities.ProductAttribute", "ProductAttributes", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
@@ -766,7 +814,7 @@ namespace EStore.Infrastructure.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");
 
-                            b1.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductAttributeValue", "ProductAttributeValues", b2 =>
+                            b1.OwnsMany("EStore.Domain.ProductAggregate.Product.ProductAttributes#EStore.Domain.ProductAggregate.Entities.ProductAttribute.ProductAttributeValues#EStore.Domain.ProductAggregate.Entities.ProductAttributeValue", "ProductAttributeValues", b2 =>
                                 {
                                     b2.Property<Guid>("Id")
                                         .HasColumnType("uniqueidentifier")
@@ -809,36 +857,7 @@ namespace EStore.Infrastructure.Migrations
                             b1.Navigation("ProductAttributeValues");
                         });
 
-                    b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductImage", "Images", b1 =>
-                        {
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
-                                .HasColumnName("ProductImageId");
-
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<int>("DisplayOrder")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("ImageUrl")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<bool>("IsMain")
-                                .HasColumnType("bit");
-
-                            b1.HasKey("Id", "ProductId");
-
-                            b1.HasIndex("ProductId");
-
-                            b1.ToTable("ProductImages", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId");
-                        });
-
-                    b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductReview", "ProductReviews", b1 =>
+                    b.OwnsMany("EStore.Domain.ProductAggregate.Product.ProductReviews#EStore.Domain.ProductAggregate.Entities.ProductReview", "ProductReviews", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
@@ -881,7 +900,7 @@ namespace EStore.Infrastructure.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");
 
-                            b1.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductReviewComment", "ReviewComments", b2 =>
+                            b1.OwnsMany("EStore.Domain.ProductAggregate.Product.ProductReviews#EStore.Domain.ProductAggregate.Entities.ProductReview.ReviewComments#EStore.Domain.ProductAggregate.Entities.ProductReviewComment", "ReviewComments", b2 =>
                                 {
                                     b2.Property<Guid>("Id")
                                         .HasColumnType("uniqueidentifier")
@@ -925,7 +944,7 @@ namespace EStore.Infrastructure.Migrations
                             b1.Navigation("ReviewComments");
                         });
 
-                    b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductVariant", "ProductVariants", b1 =>
+                    b.OwnsMany("EStore.Domain.ProductAggregate.Product.ProductVariants#EStore.Domain.ProductAggregate.Entities.ProductVariant", "ProductVariants", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
@@ -963,7 +982,7 @@ namespace EStore.Infrastructure.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");
 
-                            b1.OwnsOne("EStore.Domain.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b2 =>
+                            b1.OwnsOne("EStore.Domain.ProductAggregate.Product.ProductVariants#EStore.Domain.ProductAggregate.Entities.ProductVariant.AverageRating#EStore.Domain.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b2 =>
                                 {
                                     b2.Property<Guid>("ProductVariantId")
                                         .HasColumnType("uniqueidentifier");
@@ -979,7 +998,7 @@ namespace EStore.Infrastructure.Migrations
 
                                     b2.HasKey("ProductVariantId", "ProductVariantProductId");
 
-                                    b2.ToTable("ProductVariants");
+                                    b2.ToTable("ProductVariants", (string)null);
 
                                     b2.WithOwner()
                                         .HasForeignKey("ProductVariantId", "ProductVariantProductId");
@@ -987,25 +1006,6 @@ namespace EStore.Infrastructure.Migrations
 
                             b1.Navigation("AverageRating")
                                 .IsRequired();
-                        });
-
-                    b.OwnsOne("EStore.Domain.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b1 =>
-                        {
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<int>("NumRatings")
-                                .HasColumnType("int");
-
-                            b1.Property<double>("Value")
-                                .HasColumnType("float");
-
-                            b1.HasKey("ProductId");
-
-                            b1.ToTable("Products");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId");
                         });
 
                     b.Navigation("AverageRating")

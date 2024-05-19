@@ -7,5 +7,7 @@ public static partial class ApiRoutes
         public const string SearchProducts = "products";
 
         public const string GetAlgoliaIndexSettings = "algolia/index-settings";
+
+        public const string RebuildProductVariant = "rebuild-product-variant";
     }
 }

@@ -31,6 +31,10 @@ public class GetCustomerByIdQueryHandler
             customer.Id.Value,
             customer.FirstName,
             customer.LastName,
-            customer.Email);
+            customer.Email,
+            customer.PhoneNumber,
+            customer.AvatarUrl,
+            null,
+            null);
     }
 }

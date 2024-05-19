@@ -4,4 +4,8 @@ public record CustomerResponse(
     Guid Id,
     string FirstName,
     string LastName,
-    string Email);
+    string Email,
+    string? Phone,
+    string? AvatarUrl,
+    string? Role,
+    bool? EmailConfirmed);

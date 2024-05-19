@@ -281,4 +281,162 @@ internal sealed class OrderReadService : IOrderReadService
 
         return new PagedList<Order>(orders, page, pageSize, totalItems, totalPages);
     }
+
+    public async Task<OrderStats> GetOrderStatsAsync(int lastDaysCount)
+    {
+        var totalOrders = await _dbContext.Orders.CountAsync();
+        var orderGroups = await _dbContext.Orders
+            .Where(order => order.CreatedDateTime.Date >= DateTime.UtcNow.Date.AddDays(-lastDaysCount))
+            .GroupBy(order => order.CreatedDateTime.Date)
+            .Select(group => new
+            {
+                Date = group.Key,
+                Count = group.Count()
+            })
+            .ToListAsync();
+
+        var startDate = DateTime.UtcNow.Date.AddDays(-lastDaysCount);
+        var endDate = DateTime.UtcNow.Date;
+        var dateRange = Enumerable.Range(0, (endDate - startDate).Days + 1)
+            .Select(offset => startDate.AddDays(offset));
+
+        var orderGroupsWithDefault = from date in dateRange
+            join orderGroup in orderGroups
+            on date equals orderGroup.Date into gj
+            from subOrderGroup in gj.DefaultIfEmpty()
+            select new
+            {
+                Date = date,
+                Count = subOrderGroup != null ? subOrderGroup.Count : 0
+            };
+
+        var ordersPerDay = orderGroupsWithDefault
+            .OrderBy(group => group.Date)
+            .Select(group => group.Count)
+            .ToList();
+
+        var lastPreviousOrdersPerDay = await _dbContext.Orders
+            .Where(order =>
+                order.CreatedDateTime.Date >= DateTime.UtcNow.Date.AddDays(-lastDaysCount * 2) &&
+                order.CreatedDateTime.Date < DateTime.UtcNow.Date.AddDays(-lastDaysCount))
+            .GroupBy(order => order.CreatedDateTime.Date)
+            .Select(group => new
+            {
+                Date = group.Key,
+                Count = group.Count()
+            })
+            .OrderBy(group => group.Date)
+            .Select(group => group.Count)
+            .ToListAsync();
+
+        var totalOrdersFromLastDays = ordersPerDay.Sum();
+        var totalOrdersFromPreviousDays = lastPreviousOrdersPerDay.Sum();
+        var compareToPreviousDays = 0.0;
+
+        try
+        {
+            compareToPreviousDays = compareToPreviousDays = (totalOrdersFromLastDays - totalOrdersFromPreviousDays)
+            / totalOrdersFromPreviousDays * 100;
+        }
+        catch (DivideByZeroException)
+        {
+            compareToPreviousDays = totalOrdersFromLastDays / 1.0 * 100;
+        }
+        
+        var isIncreased = compareToPreviousDays > 0;
+
+        return new OrderStats
+        {
+            TotalOrders = totalOrders,
+            OrdersPerDay = ordersPerDay,
+            FromDay = lastDaysCount,
+            CompareToPreviousDays = compareToPreviousDays,
+            IsIncreased = isIncreased
+        };
+    }
+
+    public async Task<IncomeStats> GetIncomeStatsAsync(int lastDaysCount)
+    {
+        var orders = await _dbContext.Orders.AsNoTracking()
+            .Where(order => order.OrderStatus == OrderStatus.Completed)
+            .ToListAsync();
+
+        var totalIncome = orders
+            .Select(order =>
+                order.OrderItems.Sum(
+                    item => item.UnitPrice * item.Quantity - item.DiscountAmount * item.Quantity))
+            .Sum();
+
+        var incomeGroups = orders
+            .Where(order => order.CreatedDateTime.Date >= DateTime.UtcNow.Date.AddDays(-lastDaysCount))
+            .GroupBy(order => order.CreatedDateTime.Date)
+            .Select(group => new
+            {
+                Date = group.Key,
+                Income = group.Sum(order => order.TotalAmount - order.TotalDiscount)
+            });
+
+        var startDate = DateTime.UtcNow.Date.AddDays(-lastDaysCount);
+        var endDate = DateTime.UtcNow.Date;
+        var dateRange = Enumerable.Range(0, (endDate - startDate).Days + 1)
+            .Select(offset => startDate.AddDays(offset));
+
+        var incomeGroupsWithDefault = from date in dateRange
+            join incomeGroup in incomeGroups
+            on date equals incomeGroup.Date into gj
+            from subIncomeGroup in gj.DefaultIfEmpty()
+            select new
+            {
+                Date = date,
+                Income = subIncomeGroup?.Income ?? 0
+            };
+
+        var incomePerDayDict = incomeGroupsWithDefault
+            .ToDictionary(group => group.Date, group => group.Income);
+
+        var incomePerDay = incomeGroupsWithDefault
+            .OrderBy(group => group.Date)
+            .Select(group => group.Income)
+            .ToList();
+
+        var lastPreviousIncomePerDay = orders
+            .Where(order =>
+                order.OrderStatus == OrderStatus.Completed &&
+                order.CreatedDateTime.Date >= DateTime.UtcNow.Date.AddDays(-lastDaysCount * 2) &&
+                order.CreatedDateTime.Date < DateTime.UtcNow.Date.AddDays(-lastDaysCount))
+            .GroupBy(order => order.CreatedDateTime.Date)
+            .Select(group => new
+            {
+                Date = group.Key,
+                Income = group.Sum(order => order.TotalAmount - order.TotalDiscount)
+            })
+            .OrderBy(group => group.Date)
+            .Select(group => group.Income)
+            .ToList();
+
+        var totalIncomeFromLastDays = incomePerDay.Sum();
+        var totalIncomeFromPreviousDays = lastPreviousIncomePerDay.Sum();
+        var compareToPreviousDays = 0m;
+
+        try
+        {
+            compareToPreviousDays = compareToPreviousDays = (totalIncomeFromLastDays - totalIncomeFromPreviousDays)
+            / totalIncomeFromPreviousDays * 100;
+        }
+        catch (DivideByZeroException)
+        {
+            compareToPreviousDays = (totalIncomeFromLastDays - totalIncomeFromPreviousDays) / 1m * 100;
+        }
+        
+        var isIncreased = compareToPreviousDays > 0;
+
+        return new IncomeStats
+        {
+            TotalIncome = totalIncome,
+            IncomePerDay = incomePerDayDict,
+            FromDay = lastDaysCount,
+            CompareToPreviousDays = compareToPreviousDays,
+            IsIncreased = isIncreased
+        };
+    }
 }

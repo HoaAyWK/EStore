@@ -19,5 +19,9 @@ public static partial class ApiRoutes
         public const string ConfirmReceived = "{id:guid}/confirm-received";
 
         public const string GetMyOrdersWithSpecificProduct = "specific-product";
+
+        public const string GetStats = "stats";
+
+        public const string GetIncomeStats = "income-stats";
     }
 }

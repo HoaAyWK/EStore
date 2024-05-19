@@ -106,8 +106,6 @@ public sealed class OrderConfigurations : IEntityTypeConfiguration<Order>
             ib.Property(i => i.DiscountAmount)
                 .HasColumnType("decimal(18, 2)");
 
-            ib.Ignore(i => i.TotalDiscount);
-
             ib.OwnsOne(i => i.ItemOrdered, iob =>
             {
                 iob.Property(io => io.ProductId)

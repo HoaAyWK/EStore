@@ -2,10 +2,12 @@ using EStore.Application.Orders.Commands.ConfirmPaymentInfo;
 using EStore.Application.Orders.Commands.ConfirmReceived;
 using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
+using EStore.Application.Orders.Queries.GetIncomeStats;
 using EStore.Application.Orders.Queries.GetOrderById;
 using EStore.Application.Orders.Queries.GetOrderListPaged;
 using EStore.Application.Orders.Queries.GetOrdersByCriteria;
 using EStore.Application.Orders.Queries.GetOrdersByCustomer;
+using EStore.Application.Orders.Queries.GetOrderStats;
 using EStore.Contracts.Common;
 using EStore.Contracts.Orders;
 using EStore.Domain.CustomerAggregate.ValueObjects;
@@ -98,5 +100,11 @@ public class OrderMappingConfig : IRegister
                 src => src.Item2.ProductVariantId == null
                     ? null
                     : ProductVariantId.Create(src.Item2.ProductVariantId.Value));
+
+        config.NewConfig<GetOrderStatsRequest, GetOrderStatsQuery>()
+            .Map(dest => dest.LastDaysCount, src => src.FromDays);
+
+        config.NewConfig<GetIncomeStatsRequest, GetIncomeStatsQuery>()
+            .Map(dest => dest.LastDaysCount, src => src.FromDays);
     }
 }

@@ -30,4 +30,8 @@ public interface IOrderReadService
         CustomerId customerId,
         ProductId productId,
         ProductVariantId? productVariantId);
+
+    Task<OrderStats> GetOrderStatsAsync(int lastDaysCount);
+
+    Task<IncomeStats> GetIncomeStatsAsync(int lastDaysCount);
 }

@@ -40,6 +40,8 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
 
     public decimal TotalAmount => _orderItems.Sum(item => item.SubTotal);
 
+    public decimal TotalDiscount => _orderItems.Sum(item => item.TotalDiscount);
+
     public IReadOnlyList<OrderItem> OrderItems => _orderItems.AsReadOnly();
     
     public IReadOnlyList<OrderStatusHistoryTracking> OrderStatusHistoryTrackings

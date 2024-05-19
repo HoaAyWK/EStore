@@ -4,10 +4,12 @@ using EStore.Application.Orders.Commands.ConfirmPaymentInfo;
 using EStore.Application.Orders.Commands.ConfirmReceived;
 using EStore.Application.Orders.Commands.CreateOrder;
 using EStore.Application.Orders.Commands.RefundOrder;
+using EStore.Application.Orders.Queries.GetIncomeStats;
 using EStore.Application.Orders.Queries.GetOrderById;
 using EStore.Application.Orders.Queries.GetOrderListPaged;
 using EStore.Application.Orders.Queries.GetOrdersByCriteria;
 using EStore.Application.Orders.Queries.GetOrdersByCustomer;
+using EStore.Application.Orders.Queries.GetOrderStats;
 using EStore.Application.Orders.Queries.GetOrderStatuses;
 using EStore.Contracts.Common;
 using EStore.Contracts.Orders;
@@ -142,6 +144,27 @@ public class OrdersController : ApiController
             _workContext.CustomerId, request));
 
         return Ok(new { Data = await _mediator.Send(query) });
+    }
+
+    [Authorize(Roles = $"{Roles.Admin}")]
+    [HttpGet(ApiRoutes.Order.GetStats)]
+    public async Task<IActionResult> GetOrderStats([FromQuery] GetOrderStatsRequest request)
+    {
+        var query = _mapper.Map<GetOrderStatsRequest, GetOrderStatsQuery>(request);
+        var orderStats = await _mediator.Send(query);
+
+        return Ok(orderStats);
+    }
+
+    
+    [Authorize(Roles = $"{Roles.Admin}")]
+    [HttpGet(ApiRoutes.Order.GetIncomeStats)]
+    public async Task<IActionResult> GetIncomeStats([FromQuery] GetIncomeStatsRequest request)
+    {
+        var query = _mapper.Map<GetIncomeStatsRequest, GetIncomeStatsQuery>(request);
+        var incomeStats = await _mediator.Send(query);
+
+        return Ok(incomeStats);
     }
 }
 
