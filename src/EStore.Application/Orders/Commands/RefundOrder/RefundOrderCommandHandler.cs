@@ -37,7 +37,7 @@ public class RefundOrderCommandHandler
 
         if (order.TransactionId is not null)
         {
-            await _paymentService.ProcessRefundAsync(order);
+            await _paymentService.ProcessRefundAsync(order, cancellationToken);
         }
 
         return Result.Success;

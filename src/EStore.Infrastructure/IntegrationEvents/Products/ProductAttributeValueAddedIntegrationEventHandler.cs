@@ -1,7 +1,9 @@
 using Algolia.Search.Clients;
+using Algolia.Search.Models.Settings;
 using EStore.Contracts.Searching;
 using EStore.Domain.ProductAggregate.Events;
 using EStore.Domain.ProductAggregate.Repositories;
+using EStore.Infrastructure.Services.AlgoliaSearch.Interfaces;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -14,15 +16,18 @@ public class ProductAttributeValueAddedIntegrationEventHandler
     private readonly IProductRepository _productRepository;
     private readonly ISearchClient _searchClient;
     private readonly AlgoliaSearchOptions _algoliaSearchOptions;
+    private readonly IAlgoliaIndexSettingsService _algoliaIndexSettingsService;
 
     public ProductAttributeValueAddedIntegrationEventHandler(
         IProductRepository productRepository,
         ISearchClient searchClient,
-        IOptions<AlgoliaSearchOptions> options)
+        IOptions<AlgoliaSearchOptions> options,
+        IAlgoliaIndexSettingsService algoliaIndexSettingsService)
     {
         _productRepository = productRepository;
         _searchClient = searchClient;
         _algoliaSearchOptions = options.Value;
+        _algoliaIndexSettingsService = algoliaIndexSettingsService;
     }
 
     public async Task Handle(
@@ -63,6 +68,10 @@ public class ProductAttributeValueAddedIntegrationEventHandler
             return;
         }
 
+        var searchIndexSettings = await _algoliaIndexSettingsService.GetIndexSettingsAsync();
+        var attributesForFaceting = searchIndexSettings?.AttributesForFaceting.ToHashSet()
+            ?? new HashSet<string>();
+
         var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
 
         if (product.HasVariant)
@@ -76,11 +85,20 @@ public class ProductAttributeValueAddedIntegrationEventHandler
 
             foreach (var model in models)
             {
-                model?.Attributes
+                model.Attributes
                     .Add(productAttribute.Name, productAttributeValue.Name);
+
+                if (!attributesForFaceting.Contains(productAttribute.Name))
+                {
+                    attributesForFaceting.Add(productAttribute.Name);
+                }
             }
 
             await index.PartialUpdateObjectsAsync(models);
+            await index.SetSettingsAsync(new IndexSettings
+            {
+                AttributesForFaceting = attributesForFaceting.ToList()
+            });
 
             return;
         }
@@ -97,7 +115,16 @@ public class ProductAttributeValueAddedIntegrationEventHandler
 
         productSearchModel.Attributes
             .Add(productAttribute.Name, productAttributeValue.Name);
+        
+        if (!attributesForFaceting.Contains(productAttribute.Name))
+        {
+            attributesForFaceting.Add(productAttribute.Name);
+        }
 
         await index.PartialUpdateObjectAsync(productSearchModel);
+        await index.SetSettingsAsync(new IndexSettings
+        {
+            AttributesForFaceting = attributesForFaceting.ToList()
+        });
     }
 }

@@ -1,5 +1,6 @@
 using System.Dynamic;
 using Algolia.Search.Clients;
+using Algolia.Search.Models.Settings;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Products.Events;
 using EStore.Contracts.Searching;
@@ -10,6 +11,7 @@ using EStore.Domain.DiscountAggregate;
 using EStore.Domain.DiscountAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
 using EStore.Domain.ProductAggregate.ValueObjects;
+using EStore.Infrastructure.Services.AlgoliaSearch.Interfaces;
 using EStore.Infrastructure.Services.AlgoliaSearch.Options;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -27,6 +29,7 @@ public class ProductVariantCreatedIntegrationEventHandler
     private readonly IHierarchicalCategoryService _hierarchicalCategoryService;
     private readonly ISearchClient _searchClient;
     private readonly AlgoliaSearchOptions _algoliaSearchOptions;
+    private readonly IAlgoliaIndexSettingsService _algoliaIndexSettingsService;
 
     public ProductVariantCreatedIntegrationEventHandler(
         IProductRepository productRepository,
@@ -36,7 +39,8 @@ public class ProductVariantCreatedIntegrationEventHandler
         IPriceCalculationService priceCalculationService,
         IHierarchicalCategoryService hierarchicalCategoryService,
         ISearchClient searchClient,
-        IOptions<AlgoliaSearchOptions> options)
+        IOptions<AlgoliaSearchOptions> options,
+        IAlgoliaIndexSettingsService algoliaIndexSettingsService)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
@@ -46,6 +50,7 @@ public class ProductVariantCreatedIntegrationEventHandler
         _hierarchicalCategoryService = hierarchicalCategoryService;
         _searchClient = searchClient;
         _algoliaSearchOptions = options.Value;
+        _algoliaIndexSettingsService = algoliaIndexSettingsService;
     }
 
     public async Task Handle(
@@ -95,6 +100,10 @@ public class ProductVariantCreatedIntegrationEventHandler
             hierarchyCategories = _hierarchicalCategoryService.GetHierarchy(category);
         }
 
+        var searchIndexSettings = await _algoliaIndexSettingsService.GetIndexSettingsAsync();
+        var attributesForFaceting = searchIndexSettings?.AttributesForFaceting.ToHashSet()
+            ?? new HashSet<string>();
+
         var productSearchModel = new ProductSearchModel
         {
             ObjectID = notification.ProductVariantId.Value.ToString(),
@@ -138,6 +147,11 @@ public class ProductVariantCreatedIntegrationEventHandler
             }
 
             productAttributes.Add(attribute.Name, attributeValue.Name);
+
+            if (!attributesForFaceting.Contains(attribute.Name))
+            {
+                attributesForFaceting.Add(attribute.Name);
+            }
         }
 
         // Add non-combined attributes
@@ -155,6 +169,11 @@ public class ProductVariantCreatedIntegrationEventHandler
             if (attributeValue is not null)
             {
                 productAttributes.Add(attribute.Name, attributeValue.Name);
+            }
+
+            if (!attributesForFaceting.Contains(attribute.Name))
+            {
+                attributesForFaceting.Add(attribute.Name);
             }
         }
 
@@ -180,5 +199,9 @@ public class ProductVariantCreatedIntegrationEventHandler
         var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
 
         await index.SaveObjectAsync(productSearchModel);
+        await index.SetSettingsAsync(new IndexSettings
+        {
+            AttributesForFaceting = attributesForFaceting.ToList()
+        });
     }
 }

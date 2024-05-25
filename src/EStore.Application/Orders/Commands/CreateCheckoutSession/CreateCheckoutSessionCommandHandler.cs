@@ -141,7 +141,7 @@ public class CreateCheckoutSessionCommandHandler
             new OrderCreatedDomainEvent(order.Id, customer.Id),
             cancellationToken);        
 
-        string sessionUrl = await _paymentService.ProcessPaymentAsync(order);
+        string sessionUrl = await _paymentService.ProcessPaymentAsync(order, cancellationToken);
 
         return sessionUrl;
     }

@@ -22,6 +22,7 @@ public class AlgoliaIndexSettingsService : IAlgoliaIndexSettingsService
     public async Task<IndexSettings> GetIndexSettingsAsync()
     {
         var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
+        
         return await index.GetSettingsAsync();
     }
 }
