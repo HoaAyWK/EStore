@@ -132,12 +132,19 @@ public static class DependencyInjection
         {
             var interceptor = sp.GetService<ConvertDomainEventsToOutboxMessagesInterceptor>();
 
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")!)
+            // options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")!)
+            //     .AddInterceptors(interceptor!);
+
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")!)
                 .AddInterceptors(interceptor!);
         });
 
+        // services.AddDbContext<EStoreIdentityDbContext>(options =>
+        //     options.UseSqlServer(
+        //         configuration.GetConnectionString("AppIdentityConnection")!));
+
         services.AddDbContext<EStoreIdentityDbContext>(options =>
-            options.UseSqlServer(
+            options.UseNpgsql(
                 configuration.GetConnectionString("AppIdentityConnection")!));
 
         services.AddQuartz(configure =>

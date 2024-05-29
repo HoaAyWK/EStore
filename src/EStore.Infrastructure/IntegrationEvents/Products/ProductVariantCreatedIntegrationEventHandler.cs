@@ -148,9 +148,11 @@ public class ProductVariantCreatedIntegrationEventHandler
 
             productAttributes.Add(attribute.Name, attributeValue.Name);
 
-            if (!attributesForFaceting.Contains(attribute.Name))
+            var attributeFacingName = $"attributes.{attribute.Name}";
+
+            if (!attributesForFaceting.Contains(attributeFacingName))
             {
-                attributesForFaceting.Add(attribute.Name);
+                attributesForFaceting.Add(attributeFacingName);
             }
         }
 
@@ -171,9 +173,11 @@ public class ProductVariantCreatedIntegrationEventHandler
                 productAttributes.Add(attribute.Name, attributeValue.Name);
             }
 
-            if (!attributesForFaceting.Contains(attribute.Name))
+            var attributeFacingName = $"attributes.{attribute.Name}";
+
+            if (!attributesForFaceting.Contains(attributeFacingName))
             {
-                attributesForFaceting.Add(attribute.Name);
+                attributesForFaceting.Add(attributeFacingName);
             }
         }
 

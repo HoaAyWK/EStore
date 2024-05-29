@@ -68,6 +68,7 @@ public class ProductAttributeValueAddedIntegrationEventHandler
             return;
         }
 
+        var attributeFacingName = $"attributes.{productAttribute.Name}";
         var searchIndexSettings = await _algoliaIndexSettingsService.GetIndexSettingsAsync();
         var attributesForFaceting = searchIndexSettings?.AttributesForFaceting.ToHashSet()
             ?? new HashSet<string>();
@@ -88,13 +89,13 @@ public class ProductAttributeValueAddedIntegrationEventHandler
                 model.Attributes
                     .Add(productAttribute.Name, productAttributeValue.Name);
 
-                if (!attributesForFaceting.Contains(productAttribute.Name))
+                if (!attributesForFaceting.Contains(attributeFacingName))
                 {
-                    attributesForFaceting.Add(productAttribute.Name);
+                    attributesForFaceting.Add(attributeFacingName);
                 }
             }
 
-            await index.PartialUpdateObjectsAsync(models);
+            await index.SaveObjectsAsync(models);
             await index.SetSettingsAsync(new IndexSettings
             {
                 AttributesForFaceting = attributesForFaceting.ToList()
@@ -116,9 +117,9 @@ public class ProductAttributeValueAddedIntegrationEventHandler
         productSearchModel.Attributes
             .Add(productAttribute.Name, productAttributeValue.Name);
         
-        if (!attributesForFaceting.Contains(productAttribute.Name))
+        if (!attributesForFaceting.Contains(attributeFacingName))
         {
-            attributesForFaceting.Add(productAttribute.Name);
+            attributesForFaceting.Add(attributeFacingName);
         }
 
         await index.PartialUpdateObjectAsync(productSearchModel);

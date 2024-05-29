@@ -3,17 +3,17 @@ using System;
 using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace EStore.Infrastructure.Migrations
 {
     [DbContext(typeof(EStoreDbContext))]
-    [Migration("20240427135813_Add_DiscountAmount_for_Order")]
-    partial class Add_DiscountAmount_for_Order
+    [Migration("20240529160912_Init_Posgres_Migrations")]
+    partial class Init_Posgres_Migrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,35 +21,75 @@ namespace EStore.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.14")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("EStore.Domain.BannerAggregate.Banner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BannerId");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("DeletedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Direction")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ProductId");
+
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ProductVariantId");
+
+                    b.Property<DateTime>("UpdatedDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Banners", (string)null);
+                });
 
             modelBuilder.Entity("EStore.Domain.BrandAggregate.Brand", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("BrandId");
 
                     b.Property<DateTime>("CreatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("DeletedOnUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("UpdatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -61,11 +101,11 @@ namespace EStore.Infrastructure.Migrations
             modelBuilder.Entity("EStore.Domain.CartAggregate.Cart", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("CartId");
 
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -80,37 +120,37 @@ namespace EStore.Infrastructure.Migrations
             modelBuilder.Entity("EStore.Domain.CategoryAggregate.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("CategoryId");
 
                     b.Property<DateTime>("CreatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("DeletedOnUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("ParentId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("ParentCategoryId");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("character varying(150)");
 
                     b.Property<DateTime>("UpdatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -126,43 +166,43 @@ namespace EStore.Infrastructure.Migrations
             modelBuilder.Entity("EStore.Domain.CustomerAggregate.Customer", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("CustomerId");
 
                     b.Property<string>("AvatarUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("DeletedOnUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasColumnType("character varying(15)");
 
                     b.Property<DateTime>("UpdatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -179,17 +219,17 @@ namespace EStore.Infrastructure.Migrations
             modelBuilder.Entity("EStore.Domain.DiscountAggregate.Discount", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("DiscountId");
 
                     b.Property<DateTime>("CreatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("DeletedOnUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
@@ -198,56 +238,104 @@ namespace EStore.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("EndDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("StartDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("UpdatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("UsePercentage")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
                     b.ToTable("Discounts", (string)null);
                 });
 
+            modelBuilder.Entity("EStore.Domain.NotificationAggregate.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("NotificationId");
+
+                    b.Property<string>("Domain")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("From")
+                        .HasColumnType("uuid")
+                        .HasColumnName("From");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("To")
+                        .HasColumnType("uuid")
+                        .HasColumnName("To");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("EStore.Domain.OrderAggregate.Order", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("OrderId");
 
                     b.Property<DateTime>("CreatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("DeletedOnUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("OrderNumber")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("OrderStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("PaymentMethod")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TransactionId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -257,56 +345,61 @@ namespace EStore.Infrastructure.Migrations
             modelBuilder.Entity("EStore.Domain.ProductAggregate.Product", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("ProductId");
 
                     b.Property<Guid>("BrandId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("ProductBrandId");
 
                     b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("ProductCategoryId");
 
                     b.Property<DateTime>("CreatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("DeletedOnUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("DiscountId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("ProductDiscountId");
 
                     b.Property<int>("DisplayOrder")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<bool>("HasVariant")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<bool>("Published")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<int>("StockQuantity")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedDateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -317,48 +410,64 @@ namespace EStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("ExpireDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("TokenType")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.ToTable("AccountTokens");
                 });
 
+            modelBuilder.Entity("EStore.Infrastructure.OrderSequenceManager.OrderSequence", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("LastOrderNumber")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OrderSequences");
+                });
+
             modelBuilder.Entity("EStore.Infrastructure.Persistence.Outbox.OutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Error")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("OccurredOnUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("ProcessedOnUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -370,20 +479,20 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsMany("EStore.Domain.CartAggregate.Entities.CartItem", "Items", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("CartItemId");
 
                             b1.Property<Guid>("CartId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<Guid?>("ProductVariantId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<int>("Quantity")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.Property<decimal>("UnitPrice")
                                 .HasColumnType("decimal(18, 2)");
@@ -416,55 +525,55 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsMany("EStore.Domain.CustomerAggregate.Entities.Address", "Addresses", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("AddressId");
 
                             b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("City")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)");
+                                .HasColumnType("character varying(50)");
 
                             b1.Property<string>("Country")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)");
+                                .HasColumnType("character varying(50)");
 
                             b1.Property<int>("CountryId")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.Property<bool>("IsDefault")
-                                .HasColumnType("bit");
+                                .HasColumnType("boolean");
 
                             b1.Property<string>("PhoneNumber")
                                 .IsRequired()
                                 .HasMaxLength(15)
-                                .HasColumnType("nvarchar(15)");
+                                .HasColumnType("character varying(15)");
 
                             b1.Property<string>("ReceiverName")
                                 .IsRequired()
                                 .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)");
+                                .HasColumnType("character varying(100)");
 
                             b1.Property<string>("State")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)");
+                                .HasColumnType("character varying(50)");
 
                             b1.Property<int>("StateId")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.Property<string>("Street")
                                 .IsRequired()
                                 .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)");
+                                .HasColumnType("character varying(100)");
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
                                 .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)");
+                                .HasColumnType("character varying(20)");
 
                             b1.HasKey("Id", "CustomerId");
 
@@ -484,17 +593,17 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsMany("EStore.Domain.OrderAggregate.Entities.OrderItem", "OrderItems", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("OrderItemId");
 
                             b1.Property<Guid>("OrderId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<decimal>("DiscountAmount")
                                 .HasColumnType("decimal(18, 2)");
 
                             b1.Property<int>("Quantity")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.Property<decimal>("UnitPrice")
                                 .HasColumnType("decimal(18, 2)");
@@ -511,27 +620,27 @@ namespace EStore.Infrastructure.Migrations
                             b1.OwnsOne("EStore.Domain.OrderAggregate.ValueObjects.ItemOrdered", "ItemOrdered", b2 =>
                                 {
                                     b2.Property<Guid>("OrderItemId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<Guid>("OrderItemOrderId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<string>("ProductAttributes")
-                                        .HasColumnType("nvarchar(max)");
+                                        .HasColumnType("text");
 
                                     b2.Property<Guid>("ProductId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<string>("ProductImage")
-                                        .HasColumnType("nvarchar(max)");
+                                        .HasColumnType("text");
 
                                     b2.Property<string>("ProductName")
                                         .IsRequired()
                                         .HasMaxLength(200)
-                                        .HasColumnType("nvarchar(200)");
+                                        .HasColumnType("character varying(200)");
 
                                     b2.Property<Guid?>("ProductVariantId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.HasKey("OrderItemId", "OrderItemOrderId");
 
@@ -548,17 +657,17 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsMany("EStore.Domain.OrderAggregate.Entities.OrderStatusHistoryTracking", "OrderStatusHistoryTrackings", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("OrderStatusHistoryTrackingId");
 
                             b1.Property<Guid>("OrderId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<DateTime>("CreatedDateTime")
-                                .HasColumnType("datetime2");
+                                .HasColumnType("timestamp with time zone");
 
                             b1.Property<int>("Status")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.HasKey("Id", "OrderId");
 
@@ -573,7 +682,42 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsOne("EStore.Domain.OrderAggregate.ValueObjects.ShippingAddress", "ShippingAddress", b1 =>
                         {
                             b1.Property<Guid>("OrderId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)");
+
+                            b1.Property<string>("PhoneNumber")
+                                .IsRequired()
+                                .HasMaxLength(15)
+                                .HasColumnType("character varying(15)");
+
+                            b1.Property<string>("ReceiverName")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)");
+
+                            b1.Property<string>("State")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)");
+
+                            b1.Property<string>("ZipCode")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)");
 
                             b1.HasKey("OrderId");
 
@@ -596,25 +740,25 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductAttribute", "ProductAttributes", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("ProductAttributeId");
 
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<bool>("CanCombine")
-                                .HasColumnType("bit");
+                                .HasColumnType("boolean");
 
                             b1.Property<bool>("Colorable")
-                                .HasColumnType("bit");
+                                .HasColumnType("boolean");
 
                             b1.Property<int>("DisplayOrder")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)");
+                                .HasColumnType("character varying(100)");
 
                             b1.HasKey("Id", "ProductId");
 
@@ -628,32 +772,32 @@ namespace EStore.Infrastructure.Migrations
                             b1.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductAttributeValue", "ProductAttributeValues", b2 =>
                                 {
                                     b2.Property<Guid>("Id")
-                                        .HasColumnType("uniqueidentifier")
+                                        .HasColumnType("uuid")
                                         .HasColumnName("ProductAttributeValueId");
 
                                     b2.Property<Guid>("ProductAttributeId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<Guid>("ProductId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<string>("Color")
                                         .HasMaxLength(30)
-                                        .HasColumnType("nvarchar(30)");
+                                        .HasColumnType("character varying(30)");
 
                                     b2.Property<int>("DisplayOrder")
-                                        .HasColumnType("int");
+                                        .HasColumnType("integer");
 
                                     b2.Property<string>("Name")
                                         .IsRequired()
                                         .HasMaxLength(100)
-                                        .HasColumnType("nvarchar(100)");
+                                        .HasColumnType("character varying(100)");
 
                                     b2.Property<decimal>("PriceAdjustment")
                                         .HasColumnType("decimal(18, 2)");
 
                                     b2.Property<string>("RawCombinedAttributes")
-                                        .HasColumnType("nvarchar(max)");
+                                        .HasColumnType("text");
 
                                     b2.HasKey("Id", "ProductAttributeId", "ProductId");
 
@@ -671,21 +815,21 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductImage", "Images", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("ProductImageId");
 
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<int>("DisplayOrder")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.Property<string>("ImageUrl")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("text");
 
                             b1.Property<bool>("IsMain")
-                                .HasColumnType("bit");
+                                .HasColumnType("boolean");
 
                             b1.HasKey("Id", "ProductId");
 
@@ -700,33 +844,36 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductReview", "ProductReviews", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("ProductReviewId");
 
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Content")
                                 .IsRequired()
                                 .HasMaxLength(2000)
-                                .HasColumnType("nvarchar(2000)");
+                                .HasColumnType("character varying(2000)");
 
                             b1.Property<DateTime>("CreatedDateTime")
-                                .HasColumnType("datetime2");
+                                .HasColumnType("timestamp with time zone");
 
                             b1.Property<Guid>("OwnerId")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("ProductReviewOwnerId");
 
                             b1.Property<int>("Rating")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("RawAttributeSelection")
+                                .HasColumnType("text");
 
                             b1.Property<string>("RawAttributes")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("text");
 
                             b1.Property<DateTime>("UpdatedDateTime")
-                                .HasColumnType("datetime2");
+                                .HasColumnType("timestamp with time zone");
 
                             b1.HasKey("Id", "ProductId");
 
@@ -740,33 +887,33 @@ namespace EStore.Infrastructure.Migrations
                             b1.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductReviewComment", "ReviewComments", b2 =>
                                 {
                                     b2.Property<Guid>("Id")
-                                        .HasColumnType("uniqueidentifier")
+                                        .HasColumnType("uuid")
                                         .HasColumnName("ProductReviewCommentId");
 
                                     b2.Property<Guid>("ProductReviewId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<Guid>("ProductId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<string>("Content")
                                         .IsRequired()
                                         .HasMaxLength(1)
-                                        .HasColumnType("nvarchar(1)");
+                                        .HasColumnType("character varying(1)");
 
                                     b2.Property<DateTime>("CreatedDateTime")
-                                        .HasColumnType("datetime2");
+                                        .HasColumnType("timestamp with time zone");
 
                                     b2.Property<Guid>("OwnerId")
-                                        .HasColumnType("uniqueidentifier")
+                                        .HasColumnType("uuid")
                                         .HasColumnName("ProductReviewCommentOwnerId");
 
                                     b2.Property<Guid?>("ParentId")
-                                        .HasColumnType("uniqueidentifier")
+                                        .HasColumnType("uuid")
                                         .HasColumnName("ProductReviewCommentParentId");
 
                                     b2.Property<DateTime>("UpdatedDateTime")
-                                        .HasColumnType("datetime2");
+                                        .HasColumnType("timestamp with time zone");
 
                                     b2.HasKey("Id", "ProductReviewId", "ProductId");
 
@@ -784,31 +931,31 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsMany("EStore.Domain.ProductAggregate.Entities.ProductVariant", "ProductVariants", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
+                                .HasColumnType("uuid")
                                 .HasColumnName("ProductVariantId");
 
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("AssignedProductImageIds")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("text");
 
                             b1.Property<bool>("IsActive")
-                                .HasColumnType("bit");
+                                .HasColumnType("boolean");
 
                             b1.Property<decimal?>("Price")
                                 .HasColumnType("decimal(18, 2)");
 
                             b1.Property<string>("RawAttributeSelection")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("text");
 
                             b1.Property<string>("RawAttributes")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("text");
 
                             b1.Property<int>("StockQuantity")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.HasKey("Id", "ProductId");
 
@@ -822,16 +969,16 @@ namespace EStore.Infrastructure.Migrations
                             b1.OwnsOne("EStore.Domain.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b2 =>
                                 {
                                     b2.Property<Guid>("ProductVariantId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<Guid>("ProductVariantProductId")
-                                        .HasColumnType("uniqueidentifier");
+                                        .HasColumnType("uuid");
 
                                     b2.Property<int>("NumRatings")
-                                        .HasColumnType("int");
+                                        .HasColumnType("integer");
 
                                     b2.Property<double>("Value")
-                                        .HasColumnType("float");
+                                        .HasColumnType("double precision");
 
                                     b2.HasKey("ProductVariantId", "ProductVariantProductId");
 
@@ -848,13 +995,13 @@ namespace EStore.Infrastructure.Migrations
                     b.OwnsOne("EStore.Domain.ProductAggregate.ValueObjects.AverageRating", "AverageRating", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<int>("NumRatings")
-                                .HasColumnType("int");
+                                .HasColumnType("integer");
 
                             b1.Property<double>("Value")
-                                .HasColumnType("float");
+                                .HasColumnType("double precision");
 
                             b1.HasKey("ProductId");
 

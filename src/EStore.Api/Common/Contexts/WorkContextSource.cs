@@ -55,7 +55,7 @@ public class WorkContextSource : IWorkContextSource
                 Expires = DateTime.UtcNow.AddMinutes(expireMinutes),
                 Path = "/",
                 HttpOnly = true,
-                Secure = false
+                Secure = true
             };
 
             httpContext.Response.Cookies.Append(

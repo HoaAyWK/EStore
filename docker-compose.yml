@@ -1,0 +1,29 @@
+version: '3.9'
+services:
+  estore-back-end:
+    image: nsioay/estore:latest
+    ports:
+      - '8080:80'
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=tcp:estore-gt-server.database.windows.net,1433;Initial Catalog=estore-db;Persist Security Info=False;Database=EStore;User ID=estore-admin;Password=Password123!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=60;
+      - ConnectionStrings__AppIdentityConnection=Server=tcp:estore-gt-server.database.windows.net,1433;Initial Catalog=estore-db;Persist Security Info=False;Database=EStore.Identity;User ID=estore-admin;Password=Password123!;;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=60;
+      - CorsSettings__AllowedOrigins=https://plankton-app-e5inv.ondigitalocean.app,https://goldfish-app-s4s6b.ondigitalocean.app,https://gt-client.azurewebsites.net,https://gt-admin.azurewebsites.net
+      - JwtSettings__Secret=3f17e469c54d4cf207401fd452f8f209f0f73dca2e7f9cee67769e8980073c11
+      - StripeSettings__SecretKey=sk_test_51JNerUA5N5of65pzn50kAjVR263E4LabFJ1gZcdR1j16WzjbfW7cc7w3JYfwSVgxu7AsTYGk3uV9FSYfrkPDSeCW00ES4vT7ux
+      - StripeSettings__PublishKey=pk_test_51JNerUA5N5of65pzSCQbaazNoZtgjQJhU9aPfdGEqP8wXaQzFPmgiPsvkw46hHGXr5BC5cfJby8YVBAO65ifyMUO00fYccTgE3
+      - StripeSettings__SuccessUrl=https://estore-client.azurewebsites.net/checkout-success
+      - StripeSettings__CancelUrl=https://estore-client.azurewebsites.net/
+      - AlgoliaSearch__SearchApiKey=f712d35d6b5fd86b7423de9a3d48e801
+      - AlgoliaSearch__IndexName=EStore.Product
+      - AlgoliaSearch__ApplicationId=JR3RUEVV4A
+      - AlgoliaSearch__AdminApiKey=2d2ab46d2d066c1ada1e648193da5bf3
+      - Mail__SmtpServer=smtp.gmail.com
+      - Mail__SmtpPort=587
+      - Mail__SmtpPassword=wcqmekgsrulgfvsc
+      - Mail__SmtpSenderEmail=vycoi1511@gmail.com
+      - Mail__SenderDisplayName=EStore
+  stripe-cli:
+    image: stripe/stripe-cli
+    command: "listen --api-key sk_test_51JNerUA5N5of65pzn50kAjVR263E4LabFJ1gZcdR1j16WzjbfW7cc7w3JYfwSVgxu7AsTYGk3uV9FSYfrkPDSeCW00ES4vT7ux --forward-to estore-back-end:8080/api/stripe/webhook"
+    depends_on:
+      - estore-back-end

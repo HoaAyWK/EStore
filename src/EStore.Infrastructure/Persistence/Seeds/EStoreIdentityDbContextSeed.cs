@@ -17,12 +17,12 @@ public class EStoreIdentityDbContextSeed
         RoleManager<IdentityRole> roleManager,
         IOptions<UserSeedingSettings> userSeedingSettingsOptions)
     {
-        if (eStoreContext.Database.IsSqlServer())
+        if (eStoreContext.Database.IsSqlServer() || eStoreContext.Database.IsNpgsql())
         {
             await eStoreContext.Database.MigrateAsync();
         }
 
-        if (identityContext.Database.IsSqlServer())
+        if (identityContext.Database.IsSqlServer() || eStoreContext.Database.IsNpgsql())
         {
             await identityContext.Database.MigrateAsync();
         }
