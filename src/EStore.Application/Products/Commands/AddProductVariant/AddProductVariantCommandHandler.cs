@@ -33,6 +33,11 @@ public class AddProductVariantCommandHandler : IRequestHandler<AddProductVariant
             return Errors.Product.ProductCanNotHaveVariant;
         }
 
+        if (!product.Images.Any())
+        {
+            return Errors.Product.ProductHasNotHadImageYet;
+        }
+
         var errors = new List<Error>();
         var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(null);
 

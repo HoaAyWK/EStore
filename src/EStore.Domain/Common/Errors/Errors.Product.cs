@@ -191,5 +191,9 @@ public static partial class Errors
         public static Error NotPublishedYet = Error.Validation(
             code: "Product.NotPublishedYet",
             description: "The product is not published yet.");
+
+        public static Error ProductHasNotHadImageYet = Error.Validation(
+            code: "Product.ProductHasNotHadImageYet",
+            description: "Product has not had any image yet.");
     }
 }

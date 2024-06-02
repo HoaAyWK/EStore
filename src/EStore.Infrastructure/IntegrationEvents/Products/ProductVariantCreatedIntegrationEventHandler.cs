@@ -104,6 +104,33 @@ public class ProductVariantCreatedIntegrationEventHandler
         var attributesForFaceting = searchIndexSettings?.AttributesForFaceting.ToHashSet()
             ?? new HashSet<string>();
 
+        var mainImage = product.Images
+            .Where(image => image.IsMain)
+            .First();
+
+        var orderedImages = product.Images
+            .Where(image => image.Id != mainImage.Id)
+            .OrderBy(image => image.DisplayOrder)
+            .ToList();
+
+        var assignedImageIds = productVariant.AssignedProductImageIds
+            .ToLower()
+            .Split(' ')
+            .ToList();
+
+        if (!assignedImageIds.Contains(mainImage.Id.Value.ToString()!.ToLower()))
+        {
+            // If the main image is not assigned to the product variant, assign the first image
+            foreach (var image in orderedImages)
+            {
+                if (assignedImageIds.Contains(image.Id.Value.ToString()!.ToLower()))
+                {
+                    mainImage = image;
+                    break;
+                }
+            }
+        }
+
         var productSearchModel = new ProductSearchModel
         {
             ObjectID = notification.ProductVariantId.Value.ToString(),
@@ -119,10 +146,7 @@ public class ProductVariantCreatedIntegrationEventHandler
             HasVariant = product.HasVariant,
             IsActive = productVariant.IsActive,
             Brand = brand?.Name,
-            Image = product.Images
-                .Where(image => image.IsMain)
-                .Select(image => image.ImageUrl)
-                .FirstOrDefault() ?? string.Empty
+            Image =  mainImage?.ImageUrl
         };
 
         var productAttributes = new Dictionary<string, string>();

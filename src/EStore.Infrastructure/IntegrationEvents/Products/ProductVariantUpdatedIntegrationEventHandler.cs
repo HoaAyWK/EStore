@@ -59,12 +59,12 @@ public class ProductVariantUpdatedIntegrationEventHandler
 
         var assignedImageIds = productVariant.AssignedProductImageIds.ToLower().Split(' ');
 
-        if (!assignedImageIds.Contains(mainImage.Id.ToString()!.ToLower()))
+        if (!assignedImageIds.Contains(mainImage.Id.Value.ToString()!.ToLower()))
         {
             // If the main image is not assigned to the product variant, assign the first image
             foreach (var image in orderedImages)
             {
-                if (assignedImageIds.Contains(image.Id.ToString()!.ToLower()))
+                if (assignedImageIds.Contains(image.Id.Value.ToString()!.ToLower()))
                 {
                     mainImage = image;
                     break;
