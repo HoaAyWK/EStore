@@ -22,6 +22,7 @@ internal sealed class BrandReadService : IBrandReadService
             .Select(b => new BrandResponse(
                 b.Id.Value,
                 b.Name,
+                b.ImageUrl,
                 b.CreatedDateTime,
                 b.UpdatedDateTime))
             .FirstOrDefaultAsync();
@@ -34,6 +35,7 @@ internal sealed class BrandReadService : IBrandReadService
             select new BrandResponse(
                 brand.Id.Value,
                 brand.Name,
+                brand.ImageUrl,
                 brand.CreatedDateTime,
                 brand.UpdatedDateTime);
 
