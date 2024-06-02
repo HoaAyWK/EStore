@@ -3,10 +3,14 @@ namespace EStore.Api.Common.Contexts;
 public class WorkContextSource : IWorkContextSource
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<WorkContextSource> _logger;
 
-    public WorkContextSource(IHttpContextAccessor httpContextAccessor)
+    public WorkContextSource(
+        IHttpContextAccessor httpContextAccessor,
+        ILogger<WorkContextSource> logger)
     {
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     public Guid? GetCurrentCustomerId()
@@ -19,6 +23,8 @@ public class WorkContextSource : IWorkContextSource
 
                 if (Guid.TryParse(id, out Guid customerFromCtxId))
                 {
+                    _logger.LogInformation("GetCurrentCustomerId - Customer Id from context: {CustomerId}", customerFromCtxId);
+
                     return customerFromCtxId;
                 }
             }
@@ -29,12 +35,13 @@ public class WorkContextSource : IWorkContextSource
 
                 if (guestCookie is not null && Guid.TryParse(guestCookie, out var customerId))
                 {
+                    _logger.LogInformation("GetCurrentCustomerId - Customer Id from cookie: {CustomerId}", customerId);
                     return customerId;
                 }
             }
-
-            return null;
         }
+
+        _logger.LogInformation("GetCurrentCustomerId - Customer Id is null.");
 
         return null;
     }
@@ -51,7 +58,7 @@ public class WorkContextSource : IWorkContextSource
             var cookieOptions = new CookieOptions
             {
                 IsEssential = false,
-                SameSite = SameSiteMode.Lax,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddMinutes(expireMinutes),
                 Path = "/",
                 HttpOnly = true,

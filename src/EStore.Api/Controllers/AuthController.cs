@@ -19,6 +19,7 @@ public class AuthController : ApiController
     private readonly ICartService _cartService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IWorkContextSource _workContextSource;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         ISender mediator,
@@ -26,7 +27,8 @@ public class AuthController : ApiController
         IAuthenticationService authenticationService,
         ICartService cartService,
         IWebHostEnvironment webHostEnvironment,
-        IWorkContextSource workContextSource)
+        IWorkContextSource workContextSource,
+        ILogger<AuthController> logger)
     {
         _mediator = mediator;
         _mapper = mapper;
@@ -34,6 +36,7 @@ public class AuthController : ApiController
         _cartService = cartService;
         _webHostEnvironment = webHostEnvironment;
         _workContextSource = workContextSource;
+        _logger = logger;
     }
 
     [HttpPost(ApiRoutes.Auth.Register)]
@@ -124,20 +127,31 @@ public class AuthController : ApiController
 
     private async Task TransferAnonymousCartToCustomerCartAsync(Guid customerId)
     {
+        _logger.LogInformation("Start transferring anonymous cart to customer cart.");
+        _logger.LogInformation("{@RequestCookies}", Request.Cookies);
+
         if (Request.Cookies.ContainsKey(Constants.Cookies.Guest))
         {
             var anonymousId = Request.Cookies[Constants.Cookies.Guest];
 
             if (Guid.TryParse(anonymousId, out Guid _))
             {
+                _logger.LogInformation("Transferring cart from {AnonymousId} to {CustomerId}", anonymousId, customerId);
+                
                 await _cartService.TransferCartAsync(new Guid(anonymousId), customerId);
             }
 
             // Remove guest cookies
             _workContextSource.RemoveCookies(Constants.Cookies.Guest);
+            _logger.LogInformation("Removed guest cookies {AnonymousId}", anonymousId);
 
             //  Add customer cookies
             _workContextSource.AppendCookies(Constants.Cookies.Guest, customerId);
+            _logger.LogInformation("Added customer cookies {CustomerId}", customerId);
+        }
+        else
+        {
+            _logger.LogInformation("Transferring cart failed. Failed to read guest cookies.");
         }
     }
 
