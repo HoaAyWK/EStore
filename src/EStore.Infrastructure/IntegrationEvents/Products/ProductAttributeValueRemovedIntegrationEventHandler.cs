@@ -92,13 +92,12 @@ public class ProductAttributeValueRemovedIntegrationEventHandler
         }
 
         var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
+        var productSearchModel = await index.GetObjectAsync<ProductSearchModel>(
+            product.Id.Value.ToString());
 
-        await index.PartialUpdateObjectAsync(
-            new ProductSearchModel
-            {
-                ObjectID = product.Id.Value.ToString(),
-                Attributes = attributesOfProductSearchModel
-            });
+        productSearchModel.Attributes = attributesOfProductSearchModel;
+
+        await index.SaveObjectAsync(productSearchModel);
     }
 }
 

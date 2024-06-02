@@ -135,153 +135,49 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
 
         if (product.HasVariant)
         {
-            var productSearchModels = new List<ProductSearchModel>();
+            var productVariantIds = product.ProductVariants
+                .Select(x => x.Id.Value.ToString())
+                .ToArray();
 
-            foreach (var variant in product.ProductVariants)
+            var productSearchModels = await index.GetObjectsAsync<ProductSearchModel>(
+                productVariantIds);
+
+            foreach (var model in productSearchModels)
             {
-                var model = new ProductSearchModel
+                var variant = product.ProductVariants.Where(variant =>
+                    variant.Id == ProductVariantId.Create(new Guid(model.ObjectID)))
+                    .SingleOrDefault();
+
+                model.Name = product.Name;
+                model.Description = product.Description;
+                model.ShortDescription = product.ShortDescription;
+                model.Categories = hierarchyCategories;
+                model.Brand = brand?.Name;
+                model.DisplayOrder = product.DisplayOrder;
+                model.UpdatedDateTime = product.UpdatedDateTime;
+
+                if (variant is not null)
                 {
-                    ObjectID = variant.Id.Value.ToString(),
-                    ProductId = product.Id.Value,
-                    ProductVariantId = variant.Id.Value,
-                    Name = product.Name,
-                    Description = product.Description,
-                    Categories = hierarchyCategories,
-                    Brand = brand?.Name,
-                    AverageRating = product.AverageRating.Value,
-                    DisplayOrder = product.DisplayOrder,
-                    CreatedDateTime = product.CreatedDateTime,
-                    UpdatedDateTime = product.UpdatedDateTime,
-                    IsActive = variant.IsActive,
-                    Image = product.Images
-                        .Where(image => image.IsMain)
-                        .Select(image => image.ImageUrl)
-                        .FirstOrDefault() ?? string.Empty,
-                    Price = _priceCalculationService.CalculatePrice(product, variant)
-                };
-
-                var attributeSelection = AttributeSelection<ProductAttributeId, ProductAttributeValueId>
-                    .Create(variant.RawAttributeSelection);
-
-                var modelAttributes = new Dictionary<string, string>();
-
-                // Add combined attributes
-                foreach (var selection in attributeSelection.AttributesMap)
-                {
-                    var attribute = product.ProductAttributes.FirstOrDefault(
-                        x => x.Id == selection.Key);
-
-                    if (attribute is null)
-                    {
-                        return;
-                    }
-
-                    var attributeValue = attribute.ProductAttributeValues.FirstOrDefault(
-                        x => x.Id == selection.Value.First());
-
-                    if (attributeValue is null)
-                    {
-                        return;
-                    }
-
-                    modelAttributes.Add(attribute.Name, attributeValue.Name);
+                    model.Price = _priceCalculationService.CalculatePrice(product, variant);
                 }
 
-                // Add non-combined attributes
-                foreach (var attribute in product.ProductAttributes)
-                {
-                    if (attribute.CanCombine)
-                    {
-                        continue;
-                    }
+                await index.SaveObjectsAsync(productSearchModels);
 
-                    var attributeValue = attribute.ProductAttributeValues
-                        .ToList()
-                        .FirstOrDefault();
-
-                    if (attributeValue is not null)
-                    {
-                        modelAttributes.Add(attribute.Name, attributeValue.Name);
-                    }
-                }
-
-                model.Attributes = modelAttributes;
-                
-                if (discount is not null)
-                {
-                    model.Discount = new ProductSearchDiscount
-                    {
-                        UsePercentage = discount.UsePercentage,
-                        DiscountPercentage = discount.DiscountPercentage,
-                        DiscountAmount = discount.DiscountAmount,
-                        StartDateTime = discount.StartDateTime,
-                        EndDateTime = discount.EndDateTime
-                    };
-
-                    model.FinalPrice = _priceCalculationService.ApplyDiscount(
-                        model.Price,
-                        discount);
-                }
-
-                productSearchModels.Add(model);
-            }
-
-            await index.PartialUpdateObjectsAsync(productSearchModels);
-
-            return;
-        }
-
-        var productSearchModel = new ProductSearchModel
-        {
-            ObjectID = product.Id.Value.ToString(),
-            ProductId = product.Id.Value,
-            Name = product.Name,
-            Description = product.Description,
-            Price = product.Price,
-            Categories = hierarchyCategories,
-            Brand = brand?.Name,
-            AverageRating = product.AverageRating.Value,
-            DisplayOrder = product.DisplayOrder,
-            CreatedDateTime = product.CreatedDateTime,
-            UpdatedDateTime = product.UpdatedDateTime,
-            Image = product.Images
-                .Where(image => image.IsMain)
-                .Select(image => image.ImageUrl)
-                .FirstOrDefault() ?? string.Empty
-        };
-
-        var productAttributes = new Dictionary<string, string>();
-
-        foreach (var attribute in product.ProductAttributes)
-        {
-            var attributeValue = attribute.ProductAttributeValues
-                .ToList()
-                .FirstOrDefault();
-
-            if (attributeValue is not null)
-            {
-                productAttributes.Add(attribute.Name, attributeValue.Name);
+                return;
             }
         }
 
-        productSearchModel.Attributes = productAttributes;
+        var productSearchModel = await index.GetObjectAsync<ProductSearchModel>(
+            product.Id.Value.ToString());
 
-        if (discount is not null)
-        {
-            productSearchModel.Discount = new ProductSearchDiscount
-            {
-                UsePercentage = discount.UsePercentage,
-                DiscountPercentage = discount.DiscountPercentage,
-                DiscountAmount = discount.DiscountAmount,
-                StartDateTime = discount.StartDateTime,
-                EndDateTime = discount.EndDateTime
-            };
+        productSearchModel.Name = product.Name;
+        productSearchModel.Description = product.Description;
+        productSearchModel.Price = product.Price;
+        productSearchModel.Categories = hierarchyCategories;
+        productSearchModel.Brand = brand?.Name;
+        productSearchModel.DisplayOrder = product.DisplayOrder;
+        productSearchModel.UpdatedDateTime = product.UpdatedDateTime;
 
-            productSearchModel.FinalPrice = _priceCalculationService.ApplyDiscount(
-                productSearchModel.Price,
-                discount);
-        }
-
-        await index.PartialUpdateObjectAsync(productSearchModel);
+        await index.SaveObjectAsync(productSearchModel);
     }
 }

@@ -14,6 +14,8 @@ public class ProductSearchModel
 
     public string? Description { get; set; }
 
+    public string? ShortDescription { get; set; }
+
     public dynamic Categories { get; set; } = new ExpandoObject();
 
     public bool HasVariant { get; set; }

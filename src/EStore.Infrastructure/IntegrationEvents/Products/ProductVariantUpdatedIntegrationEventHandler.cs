@@ -53,17 +53,18 @@ public class ProductVariantUpdatedIntegrationEventHandler
             .First();
 
         var orderedImages = product.Images
+            .Where(image => image.Id != mainImage.Id)
             .OrderBy(image => image.DisplayOrder)
             .ToList();
 
-        var assignedImageIds = productVariant.AssignedProductImageIds.Split(' ');
+        var assignedImageIds = productVariant.AssignedProductImageIds.ToLower().Split(' ');
 
-        if (!assignedImageIds.Contains(mainImage.Id.ToString()))
+        if (!assignedImageIds.Contains(mainImage.Id.ToString()!.ToLower()))
         {
             // If the main image is not assigned to the product variant, assign the first image
             foreach (var image in orderedImages)
             {
-                if (assignedImageIds.Contains(image.Id.ToString()))
+                if (assignedImageIds.Contains(image.Id.ToString()!.ToLower()))
                 {
                     mainImage = image;
                     break;
@@ -72,14 +73,13 @@ public class ProductVariantUpdatedIntegrationEventHandler
         }
 
         var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
+        var productSearchModel = await index.GetObjectAsync<ProductSearchModel>(
+            productVariant.Id.Value.ToString());
 
-        await index.PartialUpdateObjectAsync(
-            new ProductSearchModel
-            {
-                ObjectID = productVariant.Id.Value.ToString(),
-                Image = mainImage.ImageUrl,
-                Price = productVariant.Price!.Value,
-                IsActive = productVariant.IsActive
-            });
+        productSearchModel.Image = mainImage.ImageUrl;
+        productSearchModel.Price = productVariant.Price!.Value;
+        productSearchModel.IsActive = productVariant.IsActive;
+
+        await index.SaveObjectAsync(productSearchModel);
     }
 }
