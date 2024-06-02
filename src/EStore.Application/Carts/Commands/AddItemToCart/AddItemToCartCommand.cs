@@ -9,5 +9,6 @@ namespace EStore.Application.Carts.Commands.AddItemToCart;
 public record AddItemToCartCommand(
     CustomerId CustomerId,
     ProductId ProductId,
-    ProductVariantId? ProductVariantId = null)
+    ProductVariantId? ProductVariantId = null,
+    int Quantity = 1)
     : IRequest<ErrorOr<Cart>>;

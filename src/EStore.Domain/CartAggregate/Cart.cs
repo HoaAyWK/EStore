@@ -35,6 +35,22 @@ public sealed class Cart : AggregateRoot<CartId>
         decimal unitPrice,
         int quantity = 1)
     {
+        var existingItem = Items.FirstOrDefault(i =>
+            i.ProductId == productId &&
+            i.ProductVariantId! == productVariantId!);
+
+        if (existingItem is not null)
+        {
+            existingItem.AddQuantity(quantity);
+
+            if (existingItem.Quantity <= 0)
+            {
+                _items.Remove(existingItem);
+            }
+
+            return Result.Success;
+        }
+
         var createCartItemResult = CartItem.Create(
             quantity,
             unitPrice,
@@ -46,25 +62,7 @@ public sealed class Cart : AggregateRoot<CartId>
             return createCartItemResult.Errors;
         }
 
-        var item = createCartItemResult.Value;
-
-        var existingItem = Items.FirstOrDefault(i =>
-            i.ProductId == productId &&
-            i.ProductVariantId! == productVariantId!);
-
-        if (existingItem is null)
-        {
-            _items.Add(item);
-            
-            return Result.Success;
-        }
-
-        var addQuantityResult = existingItem.AddQuantity(quantity);
-
-        if (addQuantityResult.IsError)
-        {
-            return addQuantityResult.Errors;
-        }
+        _items.Add(createCartItemResult.Value);
 
         return Result.Success;
     }

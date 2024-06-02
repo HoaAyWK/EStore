@@ -71,7 +71,11 @@ public class AddItemToCartCommandHandler
             await _cartRepository.AddAsync(cart);
         }
 
-        var addItemResult = cart.AddItem(request.ProductId, request.ProductVariantId, itemPrice);
+        var addItemResult = cart.AddItem(
+            request.ProductId,
+            request.ProductVariantId,
+            itemPrice,
+            request.Quantity);
 
         if (addItemResult.IsError)
         {

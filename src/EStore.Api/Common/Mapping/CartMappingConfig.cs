@@ -27,7 +27,8 @@ public class CartMappingConfig : IRegister
                 dest => dest.ProductVariantId,
                 src => src.Item2.ProductVariantId != null
                     ? ProductVariantId.Create(src.Item2.ProductVariantId.Value)
-                    : null);
+                    : null)
+            .Map(dest => dest.Quantity, src => src.Item2.Quantity);
 
         config.NewConfig<RemoveCartItemRequest, RemoveItemFromCartCommand>()
             .Map(dest => dest.CartId, src => CartId.Create(src.Id))

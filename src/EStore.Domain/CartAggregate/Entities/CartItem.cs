@@ -67,11 +67,6 @@ public sealed class CartItem : Entity<CartItemId>
 
     public ErrorOr<Success> AddQuantity(int quantity)
     {
-        if (quantity < MinQuantity)
-        {
-            return Errors.Cart.InvalidCartItemQuantity;
-        }
-
         Quantity += quantity;
 
         return Result.Success;
