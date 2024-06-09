@@ -6,6 +6,7 @@ using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Common.Searching;
 using EStore.Application.Customers.Services;
 using EStore.Application.Discounts.Services;
+using EStore.Application.Invoices.Services;
 using EStore.Application.Notifications.Services;
 using EStore.Application.Orders.Services;
 using EStore.Application.Products.Services;
@@ -16,6 +17,7 @@ using EStore.Domain.CategoryAggregate.Repositories;
 using EStore.Domain.Common.Abstractions;
 using EStore.Domain.CustomerAggregate.Repositories;
 using EStore.Domain.DiscountAggregate.Repositories;
+using EStore.Domain.InvoiceAggregate.Repositories;
 using EStore.Domain.NotificationAggregate.Repositories;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.ProductAggregate.Repositories;
@@ -33,6 +35,9 @@ using EStore.Infrastructure.Persistence.Seeds;
 using EStore.Infrastructure.Searching;
 using EStore.Infrastructure.Services;
 using EStore.Infrastructure.Services.AlgoliaSearch;
+using EStore.Infrastructure.Services.FileGenerators;
+using EStore.Infrastructure.Services.FileUploads;
+using EStore.Infrastructure.Services.FileUploads.OptionsSetup;
 using EStore.Infrastructure.Services.OptionsSetup;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -55,6 +60,7 @@ public static class DependencyInjection
         services.ConfigureOptions<UserSeedingOptionsSetup>();
         services.ConfigureOptions<MailSettingsOptionsSetup>();
         services.ConfigureOptions<StripeSettingsOptionsSetup>();
+        services.ConfigureOptions<CloudinaryOptionsSetup>();
 
         var processOutboxMessagesJobOptions = configuration
             .GetSection(ProcessOutboxMessagesJobOptions.SectionName)
@@ -104,6 +110,7 @@ public static class DependencyInjection
         services.AddScoped<IDiscountRepository, DiscountRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IBannerRepository, BannerRepository>();
+        services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
         services.AddScoped<IBrandReadService, BrandReadService>();
         services.AddScoped<ICategoryReadService, CategoryReadService>();
@@ -173,6 +180,11 @@ public static class DependencyInjection
 
         services.AddAlgoliaSearch(configuration);
 
+        services.AddCloudinary(configuration);
+        services.AddScoped<ICloudinaryService, CloudinaryService>();
+
+        services.AddScoped<IInvoiceGenerator, InvoiceGenerator>();
+
         return services;
-    }   
+    }
 }

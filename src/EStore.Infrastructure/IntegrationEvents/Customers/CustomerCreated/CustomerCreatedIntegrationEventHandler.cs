@@ -1,4 +1,3 @@
-using System.Text;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Customers.Events.CustomerCreated;
 using EStore.Domain.CustomerAggregate.Repositories;
@@ -8,7 +7,6 @@ using EStore.Infrastructure.Identity.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace EStore.Infrastructure.IntegrationEvents.Customers.CustomerCreated;
 

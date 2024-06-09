@@ -9,6 +9,7 @@ public static class BrandResponseUtils
         => new BrandResponse(
             Guid.NewGuid(),
             name,
+            name,
             DateTime.UtcNow,
             DateTime.UtcNow);
 }

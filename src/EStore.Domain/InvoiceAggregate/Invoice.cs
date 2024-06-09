@@ -43,12 +43,11 @@ public sealed class Invoice : AggregateRoot<InvoiceId>, ISoftDeletableEntity, IA
     }
 
     public static Invoice Create(
-        InvoiceId id,
         string invoiceBlobUrl,
         long invoiceNumber,
         OrderId orderId,
         CustomerId customerId)
-        => new(id,
+        => new(InvoiceId.CreateUnique(),
             invoiceBlobUrl,
             invoiceNumber,
             orderId,

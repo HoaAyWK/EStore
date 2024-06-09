@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Algolia.Search" Version="6.16.0" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
     <PackageReference Include="MailKit" Version="4.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.14" />
@@ -23,6 +24,7 @@
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.7.0" />
     <PackageReference Include="Stripe.net" Version="41.21.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.0" />
+    <PackageReference Include="QuestPDF" Version="2023.10.1" />
   </ItemGroup>
 
   <PropertyGroup>
