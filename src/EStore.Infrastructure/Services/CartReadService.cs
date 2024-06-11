@@ -164,12 +164,15 @@ internal sealed class CartReadService : ICartReadService
                 {
                     var firstImageId = productVariantImages.First();
 
-                    var image = productWithDiscount.Product.Images
-                        .FirstOrDefault(i => i.Id == ProductImageId.Create(new Guid(firstImageId)));
-
-                    if (image is not null)
+                    if (Guid.TryParse(firstImageId, out var imageId))
                     {
-                        imageUrl = image.ImageUrl;
+                        var image = productWithDiscount.Product.Images
+                            .FirstOrDefault(i => i.Id == ProductImageId.Create(new Guid(firstImageId)));
+
+                        if (image is not null)
+                        {
+                            imageUrl = image.ImageUrl;
+                        }
                     }
                 }
             }

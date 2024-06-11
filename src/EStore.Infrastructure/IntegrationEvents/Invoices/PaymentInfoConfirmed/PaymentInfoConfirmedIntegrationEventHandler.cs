@@ -74,7 +74,7 @@ public class PaymentInfoConfirmedIntegrationEventHandler
             htmlBody = htmlBody.Replace("{0}", htmlElement);
 
             await _emailService.SendEmailWithTemplateAsync(
-                subject: "[EStore] OTP for Email Confirmation",
+                subject: "[EStore] Your order has been confirmed.",
                 mailTo: order.Customer.Email,
                 htmlBody: htmlBody);
         }

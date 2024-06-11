@@ -9,14 +9,14 @@ public class InvoiceDocument : IDocument
 {
     private static readonly ShippingAddressResponse s_SellerAddress = new(
         "EStore Inc.",
-        "1234567890",
+        "+84987654123",
         "1 Vo Van Ngan St",
         "Thu Duc",
         "Ho Chi Minh",
         "Vietnam",
         "70000");
 
-    public static Image LogoImage { get; } = Image.FromFile("wwwroot/images/logo.svg");
+    // public static Image LogoImage { get; } = Image.FromFile("wwwroot/images/logo.svg");
     public OrderResponse Model { get; set; }
 
     public InvoiceDocument(OrderResponse model)
@@ -68,7 +68,7 @@ public class InvoiceDocument : IDocument
                 });
             });
 
-            row.ConstantItem(175).Image(LogoImage);
+            // row.ConstantItem(175).Image(LogoImage);
         });
     }
 
@@ -106,6 +106,7 @@ public class InvoiceDocument : IDocument
                 columns.RelativeColumn();
                 columns.RelativeColumn();
                 columns.RelativeColumn();
+                columns.RelativeColumn();
             });
             
             table.Header(header =>
@@ -117,7 +118,7 @@ public class InvoiceDocument : IDocument
                 header.Cell().AlignRight().Text("Total").Style(headerStyle);
                 header.Cell().AlignRight().Text("Discount").Style(headerStyle);
                 
-                header.Cell().ColumnSpan(5).PaddingTop(5).BorderBottom(1).BorderColor(Colors.Black);
+                header.Cell().ColumnSpan(6).PaddingTop(5).BorderBottom(1).BorderColor(Colors.Black);
             });
             
             foreach (var item in Model.OrderItems)
