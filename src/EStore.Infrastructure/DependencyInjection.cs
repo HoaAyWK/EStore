@@ -131,6 +131,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationReadService, NotificationReadService>();
         services.AddScoped<IBannerReadService, BannerReadService>();
         services.AddScoped<ICustomerReadService, CustomerReadService>();
+        services.AddScoped<IInvoiceReadService, InvoiceReadService>();
 
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IOtpService, OtpService>();
