@@ -556,6 +556,9 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         return productReview;
     }
 
+    public void AssignDiscount(DiscountId? discountId)
+        => DiscountId = discountId;
+
     private static List<Error> ValidateName(string name)
     {
         List<Error> errors = new();
