@@ -21,7 +21,8 @@ public class BrandMappingConfig : IRegister
 
         config.NewConfig<(Guid, UpdateBrandRequest), UpdateBrandCommand>()
             .Map(dest => dest.Id, src => BrandId.Create(src.Item1))
-            .Map(dest => dest, src => src.Item2);
+            .Map(dest => dest.Name, src => src.Item2.Name)
+            .Map(dest => dest.ImageUrl, src => src.Item2.ImageUrl);
 
         config.NewConfig<Guid, DeleteBrandCommand>()
             .Map(dest => dest, src => BrandId.Create(src));
