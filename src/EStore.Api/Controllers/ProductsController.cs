@@ -359,7 +359,7 @@ public class ProductsController : ApiController
     [Authorize(Roles = $"{Roles.Admin}")]
     [Route(ApiRoutes.Product.AssignDiscount)]
     public async Task<IActionResult> AssignDiscount(
-        [FromQuery] Guid id,
+        [FromRoute] Guid id,
         [FromBody] AssignDiscountRequest request)
     {
         var command = _mapper.Map<AssignDiscountCommand>((id, request));

@@ -149,6 +149,8 @@ public class ProductVariantCreatedIntegrationEventHandler
             Image =  mainImage?.ImageUrl
         };
 
+        productSearchModel.FinalPrice = productSearchModel.Price;
+
         var productAttributes = new Dictionary<string, string>();
 
         // Add combined attributes
@@ -209,6 +211,7 @@ public class ProductVariantCreatedIntegrationEventHandler
         {
             productSearchModel.Discount = new ProductSearchDiscount
             {
+                DiscountName = discount.Name,
                 UsePercentage = discount.UsePercentage,
                 DiscountPercentage = discount.DiscountPercentage,
                 DiscountAmount = discount.DiscountAmount,

@@ -4,6 +4,7 @@ using EStore.Application.Products.Commands.AssignDiscount;
 using EStore.Contracts.Discounts;
 using EStore.Domain.DiscountAggregate;
 using EStore.Domain.DiscountAggregate.ValueObjects;
+using EStore.Domain.ProductAggregate.ValueObjects;
 using Mapster;
 
 namespace EStore.Api.Common.Mapping;
@@ -23,7 +24,11 @@ public class DiscountMappingConfig : IRegister
             .Map(dest => dest, src => src.Item2);
 
         config.NewConfig<(Guid, AssignDiscountRequest), AssignDiscountCommand>()
-            .Map(dest => dest.ProductId, src => src.Item1)
-            .Map(dest => dest.DiscountId, src => src.Item2.DiscountId);
+            .Map(dest => dest.ProductId, src => ProductId.Create(src.Item1))
+            .Map(
+                dest => dest.DiscountId,
+                src => src.Item2.DiscountId == null
+                    ? null
+                    : DiscountId.Create(src.Item2.DiscountId.Value));
     }
 }

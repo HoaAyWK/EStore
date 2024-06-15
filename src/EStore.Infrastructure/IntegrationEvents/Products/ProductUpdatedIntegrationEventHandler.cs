@@ -116,6 +116,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
             {
                 singleProduct.Discount = new ProductSearchDiscount
                 {
+                    DiscountName = discount.Name,
                     UsePercentage = discount.UsePercentage,
                     DiscountPercentage = discount.DiscountPercentage,
                     DiscountAmount = discount.DiscountAmount,
@@ -159,6 +160,21 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                 if (variant is not null)
                 {
                     model.Price = _priceCalculationService.CalculatePrice(product, variant);
+                    
+                    if (discount is not null)
+                    {
+                        model.Discount = new ProductSearchDiscount
+                        {
+                            DiscountName = discount.Name,
+                            UsePercentage = discount.UsePercentage,
+                            DiscountPercentage = discount.DiscountPercentage,
+                            DiscountAmount = discount.DiscountAmount,
+                            StartDateTime = discount.StartDateTime,
+                            EndDateTime = discount.EndDateTime
+                        };
+
+                        model.FinalPrice = _priceCalculationService.ApplyDiscount(model.Price, discount);
+                    }
                 }
 
                 await index.SaveObjectsAsync(productSearchModels);
@@ -177,6 +193,23 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
         productSearchModel.Brand = brand?.Name;
         productSearchModel.DisplayOrder = product.DisplayOrder;
         productSearchModel.UpdatedDateTime = product.UpdatedDateTime;
+
+        if (discount is not null)
+        {
+            productSearchModel.Discount = new ProductSearchDiscount
+            {
+                DiscountName = discount.Name,
+                UsePercentage = discount.UsePercentage,
+                DiscountPercentage = discount.DiscountPercentage,
+                DiscountAmount = discount.DiscountAmount,
+                StartDateTime = discount.StartDateTime,
+                EndDateTime = discount.EndDateTime
+            };
+
+            productSearchModel.FinalPrice = _priceCalculationService.ApplyDiscount(
+                productSearchModel.Price,
+                discount);
+        }
 
         await index.SaveObjectAsync(productSearchModel);
     }

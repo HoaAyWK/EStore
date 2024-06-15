@@ -208,6 +208,19 @@ internal sealed class ProductReadService : IProductReadService
                         Name = category.Name
                     })
                     .FirstOrDefault(),
+                Discount = _dbContext.Discounts.AsNoTracking()
+                    .Where(discount => discount.Id == p.DiscountId!)
+                    .Select(discount => new DiscountDto
+                    {
+                        Id = discount.Id.Value,
+                        Name = discount.Name,
+                        UsePercentage = discount.UsePercentage,
+                        Percentage = discount.DiscountPercentage,
+                        Amount = discount.DiscountAmount,
+                        StartDate = discount.StartDateTime,
+                        EndDate = discount.EndDateTime
+                    })
+                    .FirstOrDefault(),
                 Images = p.Images
                     .OrderBy(image => image.DisplayOrder)
                     .Select(image => new ProductImageDto

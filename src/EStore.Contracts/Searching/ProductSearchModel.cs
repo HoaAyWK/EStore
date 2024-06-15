@@ -47,6 +47,8 @@ public class ProductSearchModel
 
 public class ProductSearchDiscount
 {
+    public string? DiscountName { get; set; }
+
     public bool UsePercentage { get; set; }
 
     public decimal DiscountPercentage { get; set; }

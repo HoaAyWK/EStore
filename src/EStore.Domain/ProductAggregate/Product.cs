@@ -557,7 +557,10 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
     }
 
     public void AssignDiscount(DiscountId? discountId)
-        => DiscountId = discountId;
+    {
+        DiscountId = discountId;
+        RaiseDomainEvent(new ProductDiscountAssignedDomainEvent(Id, discountId));
+    }
 
     private static List<Error> ValidateName(string name)
     {
