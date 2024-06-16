@@ -28,6 +28,52 @@ internal sealed class CategoryReadService : ICategoryReadService
             .FirstOrDefaultAsync();
     }
 
+    public async Task<CategoryWithPathsResponse?> GetBySlug(string slug)
+    {
+        var category = await _dbContext.Categories
+            .AsNoTracking()
+            .Where(category => category.Slug == slug)
+            .SingleOrDefaultAsync();
+
+        if (category is null)
+        {
+            return null;
+        }
+
+        var otherCategories = await _dbContext.Categories
+            .AsNoTracking()
+            .Where(c => c.Id != category.Id)
+            .ToListAsync();
+
+        var categoryDictionary = otherCategories.ToDictionary(c => c.Id, c => c);
+        var parentCategoryId = category.ParentId;
+        var paths = new LinkedList<(string, string)>();
+
+        paths.AddFirst((category.Name, category.Slug));
+
+        while (parentCategoryId is not null)
+        {
+            if (categoryDictionary.TryGetValue(parentCategoryId, out var parentCategory))
+            {
+                categoryDictionary.Remove(parentCategoryId);
+                parentCategoryId = parentCategory.ParentId;
+                paths.AddFirst((parentCategory.Name, parentCategory.Slug));
+            }
+        }
+
+        return new CategoryWithPathsResponse
+        {
+            Id = category.Id.Value,
+            Name = category.Name,
+            Slug = category.Slug,
+            ImageUrl = category.ImageUrl,
+            ParentId = category.ParentId?.Value,
+            CreatedDateTime = category.CreatedDateTime,
+            UpdatedDateTime = category.UpdatedDateTime,
+            Paths = paths.ToDictionary(p => p.Item1, p => p.Item2)
+        };
+    }
+
     public async Task<ListPagedCategoryResult> GetListPagedAsync(int pageSize, int page)
     {
         if (page is 0 || pageSize is 0)

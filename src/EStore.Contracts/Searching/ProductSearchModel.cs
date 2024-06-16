@@ -18,6 +18,8 @@ public class ProductSearchModel
 
     public dynamic Categories { get; set; } = new ExpandoObject();
 
+    public string? CategorySlug { get; set; }
+
     public bool HasVariant { get; set; }
 
     public string? Brand { get; set; }

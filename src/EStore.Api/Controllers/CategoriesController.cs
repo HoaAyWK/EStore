@@ -6,6 +6,7 @@ using EStore.Application.Categories.Commands.UpdateCategory;
 using EStore.Application.Categories.Queries.GetAllCategories;
 using EStore.Application.Categories.Queries.GetAllParentsWithChildren;
 using EStore.Application.Categories.Queries.GetCategoryById;
+using EStore.Application.Categories.Queries.GetCategoryBySlug;
 using EStore.Application.Categories.Queries.GetCategoryListPaged;
 using EStore.Application.Categories.Queries.GetCategoryTree;
 using EStore.Contracts.Categories;
@@ -80,6 +81,16 @@ public class CategoriesController : ApiController
     public async Task<IActionResult> GetCategory(Guid id)
     {
         var query = new GetCategoryByIdQuery(CategoryId.Create(id));
+        var getCategoryResult = await _mediator.Send(query);
+
+        return getCategoryResult.Match(Ok, Problem);
+    }
+
+    [AllowAnonymous]
+    [HttpGet(ApiRoutes.Category.GetBySlug)]
+    public async Task<IActionResult> GetCategoryBySlug(string slug)
+    {
+        var query = new GetCategoryBySlugQuery(slug);
         var getCategoryResult = await _mediator.Send(query);
 
         return getCategoryResult.Match(Ok, Problem);

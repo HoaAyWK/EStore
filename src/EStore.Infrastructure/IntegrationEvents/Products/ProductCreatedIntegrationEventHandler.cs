@@ -86,6 +86,7 @@ public class ProductCreatedIntegrationEventHandler
             Price = product.Price,
             FinalPrice = product.Price,
             Categories = hierarchyCategories.ToList(),
+            CategorySlug = category?.Slug,
             Brand = brand?.Name,
             AverageRating = product.AverageRating.Value,
             DisplayOrder = product.DisplayOrder,

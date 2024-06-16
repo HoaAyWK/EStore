@@ -102,6 +102,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                 Price = product.Price,
                 Categories = hierarchyCategories,
                 Brand = brand?.Name,
+                CategorySlug = category?.Slug,
                 AverageRating = product.AverageRating.Value,
                 DisplayOrder = product.DisplayOrder,
                 CreatedDateTime = product.CreatedDateTime,
@@ -154,6 +155,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                 model.ShortDescription = product.ShortDescription;
                 model.Categories = hierarchyCategories;
                 model.Brand = brand?.Name;
+                model.CategorySlug = category?.Slug;
                 model.DisplayOrder = product.DisplayOrder;
                 model.UpdatedDateTime = product.UpdatedDateTime;
 
@@ -176,11 +178,11 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
                         model.FinalPrice = _priceCalculationService.ApplyDiscount(model.Price, discount);
                     }
                 }
-
-                await index.SaveObjectsAsync(productSearchModels);
-
-                return;
             }
+
+            await index.SaveObjectsAsync(productSearchModels);
+
+            return;
         }
 
         var productSearchModel = await index.GetObjectAsync<ProductSearchModel>(
@@ -191,6 +193,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
         productSearchModel.Price = product.Price;
         productSearchModel.Categories = hierarchyCategories;
         productSearchModel.Brand = brand?.Name;
+        productSearchModel.CategorySlug = category?.Slug;
         productSearchModel.DisplayOrder = product.DisplayOrder;
         productSearchModel.UpdatedDateTime = product.UpdatedDateTime;
 

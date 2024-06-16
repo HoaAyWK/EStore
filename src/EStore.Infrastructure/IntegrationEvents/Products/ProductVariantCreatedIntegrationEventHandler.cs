@@ -146,7 +146,8 @@ public class ProductVariantCreatedIntegrationEventHandler
             HasVariant = product.HasVariant,
             IsActive = productVariant.IsActive,
             Brand = brand?.Name,
-            Image =  mainImage?.ImageUrl
+            Image =  mainImage?.ImageUrl,
+            CategorySlug = category?.Slug
         };
 
         productSearchModel.FinalPrice = productSearchModel.Price;

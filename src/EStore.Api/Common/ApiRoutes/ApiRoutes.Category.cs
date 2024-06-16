@@ -6,6 +6,8 @@ public static partial class ApiRoutes
     {
         public const string Get = "{id:guid}";
 
+        public const string GetBySlug = "slugs/{slug}";
+
         public const string GetFromParents = "parents";
 
         public const string GetAll = "all";
