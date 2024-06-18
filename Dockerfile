@@ -3,6 +3,14 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 433
 
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    libfontconfig1 \
+    libfreetype6 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 

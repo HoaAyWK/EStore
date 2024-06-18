@@ -32,13 +32,14 @@ var app = builder.Build();
     });
 
     app.UseExceptionHandler($"/{ApiRoutes.Error}");
-    // app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
     app.UseCors(corsPolicyName);
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseStaticFiles();
     app.MapControllers();
     app.MapHub<NotificationsHub>(NotificationsHub.HubUrl);
+    app.MapHealthChecks("/api/health");
 
     await SeedDataAsync(app);
 

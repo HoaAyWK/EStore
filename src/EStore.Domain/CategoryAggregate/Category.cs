@@ -36,6 +36,8 @@ public sealed class Category : AggregateRoot<CategoryId>, IAuditableEntity, ISof
 
     public string? ImageUrl { get; private set; }
 
+    public string? Description { get; private set; }
+
     public IReadOnlyList<Category> Children => _children.AsReadOnly();
 
     private Category()

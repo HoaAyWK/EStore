@@ -16,6 +16,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="7.3.0" />
   </ItemGroup>
 
   <ItemGroup>
