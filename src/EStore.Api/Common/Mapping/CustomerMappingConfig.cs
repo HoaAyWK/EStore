@@ -1,6 +1,7 @@
 using EStore.Application.Customers.Command.UpdateCustomer;
 using EStore.Application.Customers.Commands.AddAddress;
 using EStore.Application.Customers.Commands.UpdateAddress;
+using EStore.Application.Customers.Commands.DeleteAddress;
 using EStore.Application.Customers.Queries.GetAllCustomers;
 using EStore.Application.Customers.Queries.GetCustomerStats;
 using EStore.Contracts.Common;
@@ -49,5 +50,9 @@ public class CustomerMappingConfig : IRegister
             .Map(
                 dest => dest.CurrentCustomerId,
                 src => CustomerId.Create(src));
+
+        config.NewConfig<(Guid, Guid), DeleteAddressCommand>()
+            .Map(dest => dest.CustomerId, src => CustomerId.Create(src.Item1))
+            .Map(dest => dest.AddressId, src => AddressId.Create(src.Item2));
     }
 }

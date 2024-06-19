@@ -12,6 +12,8 @@ public static partial class ApiRoutes
 
         public const string UpdateAddress = "{id:guid}/addresses/{addressId:guid}";
 
+        public const string DeleteAddress = "{id:guid}/addresses/{addressId:guid}";
+
         public const string GetStats = "stats";
 
         public const string All = "all";

@@ -3,6 +3,7 @@ using EStore.Api.Common.Contexts;
 using EStore.Application.Customers.Command.UpdateCustomer;
 using EStore.Application.Customers.Commands.AddAddress;
 using EStore.Application.Customers.Commands.UpdateAddress;
+using EStore.Application.Customers.Commands.DeleteAddress;
 using EStore.Application.Customers.Queries.GetAllCustomers;
 using EStore.Application.Customers.Queries.GetCustomerById;
 using EStore.Application.Customers.Queries.GetCustomerStats;
@@ -87,6 +88,20 @@ public class CustomersController : ApiController
 
         return updateAddressResult.Match(
             result => Ok(_mapper.Map<Address, AddressResponse>(result)),
+            Problem);
+    }
+
+    [HttpDelete(ApiRoutes.Customer.DeleteAddress)]
+    public async Task<IActionResult> DeleteAddress(Guid id, Guid addressId)
+    {
+        var command = new DeleteAddressCommand(
+            CustomerId.Create(id),
+            AddressId.Create(addressId));
+
+        var deleteAddressResult = await _mediator.Send(command);
+
+        return deleteAddressResult.Match(
+            _ => Ok(new { Id = addressId }),
             Problem);
     }
 

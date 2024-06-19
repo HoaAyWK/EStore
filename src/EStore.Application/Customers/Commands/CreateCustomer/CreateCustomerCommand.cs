@@ -7,5 +7,6 @@ namespace EStore.Application.Customers.Commands.CreateCustomer;
 public record CreateCustomerCommand(
     string Email,
     string FirstName,
-    string LastName)
+    string LastName,
+    string PhoneNumber)
     : IRequest<ErrorOr<Customer>>;

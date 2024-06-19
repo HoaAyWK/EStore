@@ -5,15 +5,15 @@ using EStore.Domain.OrderAggregate.Enumerations;
 using EStore.Domain.OrderAggregate.Repositories;
 using MediatR;
 
-namespace EStore.Application.Orders.Commands.RefundOrder;
+namespace EStore.Application.Orders.Commands.CancelOrder;
 
-public class RefundOrderCommandHandler
-    : IRequestHandler<RefundOrderCommand, ErrorOr<Success>>
+public class CancelOrderCommandHandler
+    : IRequestHandler<CancelOrderCommand, ErrorOr<Success>>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IPaymentService _paymentService;
 
-    public RefundOrderCommandHandler(
+    public CancelOrderCommandHandler(
         IOrderRepository orderRepository,
         IPaymentService paymentService)
     {
@@ -22,7 +22,7 @@ public class RefundOrderCommandHandler
     }
 
     public async Task<ErrorOr<Success>> Handle(
-        RefundOrderCommand request,
+        CancelOrderCommand request,
         CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetByIdAsync(request.OrderId);
@@ -32,15 +32,20 @@ public class RefundOrderCommandHandler
             return Errors.Order.NotFound;
         }
 
-        if (order.PaymentStatus != PaymentStatus.Paid)
+        if (order.OrderStatus != OrderStatus.Pending)
         {
-            return Errors.Order.UnpaidOrder(order.Id);
+            return Errors.Order.CannotCancelOrder;
         }
 
-        if (order.TransactionId is not null)
+        order.MarkAsCancelled();
+
+        if (order.PaymentMethod == PaymentMethod.CashOnDelivery ||
+            order.PaymentStatus != PaymentStatus.Paid)
         {
-            await _paymentService.ProcessRefundAsync(order, cancellationToken);
+            return Result.Success;
         }
+
+        await _paymentService.ProcessRefundAsync(order, cancellationToken);
 
         return Result.Success;
     }

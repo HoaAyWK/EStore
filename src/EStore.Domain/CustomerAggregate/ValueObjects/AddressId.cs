@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace EStore.Domain.CustomerAggregate.ValueObjects;
 
-public class AddressId : ValueObject
+public sealed class AddressId : ValueObject
 {
     public Guid Value { get; set; }
 

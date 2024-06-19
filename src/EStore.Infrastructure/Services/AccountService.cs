@@ -24,6 +24,37 @@ public class AccountService : IAccountService
         _userManager = userManager;
     }
 
+    public async Task<ErrorOr<Success>> ChangePasswordAsync(
+        CustomerId userId,
+        string oldPassword,
+        string newPassword)
+    {
+        var user = await _customerRepository.GetByIdAsync(userId);
+
+        if (user is null)
+        {
+            return Errors.Account.NotFound;
+        }
+
+        var applicationUser = await _userManager.FindByIdAsync(userId.Value.ToString());
+
+        if (applicationUser is null)
+        {
+            return Errors.Account.NotFound;
+        }
+
+        var result = await _userManager.ChangePasswordAsync(applicationUser, oldPassword, newPassword);
+
+        if (!result.Succeeded)
+        {
+            return result.Errors
+                .Select(error => Error.Validation(error.Code, error.Description))
+                .ToList();
+        }
+
+        return Result.Success;
+    }
+
     public async Task<ErrorOr<UserInfoResponse>> GetUserInfoAsync(CustomerId userId)
     {
         var user = await _customerRepository.GetByIdAsync(userId);
@@ -69,6 +100,7 @@ public class AccountService : IAccountService
             user.Email,
             userRole,
             user.AvatarUrl,
+            user.PhoneNumber,
             addressResponses);
     }
 }

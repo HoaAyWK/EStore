@@ -60,5 +60,9 @@ public static partial class Errors
         public static Error OrderHasNotDeliveredYet = Error.Validation(
             code: "Order.OrderHasNotDeliveredYet",
             description: "The order has not delivered yet.");
+
+        public static Error CannotCancelOrder = Error.Validation(
+            code: "Order.CannotCancelOrder",
+            description: $"Only the order with status {OrderStatus.Pending} can be cancelled.");
     }
 }

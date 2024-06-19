@@ -1,5 +1,6 @@
 using EStore.Api.Common.ApiRoutes;
 using EStore.Api.Common.Contexts;
+using EStore.Application.Orders.Commands.CancelOrder;
 using EStore.Application.Orders.Commands.ConfirmPaymentInfo;
 using EStore.Application.Orders.Commands.ConfirmReceived;
 using EStore.Application.Orders.Commands.CreateOrder;
@@ -103,6 +104,17 @@ public class OrdersController : ApiController
         var refundOrderResult = await _mediator.Send(command);
 
         return refundOrderResult.Match(
+            success => NoContent(),
+            Problem);
+    }
+
+    [HttpPut(ApiRoutes.Order.Cancel)]
+    public async Task<IActionResult> CancelOrder([FromRoute] Guid id)
+    {
+        var command = _mapper.Map<CancelOrderCommand>(id);
+        var cancelOrderResult = await _mediator.Send(command);
+
+        return cancelOrderResult.Match(
             success => NoContent(),
             Problem);
     }

@@ -24,17 +24,20 @@ public class StripeController : ApiController
     private readonly IMapper _mapper;
     private readonly IWorkContext _workContext;
     private readonly StripeSettings _stripeSettings;
+    private readonly ILogger<StripeController> _logger;
 
     public StripeController(
         ISender mediator,
         IMapper mapper,
         IWorkContext workContext,
-        IOptions<StripeSettings> stripeSettingsOptions)
+        IOptions<StripeSettings> stripeSettingsOptions,
+        ILogger<StripeController> logger)
     {
         _mediator = mediator;
         _mapper = mapper;
         _workContext = workContext;
         _stripeSettings = stripeSettingsOptions.Value;
+        _logger = logger;
     }
 
     [HttpPost]
@@ -56,6 +59,10 @@ public class StripeController : ApiController
     [HttpPost(ApiRoutes.Stripe.Webhook)]
     public async Task<IActionResult> Webhook()
     {
+        _logger.LogInformation("Stripe webhook received");
+        _logger.LogInformation("Request Headers @{headers}", Request.Headers);
+        _logger.LogInformation("Stripe webhook secret {webhook}", _stripeSettings.WebhookSecret);
+
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
 
         try
@@ -70,7 +77,7 @@ public class StripeController : ApiController
             {
                 var session = stripeEvent.Data.Object as Session;
 
-                Console.WriteLine("Catch CheckoutSessionCompleted");
+                _logger.LogInformation("Catch CheckoutSessionCompleted");
 
                 if (session is not null)
                 {
@@ -96,7 +103,7 @@ public class StripeController : ApiController
             {
                 var charge = stripeEvent.Data.Object as Charge;
 
-                Console.WriteLine("Catch charge refunded");
+                _logger.LogInformation("Catch charge refunded");
                 
                 if (charge is not null)
                 {
@@ -111,6 +118,7 @@ public class StripeController : ApiController
         }
         catch (StripeException e)
         {
+            _logger.LogError(e, "Stripe exception occurred");
             return BadRequest(e.Message);
         }
     }

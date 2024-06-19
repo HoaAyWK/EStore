@@ -1,6 +1,8 @@
 using EStore.Api.Common.ApiRoutes;
 using EStore.Api.Common.Contexts;
 using EStore.Application.Accounts.GetUserInfoQuery;
+using EStore.Application.Common.Interfaces.Services;
+using EStore.Contracts.Accounts;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,11 +16,16 @@ public class AccountController : ApiController
 {
     private readonly IWorkContext _workContext;
     private readonly ISender _mediator;
+    private readonly IAccountService _accountService;
     
-    public AccountController(IWorkContext workContext, ISender mediator)
+    public AccountController(
+        IWorkContext workContext,
+        ISender mediator,
+        IAccountService accountService)
     {
         _workContext = workContext;
         _mediator = mediator;
+        _accountService = accountService;
     }
 
     [HttpGet(ApiRoutes.Account.MyProfile)]
@@ -29,5 +36,17 @@ public class AccountController : ApiController
             new GetUserInfoQuery(CustomerId.Create(userId)));
 
         return getUserInfoResult.Match(Ok, Problem);
+    }
+
+    [HttpPut(ApiRoutes.Account.ChangePassword)]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var userId = _workContext.CustomerId;
+        var changePasswordResult = await _accountService.ChangePasswordAsync(
+            CustomerId.Create(userId),
+            request.OldPassword,
+            request.NewPassword);
+
+        return changePasswordResult.Match(result => Ok(new { Message = "Changed password" }), Problem);
     }
 }

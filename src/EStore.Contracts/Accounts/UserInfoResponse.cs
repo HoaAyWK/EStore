@@ -9,4 +9,5 @@ public record UserInfoResponse(
     string Email,
     string Role,
     string? AvatarUrl,
+    string? PhoneNumber,
     List<AddressResponse> Addresses);

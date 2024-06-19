@@ -48,7 +48,8 @@ public class EStoreIdentityDbContextSeed
             admin = Domain.CustomerAggregate.Customer.Create(
                 adminSettings.Email,
                 adminSettings.FirstName,
-                adminSettings.LastName).Value;
+                adminSettings.LastName,
+                adminSettings.Phone).Value;
 
             admin.UpdateDetails(
                 adminSettings.FirstName,

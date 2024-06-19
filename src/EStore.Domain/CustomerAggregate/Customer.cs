@@ -54,18 +54,21 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
         CustomerId id,
         string email,
         string firstName,
-        string lastName)
+        string lastName,
+        string? phoneNumber)
     {
         Id = id;
         Email = email;
         FirstName = firstName;
         LastName = lastName;
+        PhoneNumber = phoneNumber;
     }
 
     public static ErrorOr<Customer> Create(
         string email,
         string firstName,
-        string lastName)
+        string lastName,
+        string? phoneNumber)
     {
         List<Error> errors = ValidateNames(firstName, lastName);
 
@@ -78,7 +81,8 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
             CustomerId.CreateUnique(),
             email,
             firstName,
-            lastName);
+            lastName,
+            phoneNumber);
 
         customer.RaiseDomainEvent(new CustomerCreatedDomainEvent(customer.Id, email));
 
@@ -203,6 +207,20 @@ public sealed class Customer : AggregateRoot<CustomerId>, IAuditableEntity, ISof
         }
 
         return existingAddress;
+    }
+
+    public ErrorOr<Deleted> DeleteAddress(AddressId addressId)
+    {
+        var existingAddress = _addresses.FirstOrDefault(a => a.Id == addressId);
+
+        if (existingAddress is null)
+        {
+            return Errors.Customer.AddressNotFound;
+        }
+
+        _addresses.Remove(existingAddress);
+
+        return Result.Deleted;
     }
 
     private static List<Error> ValidateNames(string firstName, string lastName)

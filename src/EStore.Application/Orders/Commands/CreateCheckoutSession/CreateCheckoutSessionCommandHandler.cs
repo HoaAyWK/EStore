@@ -13,6 +13,7 @@ using EStore.Domain.OrderAggregate.Events;
 using EStore.Domain.OrderAggregate.Repositories;
 using EStore.Domain.OrderAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
+using Microsoft.Extensions.Logging;
 using MediatR;
 
 namespace EStore.Application.Orders.Commands.CreateCheckoutSession;
@@ -28,6 +29,7 @@ public class CreateCheckoutSessionCommandHandler
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IOrderSequenceService _orderSequenceService;
     private readonly IPublisher _publisher;
+    private readonly ILogger<CreateCheckoutSessionCommandHandler> _logger;
 
     public CreateCheckoutSessionCommandHandler(
         IPaymentService paymentService,
@@ -37,7 +39,8 @@ public class CreateCheckoutSessionCommandHandler
         IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider,
         IOrderSequenceService orderSequenceService,
-        IPublisher publisher)
+        IPublisher publisher,
+        ILogger<CreateCheckoutSessionCommandHandler> logger)
     {
         _paymentService = paymentService;
         _cartReadService = cartReadService;
@@ -47,6 +50,7 @@ public class CreateCheckoutSessionCommandHandler
         _dateTimeProvider = dateTimeProvider;
         _orderSequenceService = orderSequenceService;
         _publisher = publisher;
+        _logger = logger;
     }
 
     public async Task<ErrorOr<string>> Handle(
@@ -64,6 +68,8 @@ public class CreateCheckoutSessionCommandHandler
         {
             return Errors.Order.CartIsEmpty;
         }
+
+        _logger.LogInformation("Creating checkout session for customer {CustomerId}", request.CustomerId.Value);
 
         var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
 

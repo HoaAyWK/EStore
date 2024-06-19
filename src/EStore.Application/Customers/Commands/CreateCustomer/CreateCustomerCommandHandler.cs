@@ -20,7 +20,11 @@ public class CreateCustomerCommandHandler
         CreateCustomerCommand request,
         CancellationToken cancellationToken)
     {
-        var createCustomerResult = Customer.Create(request.Email, request.FirstName, request.LastName);
+        var createCustomerResult = Customer.Create(
+            request.Email,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber);
 
         if (createCustomerResult.IsError)
         {

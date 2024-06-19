@@ -1,3 +1,4 @@
+using EStore.Application.Orders.Commands.CancelOrder;
 using EStore.Application.Orders.Commands.ConfirmPaymentInfo;
 using EStore.Application.Orders.Commands.ConfirmReceived;
 using EStore.Application.Orders.Commands.CreateOrder;
@@ -106,5 +107,8 @@ public class OrderMappingConfig : IRegister
 
         config.NewConfig<GetIncomeStatsRequest, GetIncomeStatsQuery>()
             .Map(dest => dest.LastDaysCount, src => src.FromDays);
+
+        config.NewConfig<Guid, CancelOrderCommand>()
+            .Map(dest => dest.OrderId, src => OrderId.Create(src));
     }
 }

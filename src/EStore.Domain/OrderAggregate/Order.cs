@@ -145,4 +145,9 @@ public sealed class Order : AggregateRoot<OrderId>, IAuditableEntity, ISoftDelet
         OrderStatus = OrderStatus.Refunded;
         RaiseDomainEvent(new OrderRefundedDomainEvent(Id));
     }
+
+    public void MarkAsCancelled()
+    {
+        OrderStatus = OrderStatus.Cancelled;
+    }
 }
