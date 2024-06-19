@@ -49,6 +49,21 @@ public class ProductVariantUpdatedIntegrationEventHandler
             return;
         }
 
+        var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
+
+        if (!product.IsActive)
+        {
+            var searchModel = await index.GetObjectAsync<ProductSearchModel>(
+                productVariant.Id.Value.ToString());
+
+            if (searchModel is not null)
+            {
+                await index.DeleteObjectAsync(searchModel.ObjectID);
+            }
+
+            return;
+        }
+
         var mainImage = product.Images.Where(image => image.IsMain)
             .First();
 
@@ -71,8 +86,7 @@ public class ProductVariantUpdatedIntegrationEventHandler
                 }
             }
         }
-
-        var index = _searchClient.InitIndex(_algoliaSearchOptions.IndexName);
+        
         var productSearchModel = await index.GetObjectAsync<ProductSearchModel>(
             productVariant.Id.Value.ToString());
 
