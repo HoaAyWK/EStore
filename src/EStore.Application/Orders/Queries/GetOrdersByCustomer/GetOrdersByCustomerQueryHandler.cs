@@ -29,6 +29,8 @@ public class GetOrdersByCustomerQueryHandler
             request.Page,
             request.PageSize,
             orderStatus,
+            request.Order,
+            request.OrderBy,
             cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
 using ErrorOr;
+using EStore.Application.Common.Interfaces.Services;
 using EStore.Application.Orders.Services;
 using EStore.Domain.Common.Errors;
 using EStore.Domain.OrderAggregate.Enumerations;
@@ -12,13 +13,16 @@ public class CancelOrderCommandHandler
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IPaymentService _paymentService;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public CancelOrderCommandHandler(
         IOrderRepository orderRepository,
-        IPaymentService paymentService)
+        IPaymentService paymentService,
+        IDateTimeProvider dateTimeProvider)
     {
         _orderRepository = orderRepository;
         _paymentService = paymentService;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<ErrorOr<Success>> Handle(
@@ -38,6 +42,9 @@ public class CancelOrderCommandHandler
         }
 
         order.MarkAsCancelled();
+        order.AddOrderStatusHistoryTracking(
+            OrderStatusHistory.OrderCancelled,
+            _dateTimeProvider.UtcNow);
 
         if (order.PaymentMethod == PaymentMethod.CashOnDelivery ||
             order.PaymentStatus != PaymentStatus.Paid)

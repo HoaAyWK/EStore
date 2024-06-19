@@ -16,6 +16,8 @@ public sealed class OrderStatusHistory : Enumeration<OrderStatusHistory>
 
     public static readonly OrderStatusHistory OrderCompleted = new(6, nameof(OrderCompleted));
 
+    public static readonly OrderStatusHistory OrderCancelled = new(7, nameof(OrderCancelled));
+
     private OrderStatusHistory(int value, string name)
         : base(value, name)
     {

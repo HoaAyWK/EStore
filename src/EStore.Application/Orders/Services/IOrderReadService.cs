@@ -24,6 +24,8 @@ public interface IOrderReadService
         int page,
         int pageSize,
         OrderStatus? orderStatus = null,
+        string? order = null,
+        string? orderBy = null,
         CancellationToken cancellationToken = default);
 
     Task<List<OrderResponse>> GetOrdersByCriteriaAsync(

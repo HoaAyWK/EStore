@@ -115,7 +115,7 @@ public class OrdersController : ApiController
         var cancelOrderResult = await _mediator.Send(command);
 
         return cancelOrderResult.Match(
-            success => NoContent(),
+            success => Ok(new { Id = id }),
             Problem);
     }
 

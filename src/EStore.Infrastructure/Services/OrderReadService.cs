@@ -259,6 +259,8 @@ internal sealed class OrderReadService : IOrderReadService
         int page,
         int pageSize,
         OrderStatus? orderStatus = null,
+        string? order = null,
+        string? orderBy = null,
         CancellationToken cancellationToken = default)
     {
         var ordersQuery = _dbContext.Orders
@@ -268,6 +270,25 @@ internal sealed class OrderReadService : IOrderReadService
         if (orderStatus is not null)
         {
             ordersQuery = ordersQuery.Where(o => o.OrderStatus == orderStatus);
+        }
+
+        if (!string.IsNullOrWhiteSpace(order) && order.ToLower() == "desc")
+        {
+            ordersQuery = orderBy switch
+            {
+                "createdDateTime" => ordersQuery.OrderByDescending(o => o.CreatedDateTime),
+                "totalAmount" => ordersQuery.OrderByDescending(o => o.TotalAmount),
+                _ => ordersQuery.OrderByDescending(o => o.OrderNumber)
+            };
+        }
+        else
+        {
+            ordersQuery = orderBy switch
+            {
+                "createdDateTime" => ordersQuery.OrderBy(o => o.CreatedDateTime),
+                "totalAmount" => ordersQuery.OrderBy(o => o.TotalAmount),
+                _ => ordersQuery.OrderBy(o => o.OrderNumber)
+            };
         }
 
         var totalItems = await ordersQuery.CountAsync(cancellationToken);

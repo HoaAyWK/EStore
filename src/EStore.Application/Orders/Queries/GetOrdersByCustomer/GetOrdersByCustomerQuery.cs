@@ -9,5 +9,7 @@ public record GetOrdersByCustomerQuery(
     CustomerId CustomerId,
     int Page,
     int PageSize,
-    string? OrderStatus = null)
+    string? OrderStatus = null,
+    string? Order = null,
+    string? OrderBy = null)
     : IRequest<PagedList<Order>>;
