@@ -138,6 +138,7 @@ public class ProductUpdatedIntegrationEventHandler : INotificationHandler<Produc
         if (product.HasVariant)
         {
             var productVariantIds = product.ProductVariants
+                .Where(x => x.IsActive)
                 .Select(x => x.Id.Value.ToString())
                 .ToArray();
 

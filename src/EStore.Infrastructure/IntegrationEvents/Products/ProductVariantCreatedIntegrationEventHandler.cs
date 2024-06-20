@@ -80,6 +80,11 @@ public class ProductVariantCreatedIntegrationEventHandler
             return;
         }
 
+        if (!productVariant.IsActive)
+        {
+            return;
+        }
+
         var category = await _categoryRepository.GetWithParentsByIdAsync(product.CategoryId);
         var brand = await _brandRepository.GetByIdAsync(product.BrandId);
         Discount? discount = null;

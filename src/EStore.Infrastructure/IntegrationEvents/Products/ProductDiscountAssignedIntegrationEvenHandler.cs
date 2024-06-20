@@ -123,6 +123,7 @@ public class ProductDiscountAssignedIntegrationEvenHandler
         }
 
         var variantIds = product.ProductVariants
+            .Where(x => x.IsActive)
             .Select(x => x.Id.Value.ToString())
             .ToArray();
 

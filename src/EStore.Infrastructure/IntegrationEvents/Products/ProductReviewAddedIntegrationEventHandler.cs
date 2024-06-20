@@ -52,6 +52,11 @@ public class ProductReviewAddedIntegrationEventHandler : INotificationHandler<Pr
                 return;
             }
 
+            if (!variant.IsActive)
+            {
+                return;
+            }
+
             await index.PartialUpdateObjectAsync(
                 new ProductSearchModel
                 {
