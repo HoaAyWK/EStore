@@ -98,6 +98,7 @@ internal sealed class ProductReadService : IProductReadService
                                         Id = attributeValue.Id.Value,
                                         Name = attributeValue.Name,
                                         Color = attributeValue.Color,
+                                        DisplayOrder = attributeValue.DisplayOrder,
                                         PriceAdjustment = attributeValue.PriceAdjustment,
                                         RawCombinedAttributes = attributeValue.RawCombinedAttributes
                                     })
