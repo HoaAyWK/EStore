@@ -206,7 +206,8 @@ internal sealed class ProductReadService : IProductReadService
                     .Select(category => new CategoryDto
                     {
                         Id = category.Id.Value,
-                        Name = category.Name
+                        Name = category.Name,
+                        Slug = category.Slug
                     })
                     .FirstOrDefault(),
                 Discount = _dbContext.Discounts.AsNoTracking()

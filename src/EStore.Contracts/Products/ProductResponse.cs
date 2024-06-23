@@ -43,7 +43,7 @@ public class ProductResponse
 
 public record BrandResponse(Guid Id, string Name);
 
-public record CategoryResponse(Guid Id, string Name);
+public record CategoryResponse(Guid Id, string Name, string Slug);
 
 public record AverageRatingResponse(
     double Value,

@@ -2,6 +2,7 @@ using EStore.Application.Carts.Commands.AddItemToCart;
 using EStore.Application.Carts.Commands.CreateCart;
 using EStore.Application.Carts.Commands.RemoveItemFromCart;
 using EStore.Application.Carts.Queries.GetCartByCustomerId;
+using EStore.Application.Carts.Queries.GetCartById;
 using EStore.Contracts.Carts;
 using EStore.Domain.CartAggregate.ValueObjects;
 using EStore.Domain.CustomerAggregate.ValueObjects;
@@ -33,5 +34,8 @@ public class CartMappingConfig : IRegister
         config.NewConfig<RemoveCartItemRequest, RemoveItemFromCartCommand>()
             .Map(dest => dest.CartId, src => CartId.Create(src.Id))
             .Map(dest => dest.ItemId, src => CartItemId.Create(src.ItemId));
+
+        config.NewConfig<Guid, GetCartByIdQuery>()
+            .Map(dest => dest.CartId, src => CartId.Create(src));
     }
 }

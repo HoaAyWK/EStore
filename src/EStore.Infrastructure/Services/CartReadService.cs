@@ -11,6 +11,7 @@ using EStore.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using EStore.Application.Common.Interfaces.Services;
 using EStore.Domain.ProductAggregate.Entities;
+using EStore.Domain.CartAggregate.ValueObjects;
 
 namespace EStore.Infrastructure.Services;
 
@@ -25,6 +26,27 @@ internal sealed class CartReadService : ICartReadService
     {
         _dbContext = dbContext;
         _priceCalculationService = priceCalculationService;
+    }
+
+    public async Task<CartResponse?> GetByIdAsync(CartId cartId)
+    {
+        var cart = await _dbContext.Carts
+            .AsNoTracking()
+            .Where(cart => cart.Id == cartId)
+            .FirstOrDefaultAsync();
+
+        if (cart is null)
+        {
+            return null;
+        }
+
+        var cartItems = await GetCartItemsAsync(cart);
+
+        return new CartResponse(
+            cart.Id.Value,
+            cart.CustomerId.Value,
+            cartItems.Sum(item => item.FinalPrice * item.Quantity),
+            cartItems);
     }
 
     public async Task<CartResponse?> GetByCustomerIdAsync(CustomerId customerId)

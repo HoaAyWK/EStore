@@ -4,6 +4,7 @@ using EStore.Application.Carts.Commands.AddItemToCart;
 using EStore.Application.Carts.Commands.CreateCart;
 using EStore.Application.Carts.Commands.RemoveItemFromCart;
 using EStore.Application.Carts.Queries.GetCartByCustomerId;
+using EStore.Application.Carts.Queries.GetCartById;
 using EStore.Contracts.Carts;
 using MapsterMapper;
 using MediatR;
@@ -17,7 +18,10 @@ public class CartsController : ApiController
     private readonly IMapper _mapper;
     private readonly IWorkContext _workContext;
 
-    public CartsController(ISender mediator, IMapper mapper, IWorkContext workContext)
+    public CartsController(
+        ISender mediator,
+        IMapper mapper, 
+        IWorkContext workContext)
     {
         _mediator = mediator;
         _mapper = mapper;
@@ -43,7 +47,8 @@ public class CartsController : ApiController
     }
 
     [HttpPut]
-    public async Task<IActionResult> AddItemToCart([FromBody] AddItemToCartRequest request)
+    public async Task<IActionResult> AddItemToCart(
+        [FromBody] AddItemToCartRequest request)
     {
         var customerId = _workContext.CustomerId;
         var command = _mapper.Map<AddItemToCartCommand>((customerId, request));
@@ -61,13 +66,20 @@ public class CartsController : ApiController
     }
 
     [HttpDelete(ApiRoutes.Cart.RemoveItem)]
-    public async Task<IActionResult> RemoveItemFromCart([FromRoute] RemoveCartItemRequest request)
+    public async Task<IActionResult> RemoveItemFromCart(
+        [FromRoute] RemoveCartItemRequest request)
     {
         var command = _mapper.Map<RemoveItemFromCartCommand>(request);
         var removeItemFromCartResult = await _mediator.Send(command);
 
-        return removeItemFromCartResult.Match(
-            deleted => NoContent(),
-            Problem);
+        if (removeItemFromCartResult.IsError)
+        {
+            return Problem(removeItemFromCartResult.Errors);
+        }
+
+        var query = _mapper.Map<GetCartByIdQuery>(request.Id);
+        var getCartResult = await _mediator.Send(query);
+
+        return getCartResult.Match(Ok, Problem);
     }
 }
