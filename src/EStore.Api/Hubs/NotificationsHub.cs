@@ -277,6 +277,55 @@ public class NotificationsHub : Hub<INotificationClient>
         await Clients.User(order.CustomerId.ToString())
             .NotifyCustomerWhenOrderStatusChange(getNotificationResult.Value);
     }
+
+    public async Task NotifyCustomerWhenOrderCancelled(Guid orderId)
+    {
+        var getAdminQuery = new GetCustomerByEmailQuery(_adminSettings.Email);
+        var getAdminResult = await _mediator.Send(getAdminQuery);
+
+        if (getAdminResult.IsError)
+        {
+            return;
+        }
+
+        var adminId = getAdminResult.Value.Id;
+        var getOrderQuery = new GetOrderByIdQuery(OrderId.Create(orderId));
+        var getOrderResult = await _mediator.Send(getOrderQuery);
+
+        if (getOrderResult.IsError)
+        {
+            return;
+        }
+
+        var order = getOrderResult.Value;
+        var command = new CreateNotificationCommand(
+            Message: $"Your order has been cancelled.",
+            Domain: nameof(Order),
+            Type: OrderStatusHistory.OrderCancelled.Name,
+            EntityId: orderId,
+            From: CustomerId.Create(adminId),
+            To: CustomerId.Create(order.CustomerId),
+            IsRead: false,
+            Timestamp: _dateTimeProvider.UtcNow);
+
+        var createNotificationResult = await _mediator.Send(command);
+
+        if (createNotificationResult.IsError)
+        {
+            return;
+        }
+
+        var query = new GetNotificationByIdQuery(createNotificationResult.Value.Id);
+        var getNotificationResult = await _mediator.Send(query);
+
+        if (getNotificationResult.IsError)
+        {
+            return;
+        }
+
+        await Clients.User(order.CustomerId.ToString())
+            .NotifyCustomerWhenOrderStatusChange(getNotificationResult.Value);
+    }
 }
 
 public interface INotificationClient

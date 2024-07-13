@@ -58,6 +58,7 @@ public class ConfirmReceivedCommandHandler
                 _dateTimeProvider.UtcNow);
 
         order.UpdateOrderStatus(OrderStatus.Completed);
+        order.UpdatePaymentStatus(PaymentStatus.Paid);
 
         return Result.Success;
     }

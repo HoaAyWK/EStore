@@ -75,5 +75,9 @@ public static partial class Errors
         public static Error InvalidTotalAmount = Error.Validation(
             code: "Cart.InvalidTotalAmount",
             description: "The amount has been changed. Please refresh to get the latest state of your cart.");
+
+        public static Error ProductQuantityExceedsStock = Error.Validation(
+            code: "Cart.ProductQuantityExceedsStock",
+            description: "The quantity of product exceeds the stock quantity.");
     }
 }

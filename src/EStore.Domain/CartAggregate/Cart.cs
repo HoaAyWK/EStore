@@ -2,6 +2,7 @@ using ErrorOr;
 using EStore.Domain.CartAggregate.Entities;
 using EStore.Domain.CartAggregate.ValueObjects;
 using EStore.Domain.Common.Models;
+using EStore.Domain.Common.Errors;
 using EStore.Domain.CustomerAggregate.ValueObjects;
 using EStore.Domain.ProductAggregate.ValueObjects;
 
@@ -33,11 +34,13 @@ public sealed class Cart : AggregateRoot<CartId>
         ProductId productId,
         ProductVariantId? productVariantId,
         decimal unitPrice,
+        int stockQuantity,
         int quantity = 1)
     {
         var existingItem = Items.FirstOrDefault(i =>
             i.ProductId == productId &&
             i.ProductVariantId! == productVariantId!);
+
 
         if (existingItem is not null)
         {
@@ -46,6 +49,11 @@ public sealed class Cart : AggregateRoot<CartId>
             if (existingItem.Quantity <= 0)
             {
                 _items.Remove(existingItem);
+            }
+
+            if (existingItem.Quantity > stockQuantity)
+            {
+                return Errors.Cart.ProductQuantityExceedsStock;
             }
 
             return Result.Success;
@@ -62,7 +70,14 @@ public sealed class Cart : AggregateRoot<CartId>
             return createCartItemResult.Errors;
         }
 
-        _items.Add(createCartItemResult.Value);
+        var item = createCartItemResult.Value;
+
+        if (item.Quantity > stockQuantity)
+        {
+            return Errors.Cart.ProductQuantityExceedsStock;
+        }
+
+        _items.Add(item);
 
         return Result.Success;
     }

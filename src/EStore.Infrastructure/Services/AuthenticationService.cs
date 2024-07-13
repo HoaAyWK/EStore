@@ -97,7 +97,7 @@ internal sealed class AuthenticationService : IAuthenticationService
             Id = customerId,
             Email = customer.Email,
             UserName = customer.Email,
-            EmailConfirmed = true
+            EmailConfirmed = false
         };
 
         var createAppUserResult = await _userManager.CreateAsync(appUser, password);
@@ -151,7 +151,9 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         var htmlBody = await File.ReadAllTextAsync(templatePath);
 
-        htmlBody = htmlBody.Replace("{0}", otp);
+        htmlBody = htmlBody
+            .Replace("{0}", EmailContents.Auth.ConfirmEmailOTP)
+            .Replace("{1}", otp);
 
         _ = Task.Run(() => _emailService.SendEmailWithTemplateAsync(
             subject: "[EStore] OTP for Email Confirmation",
@@ -257,6 +259,47 @@ internal sealed class AuthenticationService : IAuthenticationService
         await _accountTokenService.DeleteTokenAsync(accountToken);
 
         return Result.Success;
+    }
+
+    public async Task<ErrorOr<Success>> CreateUserAsync(
+        Customer customer,
+        string password,
+        string role,
+        bool isEmailConfirmed)
+    {
+        var customerId = customer.Id.Value.ToString();
+
+        if (role != Roles.Admin && role != Roles.Customer)
+        {
+            return Errors.Authentication.InvalidRole;
+        }
+
+        var appUser = new ApplicationUser
+        {
+            Id = customerId,
+            Email = customer.Email,
+            UserName = customer.Email,
+            EmailConfirmed = isEmailConfirmed
+        };
+
+        var createAppUserResult = await _userManager.CreateAsync(appUser, password);
+
+        if (createAppUserResult.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(appUser, role);
+            return Result.Success;
+        }
+
+        List<Error> errors = new List<Error>();
+
+        foreach (var error in createAppUserResult.Errors)
+        {
+            errors.Add(Error.Validation(
+                code: error.Code,
+                description: error.Description));
+        }
+
+        return errors;
     }
 
     private string GetTemplatePath()

@@ -195,5 +195,13 @@ public static partial class Errors
         public static Error ProductHasNotHadImageYet = Error.Validation(
             code: "Product.ProductHasNotHadImageYet",
             description: "Product has not had any image yet.");
+
+        public static Error ProductReviewNotFound = Error.Validation(
+            code: "Product.ProductReviewNotFound",
+            description: "Product review with specified identifier was not found.");
+
+        public static Error CustomerCannotUpdateOthersReview = Error.Validation(
+            code: "Product.CustomerCannotUpdateOthersReview",
+            description: "Customer cannot update others' review.");
     }
 }

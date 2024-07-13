@@ -33,6 +33,12 @@ public sealed class AverageRating : ValueObject
         Value = ((Value * NumRatings) - rating.Value) / --NumRatings;
     }
 
+    public void ResetRating()
+    {
+        Value = 0;
+        NumRatings = 0;
+    }
+
     public override IEnumerable<object> GetEqualityComponents()
     {
         yield return Value;

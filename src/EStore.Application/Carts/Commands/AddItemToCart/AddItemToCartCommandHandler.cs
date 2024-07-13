@@ -42,6 +42,8 @@ public class AddItemToCartCommandHandler
             return Errors.Cart.InvalidProductVariant;
         }
 
+        var stockQuantity = product.StockQuantity;
+
         if (request.ProductVariantId is not null)
         {
             var productVariant = product.ProductVariants.FirstOrDefault(v => v.Id == request.ProductVariantId);
@@ -60,8 +62,9 @@ public class AddItemToCartCommandHandler
             {
                 itemPrice = productVariant.Price.Value;
             }
+
+            stockQuantity = productVariant.StockQuantity;
         }
-        
 
         var cart = await _cartRepository.GetCartByCustomerId(request.CustomerId);
 
@@ -75,6 +78,7 @@ public class AddItemToCartCommandHandler
             request.ProductId,
             request.ProductVariantId,
             itemPrice,
+            stockQuantity,
             request.Quantity);
 
         if (addItemResult.IsError)

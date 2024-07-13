@@ -7,5 +7,7 @@ public static partial class ApiRoutes
         public const string MyProfile = "my-profile";
 
         public const string ChangePassword = "change-password";
+
+        public const string CreateUser = "create-user";
     }
 }

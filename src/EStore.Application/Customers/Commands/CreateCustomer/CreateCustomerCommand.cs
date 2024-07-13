@@ -8,5 +8,6 @@ public record CreateCustomerCommand(
     string Email,
     string FirstName,
     string LastName,
-    string PhoneNumber)
+    string PhoneNumber,
+    string? AvatarUrl)
     : IRequest<ErrorOr<Customer>>;

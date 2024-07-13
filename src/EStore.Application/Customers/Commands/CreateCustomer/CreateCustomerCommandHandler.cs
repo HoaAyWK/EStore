@@ -40,6 +40,20 @@ public class CreateCustomerCommandHandler
 
         var customer = createCustomerResult.Value;
 
+        if (request.AvatarUrl is not null)
+        {
+            var updateCustomerResult = customer.UpdateDetails(
+                customer.FirstName,
+                customer.LastName,
+                customer.PhoneNumber!,
+                request.AvatarUrl);
+
+            if (updateCustomerResult.IsError)
+            {
+                return updateCustomerResult.Errors;
+            }
+        }
+
         await _CustomerRepository.AddAsync(customer);
 
         return customer;

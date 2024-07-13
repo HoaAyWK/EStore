@@ -491,7 +491,7 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
         {
             productVariant = _productVariants
                 .Where(variant => variant.Id == productVariantId)
-                .FirstOrDefault();
+                .SingleOrDefault();
 
             if (productVariant is null)
             {
@@ -503,10 +503,10 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
                     AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(productVariant.RawAttributeSelection)))
                 .Any();
 
-            if (reviewed)
-            {
-                return Errors.Product.CustomerAlreadyReviewed;
-            }
+            // if (reviewed)
+            // {
+            //     return Errors.Product.CustomerAlreadyReviewed;
+            // }
 
             rawAttributes = productVariant.RawAttributes;
             rawAttributeSelection = productVariant.RawAttributeSelection;
@@ -552,6 +552,74 @@ public sealed class Product : AggregateRoot<ProductId>, IAuditableEntity, ISoftD
             ProductId: Id,
             ProductVariantId: productVariantId,
             ProductReviewId: productReview.Id));
+
+        return productReview;
+    }
+
+    public ErrorOr<ProductReview> UpdateReview(
+        CustomerId customerId,
+        ProductReviewId productReviewId,
+        string content,
+        int rating)
+    {
+        var productReview = _productReviews.SingleOrDefault(
+            review => review.Id == productReviewId);
+
+        if (productReview is null)
+        {
+            return Errors.Product.ProductReviewNotFound;
+        }
+
+        if (productReview.OwnerId != customerId)
+        {
+            return Errors.Product.CustomerCannotUpdateOthersReview;
+        }
+
+        var oldRating = productReview.Rating;
+        var updateReviewResult = productReview.UpdateDetails(content, rating);
+
+        if (updateReviewResult.IsError)
+        {
+            return updateReviewResult.Errors;
+        }
+
+        var productVariant = _productVariants.Where(variant =>
+            AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(variant.RawAttributeSelection).Equals(
+                AttributeSelection<ProductAttributeId, ProductAttributeValueId>.Create(productReview.RawAttributeSelection)))
+            .SingleOrDefault();
+
+        if (productVariant is not null)
+        {
+            if (productVariant.AverageRating.NumRatings is 1)
+            {
+                productVariant.AverageRating.ResetRating();
+            }
+            else
+            {
+                productVariant.AverageRating.RemoveRating(Rating.Create(oldRating));
+            }
+
+            productVariant.AverageRating.AddNewRating(Rating.Create(rating));
+        }
+        else
+        {
+            if (AverageRating.NumRatings is 1)
+            {
+                AverageRating.ResetRating();
+            }
+            else
+            {
+                AverageRating.RemoveRating(Rating.Create(oldRating));
+            }
+            
+            AverageRating.AddNewRating(Rating.Create(rating));
+        }
+
+        RaiseDomainEvent(new ProductReviewUpdatedDomainEvent(
+            Id,
+            productReviewId,
+            oldRating,
+            rating));
 
         return productReview;
     }

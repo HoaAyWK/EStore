@@ -17,5 +17,9 @@ public static partial class Errors
         public static Error NotConfirmedEmail = Error.Validation(
             code: "Auth.NotConfirmedEmail",
             description: "Your account did not verify email yet.");
+
+        public static Error InvalidRole = Error.Validation(
+            code: "Auth.InvalidRole",
+            description: "Invalid role.");
     }
 }

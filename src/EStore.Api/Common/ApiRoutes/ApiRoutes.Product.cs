@@ -30,6 +30,8 @@ public static partial class ApiRoutes
 
         public const string AddReview = "{id:guid}/reviews";
 
+        public const string EditReview = "{id:guid}/reviews/{reviewId:guid}";
+
         public const string AssignDiscount = "{id:guid}/discounts";
     }
 }

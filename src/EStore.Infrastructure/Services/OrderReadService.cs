@@ -153,6 +153,7 @@ internal sealed class OrderReadService : IOrderReadService
             PaymentMethod = order.PaymentMethod.Name,
             PaymentStatus = order.PaymentStatus.Name,
             OrderStatusHistoryTrackings = order.OrderStatusHistoryTrackings
+                .OrderByDescending(tracking => tracking.CreatedDateTime)
                 .Select(tracking => new OrderStatusHistoryTrackingResponse(
                     tracking.Id.Value,
                     tracking.Status.Name,
@@ -166,10 +167,10 @@ internal sealed class OrderReadService : IOrderReadService
             {
                 orderResponsesQuery = orderBy switch
                 {
+                    "orderNumber" => orderResponsesQuery.OrderByDescending(o => o.OrderNumber),
                     "customer" => orderResponsesQuery.OrderByDescending(o => o.Customer!.FirstName),
                     "createdDateTime" => orderResponsesQuery.OrderByDescending(o => o.CreatedDateTime),
                     "items" => orderResponsesQuery.OrderByDescending(o => o.OrderItems.Count),
-                    "totalAmount" => orderResponsesQuery.OrderByDescending(o => o.TotalAmount),
                     _ => orderResponsesQuery.OrderByDescending(o => o.OrderNumber)
                 };
             }
@@ -177,10 +178,10 @@ internal sealed class OrderReadService : IOrderReadService
             {
                 orderResponsesQuery = orderBy switch
                 {
+                    "orderNumber" => orderResponsesQuery.OrderBy(o => o.OrderNumber),
                     "customer" => orderResponsesQuery.OrderBy(o => o.Customer!.FirstName),
                     "createdDateTime" => orderResponsesQuery.OrderBy(o => o.CreatedDateTime),
                     "items" => orderResponsesQuery.OrderBy(o => o.OrderItems.Count),
-                    "totalAmount" => orderResponsesQuery.OrderBy(o => o.TotalAmount),
                     _ => orderResponsesQuery.OrderBy(o => o.OrderNumber)
                 };
             }

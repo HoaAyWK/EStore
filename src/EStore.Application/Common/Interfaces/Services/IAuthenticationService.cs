@@ -12,6 +12,12 @@ public interface IAuthenticationService
         string email,
         string templatePath);
 
+    Task<ErrorOr<Success>> CreateUserAsync(
+        Customer customer,
+        string password,
+        string role,
+        bool isEmailConfirmed);
+
     Task<ErrorOr<Success>> VerifyEmailAsync(string email, string token);
     Task<ErrorOr<Success>> ForgetPasswordAsync(string email);
     Task<ErrorOr<Success>> ResetPasswordAsync(

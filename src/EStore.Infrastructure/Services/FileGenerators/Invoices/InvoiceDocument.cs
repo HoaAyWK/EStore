@@ -89,7 +89,7 @@ public class InvoiceDocument : IDocument
 
             column.Item().Element(ComposeTable);
             column.Item().PaddingRight(5).AlignRight().Text($"Total discount: {totalDiscount:C}").SemiBold();
-            column.Item().PaddingRight(5).AlignRight().Text($"Grand total: {Model.TotalAmount - totalDiscount:C}").Bold();
+            column.Item().PaddingRight(5).AlignRight().Text($"Grand total: {Model.TotalAmount + totalDiscount:C}").Bold();
         });
     }
 

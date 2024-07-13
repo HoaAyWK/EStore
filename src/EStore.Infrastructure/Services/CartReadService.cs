@@ -210,7 +210,8 @@ internal sealed class CartReadService : ICartReadService
                 imageUrl,
                 discountResponse,
                 cartItem.Quantity,
-                finalPrice * cartItem.Quantity);
+                finalPrice * cartItem.Quantity,
+                productVariant?.StockQuantity ?? productWithDiscount.Product.StockQuantity);
         }).ToList();
 
         return itemResponses;

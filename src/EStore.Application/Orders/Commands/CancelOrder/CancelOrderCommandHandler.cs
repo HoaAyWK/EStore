@@ -54,6 +54,10 @@ public class CancelOrderCommandHandler
 
         await _paymentService.ProcessRefundAsync(order, cancellationToken);
 
+        order.AddOrderStatusHistoryTracking(
+            OrderStatusHistory.OrderRefunded,
+            _dateTimeProvider.UtcNow);
+
         return Result.Success;
     }
 }

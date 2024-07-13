@@ -173,7 +173,7 @@ internal sealed class ProductReadService : IProductReadService
         string? orderBy)
     {
         var productDtosQuery = _dbContext.Products.AsNoTracking()
-            .Where(p => string.IsNullOrWhiteSpace(searchTerm) || p.Name.Contains(searchTerm))
+            .Where(p => string.IsNullOrWhiteSpace(searchTerm) || p.Name.ToLower().Contains(searchTerm.ToLower()))
             .Select(p => new ProductDto
             {
                 Id = p.Id.Value,

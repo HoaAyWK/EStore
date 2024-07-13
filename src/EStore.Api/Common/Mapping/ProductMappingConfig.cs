@@ -5,6 +5,7 @@ using EStore.Application.Products.Commands.AddProductReview;
 using EStore.Application.Products.Commands.AddProductVariant;
 using EStore.Application.Products.Commands.CreateProduct;
 using EStore.Application.Products.Commands.DeleteAttributeValue;
+using EStore.Application.Products.Commands.EditProductReview;
 using EStore.Application.Products.Commands.UpdateProduct;
 using EStore.Application.Products.Commands.UpdateProductVariant;
 using EStore.Application.Products.Dtos;
@@ -62,6 +63,15 @@ public class ProductMappingConfig : IRegister
                 ? null
                 : ProductVariantId.Create(src.Item3.ProductVariantId.Value))
             .Map(dest => dest, src => src.Item3);
+
+        config.NewConfig<(Guid, Guid, Guid, EditProductReviewRequest), EditProductReviewCommand>()
+            .Map(dest => dest.OwnerId, src => CustomerId.Create(src.Item1))
+            .Map(dest => dest.ProductId, src => ProductId.Create(src.Item2))
+            .Map(dest => dest.ProductReviewId, src => ProductReviewId.Create(src.Item3))
+            .Map(dest => dest.ProductVariantId, src => src.Item4.ProductVariantId == null
+                ? null
+                : ProductVariantId.Create(src.Item4.ProductVariantId.Value))
+            .Map(dest => dest, src => src.Item4);
 
         config.NewConfig<Guid, CategoryId>()
             .MapWith(src => CategoryId.Create(src));

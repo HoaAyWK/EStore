@@ -17,7 +17,8 @@ public record CartResponse(
         string? ProductImageUrl,
         CartItemResponse.DiscountResponse? Discount,
         int Quantity,
-        decimal SubTotal)
+        decimal SubTotal,
+        int StockQuantity)
     {
         public record DiscountResponse(
             bool UseDiscountPercentage,

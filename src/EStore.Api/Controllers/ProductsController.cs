@@ -24,6 +24,7 @@ using EStore.Application.Products.Commands.AddProductReview;
 using EStore.Api.Common.Contexts;
 using EStore.Contracts.Discounts;
 using EStore.Application.Products.Commands.AssignDiscount;
+using EStore.Application.Products.Commands.EditProductReview;
 
 namespace EStore.Api.Controllers;
 
@@ -345,6 +346,35 @@ public class ProductsController : ApiController
         if (addProductReviewResult.IsError)
         {
             return Problem(addProductReviewResult.Errors);
+        }
+
+        var query = new GetProductByIdQuery(ProductId.Create(id));
+        var getProductResult = await _mediator.Send(query);
+
+        return getProductResult.Match(
+            product => Ok(_mapper.Map<ProductResponse>(product)),
+            Problem);
+    }
+
+    [HttpPut]
+    [Authorize(Roles = $"{Roles.Customer}")]
+    [Route(ApiRoutes.Product.EditReview)]
+    public async Task<IActionResult> EditProductReview(
+        Guid id,
+        Guid reviewId,
+        [FromBody] EditProductReviewRequest request)
+    {
+        var command = _mapper.Map<(Guid, Guid, Guid, EditProductReviewRequest), EditProductReviewCommand>((
+            _workContext.CustomerId,
+            id,
+            reviewId,
+            request));
+
+        var editProductReviewResult = await _mediator.Send(command);
+
+        if (editProductReviewResult.IsError)
+        {
+            return Problem(editProductReviewResult.Errors);
         }
 
         var query = new GetProductByIdQuery(ProductId.Create(id));

@@ -76,6 +76,23 @@ public class ProductReview : Entity<ProductReviewId>, IAuditableEntity
             customerId);
     }
 
+    public ErrorOr<Updated> UpdateDetails(string content, int rating)
+    {
+        var errors = ValidateRatingValue(rating);
+
+        errors.AddRange(ValidateContent(content));
+
+        if (errors.Count > 0)
+        {
+            return errors;
+        }
+
+        Content = content;
+        Rating = rating;
+
+        return Result.Updated;
+    }
+
     public void AddReviewComment(ProductReviewComment reviewComment)
     {
         _reviewComments.Add(reviewComment);

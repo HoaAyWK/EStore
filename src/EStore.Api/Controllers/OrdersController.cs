@@ -114,8 +114,16 @@ public class OrdersController : ApiController
         var command = _mapper.Map<CancelOrderCommand>(id);
         var cancelOrderResult = await _mediator.Send(command);
 
-        return cancelOrderResult.Match(
-            success => Ok(new { Id = id }),
+        if (cancelOrderResult.IsError)
+        {
+            return Problem(cancelOrderResult.Errors);
+        }
+
+        var query = _mapper.Map<GetOrderByIdQuery>(id);
+        var getOderResult = await _mediator.Send(query);
+
+        return getOderResult.Match(
+            order => Ok(_mapper.Map<OrderResponse>(order)),
             Problem);
     }
 
